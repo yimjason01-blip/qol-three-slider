@@ -68,19 +68,22 @@
   .note { color: var(--subdim); font-size: 11px; margin-top: 22px; line-height: 1.65; max-width: 880px; }
   .note b { color: var(--dim); font-weight: 500; }
 
-  .bands { margin-top: 18px; }
-  .bands-head { display:flex; align-items:baseline; gap: 14px; margin-bottom: 12px; flex-wrap:wrap; }
-  .bands-label { color: var(--gold); font-size: 11px; font-weight: 600; letter-spacing: 2px; }
-  .bands-sub { color: var(--dim); font-size: 12px; }
-  .band-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
-  .band { background: var(--panel); border:1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
-  .band.threshold { border-color: rgba(212,165,116,0.42); background: rgba(212,165,116,0.045); }
-  .band.danger { border-color: rgba(220,70,60,0.32); background: rgba(220,70,60,0.035); }
-  .band-h { display:flex; flex-wrap:wrap; gap: 6px 10px; align-items:baseline; margin-bottom: 6px; }
-  .band-r { color: var(--ink); font: 11px/1.2 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.04em; font-weight: 600; }
-  .band-n { color: var(--ink); font-size: 13px; font-weight: 550; letter-spacing: -0.01em; }
-  .band-f { color: var(--subdim); font: 10px/1.2 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.03em; margin-left:auto; }
-  .band p { color: var(--dim); font-size: 12px; line-height: 1.5; margin: 0; }
+  .bands-hint { color: var(--subdim); font-size: 11px; margin: 14px 0 0; letter-spacing: 0.04em; }
+
+  .modal { position: fixed; inset: 0; z-index: 1000; display:flex; align-items:center; justify-content:center; }
+  .modal[hidden] { display: none; }
+  .modal-backdrop { position:absolute; inset:0; background: rgba(0,0,0,0.65); backdrop-filter: blur(3px); }
+  .modal-card { position:relative; background: var(--panel); border:1px solid var(--border); border-radius: 12px;
+    padding: 24px 28px 22px; max-width: 520px; width: calc(100% - 32px); box-shadow: 0 18px 60px rgba(0,0,0,0.5); }
+  .modal-close { position:absolute; top: 10px; right: 14px; background:transparent; border:0; color: var(--dim);
+    font-size: 24px; cursor: pointer; line-height: 1; padding: 4px 8px; }
+  .modal-close:hover { color: var(--ink); }
+  .modal-h { display:flex; flex-wrap:wrap; gap: 8px 12px; align-items:baseline; margin-bottom: 12px; padding-right: 24px; }
+  .modal-r { color: var(--ink); font: 12px/1.2 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.04em; font-weight: 600; }
+  .modal-n { color: var(--ink); font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  .modal-f { color: var(--subdim); font: 11px/1.2 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.03em; margin-left:auto; }
+  .modal-body { color: var(--ink); font-size: 14px; line-height: 1.6; margin: 0 0 16px; }
+  .modal-foot { color: var(--subdim); font-size: 11px; margin: 0; padding-top: 12px; border-top: 1px solid var(--border); }
 </style>
 </head>
 <body>
@@ -110,32 +113,19 @@
     </div>
   </div>
 
-  <div class="bands">
-    <div class="bands-head">
-      <span class="bands-label">WHAT THE BANDS MEAN</span>
-      <span class="bands-sub">Anchored to Katz ADL, Lawton IADL, Fried frailty phenotype, Rockwood frailty index. Band &gt; number.</span>
-    </div>
-    <div class="band-grid">
-      <div class="band">
-        <div class="band-h"><span class="band-r">90–100</span><span class="band-n">Full capacity with reserve</span><span class="band-f">Fried 0/5</span></div>
-        <p>Anything within prior baseline. Full work, full physical activity, full cognitive load. Pneumonia or a broken ankle is recoverable without long-term loss. Most healthy adults under 60.</p>
+  <p class="bands-hint">Tap a band label on the chart for the real-world meaning.</p>
+
+  <div id="bandModal" class="modal" hidden>
+    <div class="modal-backdrop" data-close="1"></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="bandModalTitle">
+      <button class="modal-close" data-close="1" aria-label="Close">×</button>
+      <div class="modal-h">
+        <span class="modal-r" id="bandModalRange"></span>
+        <span class="modal-n" id="bandModalTitle"></span>
+        <span class="modal-f" id="bandModalFrailty"></span>
       </div>
-      <div class="band">
-        <div class="band-h"><span class="band-r">75–90</span><span class="band-n">Independent, reserve narrowing</span><span class="band-f">Fried 1/5</span></div>
-        <p>Fully independent in ADLs and IADLs. Buffer is gone — a hospitalization or fall now causes a step-down that does not fully recover. Mild limitations: slower stairs, longer recovery. Typical 65–80 with no major disease.</p>
-      </div>
-      <div class="band">
-        <div class="band-h"><span class="band-r">60–75</span><span class="band-n">Vulnerable independence</span><span class="band-f">Fried 2/5</span></div>
-        <p>Still independent but visibly compromised. Heavy housework, complex finances, night driving become hard. Walking distance shorter, balance compensations visible. One bad event tips into the next band. Common 75–85.</p>
-      </div>
-      <div class="band threshold">
-        <div class="band-h"><span class="band-r">45–60</span><span class="band-n">Independence threshold</span><span class="band-f">Fried 3/5</span></div>
-        <p>The hinge zone. Bathing, dressing, transferring out of low chairs require effort or workarounds. Driving being given up. Cooking simplified. Fall risk material. Independence is brittle — one bad week tips into the bottom band.</p>
-      </div>
-      <div class="band danger">
-        <div class="band-h"><span class="band-r">below 45</span><span class="band-n">Supported or dependent living</span><span class="band-f">Fried 4–5/5</span></div>
-        <p>At least one ADL requires help: bathing, dressing, toileting, transfers, eating. Caregiver in the home, assisted living, or nursing facility. Mortality risk 2–4× same-age peers in higher bands.</p>
-      </div>
+      <p class="modal-body" id="bandModalBody"></p>
+      <p class="modal-foot">Anchored to Katz ADL, Lawton IADL, Fried frailty phenotype, Rockwood frailty index.</p>
     </div>
   </div>
 
@@ -335,11 +325,15 @@ function render() {
     { lo: 45, hi: 60,  name: 'Independence threshold',         fill: 'rgba(212,165,116,0.07)' },
     { lo: 0,  hi: 45,  name: 'Supported or dependent living',  fill: 'rgba(220,70,60,0.045)' },
   ];
-  for (const b of bands) {
+  for (let i = 0; i < bands.length; i++) {
+    const b = bands[i];
     const yT = yQol(b.hi), yB = yQol(b.lo);
     s += `<rect x="${cx0}" y="${yT}" width="${cx1-cx0}" height="${yB-yT}" fill="${b.fill}"/>`;
     const yMid = (yT + yB) / 2 + 3;
-    s += `<text x="${cx0-10}" y="${yMid}" fill="#8f8c84" font-size="10" text-anchor="end" font-family="JetBrains Mono, ui-monospace, monospace" letter-spacing="0.04em" opacity="0.9">${b.name.toUpperCase()}</text>`;
+    s += `<g class="band-label" data-band="${i}" style="cursor:pointer">`;
+    s += `<rect x="0" y="${yT}" width="${cx0-4}" height="${yB-yT}" fill="transparent"/>`;
+    s += `<text x="${cx0-10}" y="${yMid}" fill="#a8a59c" font-size="10" text-anchor="end" font-family="JetBrains Mono, ui-monospace, monospace" letter-spacing="0.04em" style="text-decoration:underline; text-decoration-color:#3a3d44; text-underline-offset:3px;">${b.name.toUpperCase()}</text>`;
+    s += `</g>`;
   }
 
   // Band boundaries serve as the y-scale; no numeric ticks.
@@ -412,6 +406,37 @@ document.querySelectorAll('.preset').forEach(b => {
     animateTo(document.getElementById('life'),    +b.dataset.li);
   });
 });
+
+// Band detail modal
+const BAND_DETAILS = [
+  { range: '90–100', name: 'Full capacity with reserve', frailty: 'Fried 0/5',
+    body: 'Anything within prior baseline. Full work, full physical activity, full cognitive load. Pneumonia or a broken ankle is recoverable without long-term loss. Most healthy adults under 60.' },
+  { range: '75–90', name: 'Independent, reserve narrowing', frailty: 'Fried 1/5',
+    body: 'Fully independent in ADLs and IADLs. Buffer is gone — a hospitalization or fall now causes a step-down that does not fully recover. Mild limitations: slower stairs, longer recovery. Typical 65–80 with no major disease.' },
+  { range: '60–75', name: 'Vulnerable independence', frailty: 'Fried 2/5',
+    body: 'Still independent but visibly compromised. Heavy housework, complex finances, night driving become hard. Walking distance shorter, balance compensations visible. One bad event tips into the next band. Common 75–85.' },
+  { range: '45–60', name: 'Independence threshold', frailty: 'Fried 3/5',
+    body: 'The hinge zone. Bathing, dressing, transferring out of low chairs require effort or workarounds. Driving being given up. Cooking simplified. Fall risk material. Independence is brittle — one bad week tips into the bottom band.' },
+  { range: 'below 45', name: 'Supported or dependent living', frailty: 'Fried 4–5/5',
+    body: 'At least one ADL requires help: bathing, dressing, toileting, transfers, eating. Caregiver in the home, assisted living, or nursing facility. Mortality risk 2–4× same-age peers in higher bands.' },
+];
+const modal = document.getElementById('bandModal');
+function openBand(i) {
+  const d = BAND_DETAILS[i]; if (!d) return;
+  document.getElementById('bandModalRange').textContent = d.range;
+  document.getElementById('bandModalTitle').textContent = d.name;
+  document.getElementById('bandModalFrailty').textContent = d.frailty;
+  document.getElementById('bandModalBody').textContent = d.body;
+  modal.hidden = false;
+}
+function closeBand() { modal.hidden = true; }
+svg.addEventListener('click', (e) => {
+  const g = e.target.closest && e.target.closest('.band-label');
+  if (g) openBand(+g.dataset.band);
+});
+modal.addEventListener('click', (e) => { if (e.target.dataset.close) closeBand(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeBand(); });
+
 render();
 </script>
 </body>
