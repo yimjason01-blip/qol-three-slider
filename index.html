@@ -166,14 +166,13 @@ function lineStyle(mix) {
 }
 
 // Age-driven vitality decay. Preserves relative differences:
-// high reserve still fades less than low. Uses a soft curve that holds
-// near-flat through 30s, drifts through middle age, fades visibly past 70.
+// high reserve still fades less than low. Curve holds near-flat through 30s,
+// drifts through middle age, fades visibly past 70.
 function ageDecay(age, reserve) {
-  // reserve modulates the decay rate — more reserve = slower fade.
   const r = reserve / 100;
-  const k = 0.045 - 0.020*r;          // decay slope
-  const center = 55 + 12*r;            // half-decay point shifts later with reserve
-  const floor = 0.45 + 0.15*r;         // never fully dark; high reserve preserves more
+  const k = 0.075 - 0.030*r;          // steeper decay slope
+  const center = 58 + 14*r;            // half-decay shifts later with reserve
+  const floor = 0.28 + 0.22*r;         // low-reserve fades to ~28%, high-reserve floors at ~50%
   return floor + (1 - floor) / (1 + Math.exp(k*(age - center)));
 }
 
