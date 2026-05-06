@@ -101,8 +101,9 @@
     <svg id="chart" viewBox="0 0 1200 540" preserveAspectRatio="xMidYMid meet"></svg>
     <div class="legend-row">
       <div class="legend-item">
-        <span style="width:28px; height:0; border-top:2.5px solid #eceae3; display:inline-block;"></span>
-        <b>your curve</b>
+        <span>LINE</span>
+        <span class="legend-grad"></span>
+        <span>depleted → vital = <b>vitality</b> (reserve + lifestyle, fades with age)</span>
       </div>
       <div class="legend-item">
         <span class="legend-dash"></span>
@@ -318,11 +319,11 @@ function render() {
 
   // Functional capacity bands (anchored to ADL/IADL/frailty literature)
   const bands = [
-    { lo: 90, hi: 100, name: 'Full capacity with reserve',     fill: 'rgba(255,255,255,0.012)' },
-    { lo: 75, hi: 90,  name: 'Independent, reserve narrowing', fill: 'rgba(255,255,255,0.018)' },
-    { lo: 60, hi: 75,  name: 'Vulnerable independence',        fill: 'rgba(255,255,255,0.024)' },
-    { lo: 45, hi: 60,  name: 'Independence threshold',         fill: 'rgba(212,165,116,0.07)' },
-    { lo: 0,  hi: 45,  name: 'Supported or dependent living',  fill: 'rgba(220,70,60,0.045)' },
+    { lo: 90, hi: 100, name: 'Full capacity with reserve',     fill: 'rgba(255,255,255,0.010)' },
+    { lo: 75, hi: 90,  name: 'Independent, reserve narrowing', fill: 'rgba(255,255,255,0.020)' },
+    { lo: 60, hi: 75,  name: 'Vulnerable independence',        fill: 'rgba(255,255,255,0.030)' },
+    { lo: 45, hi: 60,  name: 'Independence threshold',         fill: 'rgba(255,255,255,0.040)' },
+    { lo: 0,  hi: 45,  name: 'Supported or dependent living',  fill: 'rgba(255,255,255,0.050)' },
   ];
   for (let i = 0; i < bands.length; i++) {
     const b = bands[i];
@@ -358,9 +359,13 @@ function render() {
     samples.push({ a, x: xAge(a), y: yQol(qol(a, risk, reserve)) });
   }
 
-  // Single neutral stroke — color overlay disabled.
-  const linePts = samples.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
-  s += `<polyline points="${linePts}" fill="none" stroke="#eceae3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  // Colored line: per-segment red→green ramp by vitality, no area fill underneath
+  for (let i = 0; i < samples.length-1; i++) {
+    const p0 = samples[i], p1 = samples[i+1];
+    const aMid = (p0.a + p1.a) / 2;
+    const st = styleAtAge(aMid, mix, reserve);
+    s += `<line x1="${p0.x.toFixed(1)}" y1="${p0.y.toFixed(1)}" x2="${p1.x.toFixed(1)}" y2="${p1.y.toFixed(1)}" stroke="${st.color}" stroke-width="${st.width.toFixed(2)}" stroke-linecap="round"/>`;
+  }
 
   svg.innerHTML = s;
 }
