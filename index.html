@@ -62,7 +62,6 @@
   .legend-grad { width: 220px; height: 6px; border-radius: 3px;
     background: linear-gradient(to right,
       rgb(220, 70, 60) 0%,
-      rgb(230, 180, 70) 50%,
       rgb(80, 200, 110) 100%); }
   .legend-dash { width: 28px; height: 0; border-top: 2px dashed #5e5c56; }
   .note { color: var(--subdim); font-size: 11px; margin-top: 22px; line-height: 1.65; max-width: 880px; }
@@ -255,21 +254,14 @@ function renderMix(reserve, life) {
 //   mix 0.0 = saturated red (depleted)
 //   mix 0.5 = amber (mid)
 //   mix 1.0 = saturated green (vital)
-const STOP_LO  = [220, 70,  60];   // red
-const STOP_MID = [230, 180, 70];   // amber
-const STOP_HI  = [80,  200, 110];  // green
+const STOP_LO  = [220, 70,  60];   // red (depleted)
+const STOP_HI  = [80,  200, 110];  // green (vital)
 
 function rampColor(t) {
-  // t in [0,1]
-  let c1, c2, k;
-  if (t < 0.5) {
-    c1 = STOP_LO; c2 = STOP_MID; k = t * 2;
-  } else {
-    c1 = STOP_MID; c2 = STOP_HI; k = (t - 0.5) * 2;
-  }
-  const r = Math.round(c1[0] + (c2[0] - c1[0]) * k);
-  const g = Math.round(c1[1] + (c2[1] - c1[1]) * k);
-  const b = Math.round(c1[2] + (c2[2] - c1[2]) * k);
+  // direct red→green linear interpolation, no amber midpoint
+  const r = Math.round(STOP_LO[0] + (STOP_HI[0] - STOP_LO[0]) * t);
+  const g = Math.round(STOP_LO[1] + (STOP_HI[1] - STOP_LO[1]) * t);
+  const b = Math.round(STOP_LO[2] + (STOP_HI[2] - STOP_LO[2]) * t);
   return `rgb(${r},${g},${b})`;
 }
 
