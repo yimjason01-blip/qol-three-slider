@@ -40,6 +40,12 @@
     height: 4px; background: #2a2d33; border-radius: 2px; outline: none; margin-bottom: 14px; }
   input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px;
     border-radius: 50%; background: var(--ink); cursor: pointer; border: 2px solid var(--bg); }
+  .ctl-scale { margin: 0 -2px 14px; position: relative; height: 28px; font-size: 10px; color: var(--subdim); }
+  .ctl-scale .tick { position: absolute; transform: translateX(-50%); text-align: center; line-height: 1.3; }
+  .ctl-scale .tick b { color: var(--dim); font-weight: 500; display:block; font-size: 10px; }
+  .ctl-scale .tick.avg b { color: var(--ink); }
+  .ctl-scale .tick.avg::after { content:""; position:absolute; left:50%; top:-12px; transform:translateX(-50%);
+    width: 1px; height: 8px; background: var(--ink); opacity:0.6; }
   .inputs { font-size: 11px; color: var(--subdim); line-height: 1.6; }
   .inputs b { color: var(--dim); font-weight: 500; }
 
@@ -49,6 +55,16 @@
   .preset:hover { border-color: #3a3d44; }
   .preset.reset { color: var(--dim); }
 
+  .legend-row { display:flex; gap: 32px; align-items:center; margin-top: 14px;
+    padding-top: 14px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+  .legend-item { display:flex; align-items:center; gap: 10px; font-size: 11px; color: var(--dim); }
+  .legend-item b { color: var(--ink); font-weight: 500; }
+  .legend-grad { width: 220px; height: 6px; border-radius: 3px;
+    background: linear-gradient(to right,
+      hsl(30, 22%, 36%) 0%,
+      hsl(36, 52%, 54%) 50%,
+      hsl(42, 82%, 70%) 100%); }
+  .legend-dash { width: 28px; height: 0; border-top: 2px dashed #5e5c56; }
   .note { color: var(--subdim); font-size: 11px; margin-top: 22px; line-height: 1.65; max-width: 880px; }
   .note b { color: var(--dim); font-weight: 500; }
 </style>
@@ -67,6 +83,17 @@
       <div class="panel-meta">illustrative · not calibrated</div>
     </div>
     <svg id="chart" viewBox="0 0 1200 540" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="legend-row">
+      <div class="legend-item">
+        <span>LINE</span>
+        <span class="legend-grad"></span>
+        <span>dim → bright = <b>vitality</b> (reserve + lifestyle, fades with age)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dash"></span>
+        <b>avg American</b>
+      </div>
+    </div>
   </div>
 
   <div class="controls">
@@ -74,6 +101,13 @@
       <div class="ctl-head"><span class="ctl-name risk">RISK · residualized</span><span class="ctl-val" id="riskVal">50</span></div>
       <p class="ctl-tag">Probability of discrete bad events <em>not already explained</em> by reserve. Biomarkers and structure.</p>
       <input type="range" id="risk" min="0" max="100" value="50"/>
+      <div class="ctl-scale">
+        <span class="tick" style="left:0%"><b>0</b>optimal</span>
+        <span class="tick" style="left:25%"><b>25</b>low</span>
+        <span class="tick" style="left:50%"><b>50</b>moderate</span>
+        <span class="tick avg" style="left:65%"><b>65</b>avg<br/>American</span>
+        <span class="tick" style="left:100%"><b>100</b>high</span>
+      </div>
       <div class="inputs">
         <b>Lipids</b> LDL-C, ApoB, Lp(a) · <b>BP</b> SBP, DBP · <b>Glycemic</b> A1c, fasting insulin · <b>Vascular</b> CAC, carotid IMT, plaque · <b>Inflammation</b> hsCRP · <b>Kidney</b> eGFR, UACR · <b>Genetic</b> ApoE, PRS, FH · <b>Family hx</b> · <b>Screening</b> colon, breast, prostate, lung · <b>Exposures</b> smoking, alcohol burden
       </div>
@@ -83,6 +117,13 @@
       <div class="ctl-head"><span class="ctl-name reserve">RESERVE · capacity</span><span class="ctl-val" id="reserveVal">50</span></div>
       <p class="ctl-tag">Functional headroom. Bends the curve up <em>and</em> contributes to the rendered ride.</p>
       <input type="range" id="reserve" min="0" max="100" value="50"/>
+      <div class="ctl-scale">
+        <span class="tick" style="left:0%"><b>0</b>severe<br/>deconditioning</span>
+        <span class="tick avg" style="left:28%"><b>28</b>avg<br/>American</span>
+        <span class="tick" style="left:50%"><b>50</b>average</span>
+        <span class="tick" style="left:75%"><b>75</b>fit</span>
+        <span class="tick" style="left:100%"><b>100</b>elite</span>
+      </div>
       <div class="inputs">
         <b>Cardiorespiratory</b> VO₂max, recovery HR · <b>Musculoskeletal</b> lean mass, grip, leg strength · <b>Skeletal</b> bone density · <b>Metabolic flex</b> fat-ox capacity, RER · <b>Cognitive</b> processing speed, executive fn, brain volume · <b>Balance</b> SPPB, gait speed · <b>Pulmonary</b> FEV₁ · <b>Hormonal</b> free T, IGF-1, thyroid
       </div>
@@ -92,6 +133,13 @@
       <div class="ctl-head"><span class="ctl-name life">LIFESTYLE · felt</span><span class="ctl-val" id="lifeVal">50</span></div>
       <p class="ctl-tag">Strictly non-physical, non-capacity. Renders the line — does not shape the curve.</p>
       <input type="range" id="life" min="0" max="100" value="50"/>
+      <div class="ctl-scale">
+        <span class="tick" style="left:0%"><b>0</b>chronic<br/>poor</span>
+        <span class="tick" style="left:25%"><b>25</b>poor</span>
+        <span class="tick avg" style="left:42%"><b>42</b>avg<br/>American</span>
+        <span class="tick" style="left:75%"><b>75</b>good</span>
+        <span class="tick" style="left:100%"><b>100</b>optimal</span>
+      </div>
       <div class="inputs">
         <b>Sleep quality</b> · <b>Mood</b> depression, anxiety · <b>Stress</b> perceived load, allostasis · <b>Connection</b> loneliness, relationships · <b>Purpose</b> meaning, engagement · <b>Drive</b> motivation, energy · <b>Libido</b> · <b>Pain</b> chronic burden · <b>Fatigue</b> subjective
       </div>
@@ -123,7 +171,7 @@
 <script>
 const AGE_MIN = 20, AGE_MAX = 100;
 const W = 1200, H = 540;
-const M = { l: 70, r: 130, t: 40, b: 70 };
+const M = { l: 70, r: 70, t: 40, b: 70 };
 const cx0 = M.l, cx1 = W - M.r;
 const cy_top = M.t, cy_bot = H - M.b;
 const svg = document.getElementById('chart');
@@ -223,8 +271,6 @@ function render() {
   // Average American reference curve — drawn first so active curve overlays it
   const avgPath = curvePath(AVG_AMERICAN.risk, AVG_AMERICAN.reserve);
   s += `<polyline points="${avgPath}" fill="none" stroke="#5e5c56" stroke-width="1.5" stroke-dasharray="6 5" opacity="0.85"/>`;
-  const avgY80 = yQol(qol(80, AVG_AMERICAN.risk, AVG_AMERICAN.reserve));
-  s += `<text x="${cx1+8}" y="${avgY80+4}" fill="#8f8c84" font-size="11" font-style="italic">avg American</text>`;
 
   // Active curve as segmented path, each segment age-faded.
   // Build sample points then draw segments with per-segment color/width/glow.
