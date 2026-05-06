@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Quality of Life — risk, reserve, lifestyle</title>
+<title>Functional Capacity — risk, reserve, lifestyle</title>
 <style>
   :root {
     --bg:#0c0d10; --panel:#15171c; --panel-2:#181a20; --border:#23262d;
@@ -71,7 +71,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>Quality of Life · risk, reserve, lifestyle</h1>
+  <h1>Functional Capacity · risk, reserve, lifestyle</h1>
   <p class="sub">A teaching tool, not a forecast. Slide the three axes to see how they shape a lifetime quality-of-life curve. <b>Risk and reserve shape the geometry.</b> <b>Reserve and lifestyle render the line.</b> The three axes are constructed to be statistically independent — no input appears in two columns.</p>
 
   <div class="stage">
@@ -295,7 +295,7 @@ function render() {
     s += `<text x="${x}" y="${cy_bot+22}" fill="#8f8c84" font-size="12" text-anchor="middle">${a}</text>`;
   }
   s += `<text x="${(cx0+cx1)/2}" y="${cy_bot+44}" fill="#5e5c56" font-size="11" text-anchor="middle" letter-spacing="1.5">AGE</text>`;
-  s += `<text x="${cx0-46}" y="${(cy_top+cy_bot)/2}" fill="#5e5c56" font-size="11" text-anchor="middle" letter-spacing="1.5" transform="rotate(-90 ${cx0-46} ${(cy_top+cy_bot)/2})">QUALITY OF LIFE  ·  0–100</text>`;
+  s += `<text x="${cx0-46}" y="${(cy_top+cy_bot)/2}" fill="#5e5c56" font-size="11" text-anchor="middle" letter-spacing="1.5" transform="rotate(-90 ${cx0-46} ${(cy_top+cy_bot)/2})">FUNCTIONAL CAPACITY  ·  0–100</text>`;
 
   // Average American reference curve — drawn first so active curve overlays it
   const avgPath = curvePath(AVG_AMERICAN.risk, AVG_AMERICAN.reserve);
