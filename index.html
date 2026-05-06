@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Functional Capacity — risk, reserve, lifestyle</title>
+<title>Functional Capacity: risk, reserve, lifestyle</title>
 <style>
   :root {
     --bg:#0c0d10; --panel:#15171c; --panel-2:#181a20; --border:#23262d;
@@ -88,7 +88,7 @@
 <body>
 <div class="wrap">
   <h1>Functional Capacity · risk, reserve, lifestyle</h1>
-  <p class="sub">A teaching tool, not a forecast. Slide the three axes to see how they shape a lifetime functional capacity curve. <b>Risk and reserve shape the geometry.</b> <b>Reserve and lifestyle render the line.</b> The three axes are constructed to be statistically independent — no input appears in two columns.</p>
+  <p class="sub">A teaching tool, not a forecast. Slide the three axes to see how they shape a lifetime functional capacity curve. <b>Risk and reserve shape the geometry.</b> <b>Reserve and lifestyle render the line.</b> The three axes are constructed to be statistically independent: no input appears in two columns.</p>
 
   <div class="stage">
     <div class="head-row">
@@ -96,7 +96,7 @@
         <div class="panel-label">FUNCTIONAL CAPACITY OVER A LIFETIME</div>
         <div class="panel-meta">Geometry = f(risk, reserve). Render = g(reserve, lifestyle).</div>
       </div>
-      <div class="panel-meta">v6 · corner-validated geometry · multi-domain risk + SPAREQ vitality</div>
+      <div class="panel-meta">first-step scaffold · not calibrated · visual logic test</div>
     </div>
     <svg id="chart" viewBox="0 0 1200 540" preserveAspectRatio="xMidYMid meet"></svg>
     <div class="legend-row">
@@ -163,7 +163,7 @@
 
     <div class="ctl">
       <div class="ctl-head"><span class="ctl-name life">LIFESTYLE · felt</span><span class="ctl-val" id="lifeVal">50</span></div>
-      <p class="ctl-tag">Strictly non-physical, non-capacity. Renders the line — does not shape the curve.</p>
+      <p class="ctl-tag">Strictly non-physical, non-capacity. Renders the line: does not shape the curve.</p>
       <input type="range" id="life" min="0" max="100" value="50"/>
       <div class="ctl-scale">
         <span class="tick" style="left:0%"><b>0</b>chronic<br/>poor</span>
@@ -190,19 +190,19 @@
   </div>
 
   <p class="note">
-    <b>What the curve teaches.</b> Risk lowers the late-life floor by raising event probability. Reserve raises the floor and shifts the inflection point later, so decline starts later and is gentler. Together they produce the <em>shape</em> — the geometry that determines how the back half of life goes.
+    <b>What the curve teaches.</b> Risk lowers the late-life floor by raising event probability. Reserve raises the floor and shifts the inflection point later, so decline starts later and is gentler. Together they produce the <em>shape</em>: the geometry that determines how the back half of life goes.
   </p>
   <p class="note">
-    <b>What the line teaches.</b> Reserve and lifestyle together render brightness, color, and weight. High reserve alone produces a respectable glow because reserve genuinely contributes to felt vitality. Lifestyle adds the rest. The line carries the <em>ride</em> — how alive the system feels as it travels the curve.
+    <b>What the line teaches.</b> Reserve and lifestyle together render brightness, color, and weight. High reserve alone produces a respectable glow because reserve genuinely contributes to felt vitality. Lifestyle adds the rest. The line carries the <em>ride</em>: how alive the system feels as it travels the curve.
   </p>
   <p class="note">
-    <b>What you can read off the model.</b> A bright line on a collapsing curve is the person who feels great today on a trajectory that is quietly failing. A muted line on a beautiful curve is the person whose biology is intact but who is not enjoying the journey. Both are real, and the model has to be able to show both honestly. That is the test the three axes pass — and the test the original two-axis (risk + reserve = quality of life) framing fails.
+    <b>What you can read off the model.</b> A bright line on a collapsing curve is the person who feels great today on a trajectory that is quietly failing. A muted line on a beautiful curve is the person whose biology is intact but who is not enjoying the journey. Both are real, and the model has to be able to show both honestly. That is the test the three axes pass. It is also the test the original two-axis framing (risk + reserve = quality of life) fails.
   </p>
   <p class="note">
-    <b>Render mix is locked:</b> brightness/saturation = 0.5·reserve + 0.5·lifestyle, floor 0.15. Risk does not affect render — only curve geometry. Reserve affects both, by design, because reserve genuinely contributes to felt vitality.
+    <b>Render mix is locked:</b> brightness/saturation = 0.5·reserve + 0.5·lifestyle, floor 0.15. Risk does not affect render: only curve geometry. Reserve affects both, by design, because reserve genuinely contributes to felt vitality.
   </p>
   <p class="note" style="margin-top:18px">
-    <b>Status:</b> v6 — curve geometry now corner-validated. 15 corner/edge cases anchored to published cohorts (HRS, NHATS, NECS centenarian study, BLSA, Gill JAMA 2013 terminal-disability trajectories, Fried CHS frailty). 14/15 land inside literature bands; see <a href="./spec.html" style="color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold-dim)">spec</a>. Lifestyle composite (10-dim SPAREQ Vitality) and multi-domain Risk composite (CVD + T2DM + CKD + Cancer + Dementia) calibration carried over from v5. Reserve still partial. Render coefficients remain hand-tuned pending UK Biobank fits. See <a href="./spec.html" style="color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold-dim)">calibration spec</a>.
+    <b>Status:</b> first-step scaffold, not calibrated. The prototype is testing whether the visual logic works: Risk and Reserve shape the capacity curve, Lifestyle contributes to vitality rendering, and the y-axis is expressed as real-world functional capacity bands. The current curve is illustrative only and should be replaced with empirical trajectory templates before any validation claim. See <a href="./spec.html#current-step" style="color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold-dim)">calibration spec</a>.
   </p>
 </div>
 
@@ -230,7 +230,7 @@ function qol(age, risk, reserve) {
   const base = floor + (ceil - floor) / (1 + Math.exp(slope*(age - midpoint)));
   // Terminal compression (Gill 2010): even no-disability-at-80 cohorts had a final
   // disability window. Reserve buys the YEARS in the high bands, not exemption
-  // from the bottom ones. Softplus hinge centered on 85 — same asymptotic
+  // from the bottom ones. Softplus hinge centered on 85: same asymptotic
   // 1.5 pts/year decline as a hard hinge, but transitions in smoothly over
   // ~6 years so the curve has no visible kink.
   const terminal = (1.5 / 0.6) * Math.log(1 + Math.exp(0.6 * (age - 85)));
@@ -250,15 +250,14 @@ function renderMix(reserve, life) {
   return Math.max(0.15, Math.min(1, m));
 }
 
-// 3-stop color ramp for vitality — clinical red→amber→green:
+// Direct red-to-green color ramp for vitality:
 //   mix 0.0 = saturated red (depleted)
-//   mix 0.5 = amber (mid)
 //   mix 1.0 = saturated green (vital)
 const STOP_LO  = [220, 70,  60];   // red (depleted)
 const STOP_HI  = [80,  200, 110];  // green (vital)
 
 function rampColor(t) {
-  // direct red→green linear interpolation, no amber midpoint
+  // direct red-to-green linear interpolation, no amber midpoint
   const r = Math.round(STOP_LO[0] + (STOP_HI[0] - STOP_LO[0]) * t);
   const g = Math.round(STOP_LO[1] + (STOP_HI[1] - STOP_LO[1]) * t);
   const b = Math.round(STOP_LO[2] + (STOP_HI[2] - STOP_LO[2]) * t);
@@ -348,7 +347,7 @@ function render() {
   }
   s += `<text x="${(cx0+cx1)/2}" y="${cy_bot+44}" fill="#5e5c56" font-size="11" text-anchor="middle" letter-spacing="1.5">AGE</text>`;
 
-  // Average American reference curve — drawn first so active curve overlays it
+  // Average American reference curve: drawn first so active curve overlays it
   const avgPath = curvePath(AVG_AMERICAN.risk, AVG_AMERICAN.reserve);
   s += `<polyline points="${avgPath}" fill="none" stroke="#5e5c56" stroke-width="1.5" stroke-dasharray="6 5" opacity="0.85"/>`;
 
@@ -396,16 +395,16 @@ document.querySelectorAll('.preset').forEach(b => {
 
 // Band detail modal
 const BAND_DETAILS = [
-  { range: '90–100', name: 'Full capacity with reserve', frailty: 'Fried 0/5',
+  { range: '90 to 100', name: 'Full capacity with reserve', frailty: 'Fried 0/5',
     body: 'Anything within prior baseline. Full work, full physical activity, full cognitive load. Pneumonia or a broken ankle is recoverable without long-term loss. Most healthy adults under 60.' },
-  { range: '75–90', name: 'Independent, reserve narrowing', frailty: 'Fried 1/5',
-    body: 'Fully independent in ADLs and IADLs. Buffer is gone — a hospitalization or fall now causes a step-down that does not fully recover. Mild limitations: slower stairs, longer recovery. Typical 65–80 with no major disease.' },
-  { range: '60–75', name: 'Vulnerable independence', frailty: 'Fried 2/5',
-    body: 'Still independent but visibly compromised. Heavy housework, complex finances, night driving become hard. Walking distance shorter, balance compensations visible. One bad event tips into the next band. Common 75–85.' },
-  { range: '45–60', name: 'Independence threshold', frailty: 'Fried 3/5',
-    body: 'The hinge zone. Bathing, dressing, transferring out of low chairs require effort or workarounds. Driving being given up. Cooking simplified. Fall risk material. Independence is brittle — one bad week tips into the bottom band.' },
-  { range: 'below 45', name: 'Supported or dependent living', frailty: 'Fried 4–5/5',
-    body: 'At least one ADL requires help: bathing, dressing, toileting, transfers, eating. Caregiver in the home, assisted living, or nursing facility. Mortality risk 2–4× same-age peers in higher bands.' },
+  { range: '75 to 90', name: 'Independent, reserve narrowing', frailty: 'Fried 1/5',
+    body: 'Fully independent in ADLs and IADLs. Buffer is gone: a hospitalization or fall now causes a step-down that does not fully recover. Mild limitations: slower stairs, longer recovery. Typical 65 to 80 with no major disease.' },
+  { range: '60 to 75', name: 'Vulnerable independence', frailty: 'Fried 2/5',
+    body: 'Still independent but visibly compromised. Heavy housework, complex finances, night driving become hard. Walking distance shorter, balance compensations visible. One bad event tips into the next band. Common 75 to 85.' },
+  { range: '45 to 60', name: 'Independence threshold', frailty: 'Fried 3/5',
+    body: 'The hinge zone. Bathing, dressing, transferring out of low chairs require effort or workarounds. Driving being given up. Cooking simplified. Fall risk material. Independence is brittle: one bad week tips into the bottom band.' },
+  { range: 'below 45', name: 'Supported or dependent living', frailty: 'Fried 4 to 5/5',
+    body: 'At least one ADL requires help: bathing, dressing, toileting, transfers, eating. Caregiver in the home, assisted living, or nursing facility. Mortality risk 2 to 4× same-age peers in higher bands.' },
 ];
 const modal = document.getElementById('bandModal');
 function openBand(i) {

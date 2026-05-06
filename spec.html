@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>QoL · Calibration Spec v1</title>
+<title>Functional Capacity · Calibration Spec</title>
 <style>
   :root {
     --bg:#0c0d10; --panel:#15171c; --panel-2:#181a20; --border:#23262d;
@@ -55,15 +55,15 @@
 <div class="wrap">
   <div class="topnav">← <a href="./">prototype</a></div>
 
-  <h1>Quality of Life · Calibration Spec v1</h1>
-  <p class="meta">Operationalizes the three-axis QoL teaching tool into a measurable, fittable model. Names every instrument, declares every weight, sequences the data work. Not a clinical instrument until calibrated against the cohorts named below.</p>
+  <h1>Functional Capacity · Calibration Spec</h1>
+  <p class="meta">Defines the first-step scaffold for the three-axis functional capacity teaching tool. Separates what currently holds from what still needs empirical calibration.</p>
 
   <h2>Purpose</h2>
 
   <div class="brief"><b>IN BRIEF</b>
-  This spec converts the three-axis prototype from a teaching tool into a calibrated model. Each axis becomes a measurable composite of named instruments with declared weights and a normative reference distribution. The QoL curve becomes a longitudinal fit against UK Biobank with HRS validation. The line render becomes a regression of felt vitality against reserve and lifestyle, with an age-decay term fit from longitudinal trajectories. Avg American becomes a NHANES + BRFSS pull rather than an eyeballed anchor.</div>
+  This spec does not claim the current prototype is calibrated. It defines the first step: keep the three-axis logic, make the functional capacity bands concrete, and use the current curve only as a falsifiable sketch. The curve should be replaced by empirical trajectory templates before any validation claim.</div>
 
-  <p>The prototype's architecture (three orthogonal axes, geometry vs render split, age-fading vitality) is held fixed. The calibration changes <em>what's behind the labels</em>, not <em>what the user sees</em>. The end-user surface is essentially unchanged after calibration; the rigor moves from prose disclaimers ("illustrative · not calibrated") into the methodology this spec defines.</p>
+  <p>The prototype's architecture remains useful: three orthogonal axes, geometry versus render split, and real-world functional capacity bands. The current single-formula curve is not held fixed. It is a temporary scaffold that should be tested against reality and replaced when it fails.</p>
 
   <h2>Defined Terms</h2>
 
@@ -73,15 +73,15 @@
     <dt>Risk · residualized</dt>
     <dd>10-year probability of a major adverse cardiovascular event, residualized against the reserve composite. The portion of risk <em>not</em> already explained by capacity.</dd>
     <dt>Reserve · capacity</dt>
-    <dd>Multi-domain functional capacity composite: cardiorespiratory, musculoskeletal, skeletal, cognitive, balance, pulmonary. Age- and sex-normalized to a 0–100 percentile.</dd>
+    <dd>Multi-domain functional capacity composite: cardiorespiratory, musculoskeletal, skeletal, cognitive, balance, pulmonary. Age- and sex-normalized to a 0 to 100 percentile.</dd>
     <dt>Lifestyle · felt</dt>
     <dd>Composite of validated patient-reported outcomes covering felt vitality dimensions that are non-physical and non-capacity. Sleep, mood, stress, connection, purpose, drive, libido, pain, fatigue.</dd>
     <dt>Vitality (felt)</dt>
-    <dd>The single-construct outcome that the line render encodes. v1 uses SF-36 Vitality (4 items, 0–100). Distinct from the Lifestyle composite, which is one of the two predictors of Vitality.</dd>
-    <dt>Quality of Life</dt>
-    <dd>The curve's y-axis. Equal-weighted composite of physical function, cognitive function, social function, and independence at age <em>A</em>. Bounded 0–100. Death = 0.</dd>
+    <dd>The single-construct outcome that the line render encodes. v1 uses SF-36 Vitality (4 items, 0 to 100). Distinct from the Lifestyle composite, which is one of the two predictors of Vitality.</dd>
+    <dt>Functional Capacity</dt>
+    <dd>The curve's y-axis. Equal-weighted composite of physical function, cognitive function, social participation, and independence at age <em>A</em>. Bounded 0 to 100. Death = 0.</dd>
     <dt>Render mix</dt>
-    <dd>The 0–1 quantity that drives line color, width, and glow. Currently <code>0.5·Reserve + 0.5·Lifestyle</code>. Calibrated form: regression coefficients from the Vitality fit.</dd>
+    <dd>The 0 to 1 quantity that drives line color, width, and glow. Currently <code>0.5·Reserve + 0.5·Lifestyle</code>. Calibrated form: regression coefficients from the Vitality fit.</dd>
     <dt>Age decay</dt>
     <dd>The age-driven attenuation of the render mix. Currently a logistic with floor, slope, and center modulated by reserve. Calibrated form: parameters fit from longitudinal vitality trajectories.</dd>
     <dt>Avg American</dt>
@@ -91,7 +91,7 @@
   <h2>1 · Risk · residualized</h2>
 
   <div class="brief"><b>IN BRIEF</b>
-  Risk is operationalized as 10-year MACE probability from the AHA PREVENT model, residualized against the reserve composite to remove the variance reserve already explains. The slider value is the residual ranked against the NHANES adult distribution. v1 is cardiovascular only; cancer, dementia, and fracture are deferred to v2. Adults 30–79 to stay in PREVENT validity range.</div>
+  Risk is operationalized as 10-year MACE probability from the AHA PREVENT model, residualized against the reserve composite to remove the variance reserve already explains. The slider value is the residual ranked against the NHANES adult distribution. v1 is cardiovascular only; cancer, dementia, and fracture are deferred to v2. Adults 30 to 79 to stay in PREVENT validity range.</div>
 
   <h3>Construct</h3>
   <p>10-year probability of MI, stroke, cardiovascular death, or hospitalized heart failure.</p>
@@ -117,13 +117,13 @@
     <li>Linear residualization. v2 may use GAM or quantile regression if nonlinearity is meaningful.</li>
     <li>Single 10-year time horizon.</li>
     <li>Cardiovascular events only; multi-domain risk deferred.</li>
-    <li>Adults 30–79; pediatric and very-elderly out of scope.</li>
+    <li>Adults 30 to 79; pediatric and very-elderly out of scope.</li>
   </ul>
 
   <h2>2 · Reserve · capacity</h2>
 
   <div class="brief"><b>IN BRIEF</b>
-  Reserve is an eight-component composite covering the major domains of functional capacity. Each component is normalized to age- and sex-adjusted percentile against NHANES (US) or HUNT4 (Norway, more complete activity data), then weighted and summed to a 0–100 score. v1 weights are clinical-prior; v2 derives them by regressing all-cause mortality against the components in UK Biobank. Avg American is computed by composing each NHANES component median.</div>
+  Reserve is an eight-component composite covering the major domains of functional capacity. Each component is normalized to age- and sex-adjusted percentile against NHANES (US) or HUNT4 (Norway, more complete activity data), then weighted and summed to a 0 to 100 score. v1 weights are clinical-prior; v2 derives them by regressing all-cause mortality against the components in UK Biobank. Avg American is computed by composing each NHANES component median.</div>
 
   <h3>Components and v1 weights</h3>
   <table>
@@ -158,7 +158,7 @@ Reserve_pct = Σ wᵢ · pᵢ</div>
   <h2>3 · Lifestyle · felt</h2>
 
   <div class="brief"><b>IN BRIEF</b>
-  Lifestyle is a weighted composite of validated patient-reported outcomes covering ten non-physical, non-capacity dimensions. Each instrument is converted to a 0–100 percentile against its published reference distribution and weighted to a single score. The avg-American anchor combines BRFSS sleep and mental-health prevalences with NHANES Mental Health module and ELSA-equivalent loneliness data.</div>
+  Lifestyle is a weighted composite of validated patient-reported outcomes covering ten non-physical, non-capacity dimensions. Each instrument is converted to a 0 to 100 percentile against its published reference distribution and weighted to a single score. The avg-American anchor combines BRFSS sleep and mental-health prevalences with NHANES Mental Health module and ELSA-equivalent loneliness data.</div>
 
   <h3>Components and v1 weights</h3>
   <table>
@@ -171,12 +171,12 @@ Reserve_pct = Σ wᵢ · pᵢ</div>
     <tr><td>Pain burden</td><td>Brief Pain Inventory Short Form</td><td class="weight">10%</td></tr>
     <tr><td>Fatigue</td><td>PROMIS Fatigue 4a</td><td class="weight">10%</td></tr>
     <tr><td>Meaning/purpose</td><td>MLQ Presence subscale</td><td class="weight">10%</td></tr>
-    <tr><td>Libido</td><td>FSFI items 1–2 / IIEF Q12</td><td class="weight">5%</td></tr>
+    <tr><td>Libido</td><td>FSFI items 1 to 2 / IIEF Q12</td><td class="weight">5%</td></tr>
     <tr><td>Drive</td><td>PROMIS Positive Affect 4a</td><td class="weight">5%</td></tr>
   </table>
 
   <h3>Normalization</h3>
-  <p>PROMIS instruments use T-scores (population mean 50, SD 10) which convert directly to percentile via Φ. PSQI, PHQ-9, GAD-7, UCLA-3, BPI, MLQ, FSFI/IIEF each have published reference distributions (general population norms). For each, convert raw → reference percentile (0–100), reverse-coded where higher raw = worse (PSQI, PHQ-9, GAD-7, UCLA-3, BPI). Weighted sum.</p>
+  <p>PROMIS instruments use T-scores (population mean 50, SD 10) which convert directly to percentile via Φ. PSQI, PHQ-9, GAD-7, UCLA-3, BPI, MLQ, FSFI/IIEF each have published reference distributions (general population norms). For each, convert raw → reference percentile (0 to 100), reverse-coded where higher raw = worse (PSQI, PHQ-9, GAD-7, UCLA-3, BPI). Weighted sum.</p>
 
   <h3>Slider mapping</h3>
   <ul>
@@ -186,53 +186,45 @@ Reserve_pct = Σ wᵢ · pᵢ</div>
     <li><strong>Avg American</strong> = computed from BRFSS + NHANES + national PRO surveillance (replaces eyeballed 42)</li>
   </ul>
 
-  <h2>4 · Quality of Life curve</h2>
+  <h2>4 · Functional capacity curve</h2>
 
   <div class="brief"><b>IN BRIEF</b>
-  The QoL outcome variable is an equal-weighted composite of physical function, cognitive function, social function, and independence, scored 0–100 with death = 0. The curve geometry is a logistic with floor, ceiling, midpoint, and slope as linear functions of risk and reserve. Coefficients are fit from UK Biobank longitudinal data stratified by risk-quartile × reserve-quartile, with HRS validation. Sex-stratified in v1.</div>
+  The curve outcome is functional capacity, not total quality of life. It should be anchored to physical function, cognitive function, social participation, and independence. The current single logistic formula is a placeholder only. The calibration target should be empirical trajectory templates, because different risk and reserve states imply different curve families.</div>
 
   <h3>Outcome variable definition</h3>
   <table>
     <tr><th>Domain</th><th>Instrument</th><th>Weight</th></tr>
-    <tr><td>Physical function</td><td>PROMIS Physical Function 8b → 0–100</td><td class="weight">25%</td></tr>
-    <tr><td>Cognitive function</td><td>MoCA → 0–100</td><td class="weight">25%</td></tr>
-    <tr><td>Social function</td><td>PROMIS Ability to Participate</td><td class="weight">25%</td></tr>
+    <tr><td>Physical function</td><td>PROMIS Physical Function 8b to 0 to 100</td><td class="weight">25%</td></tr>
+    <tr><td>Cognitive function</td><td>MoCA or DSST to 0 to 100</td><td class="weight">25%</td></tr>
+    <tr><td>Social participation</td><td>PROMIS Ability to Participate</td><td class="weight">25%</td></tr>
     <tr><td>Independence</td><td>Lawton IADL + Katz ADL composite</td><td class="weight">25%</td></tr>
   </table>
 
-  <h3>Functional form</h3>
-  <div class="formula">QoL(age) = floor + (ceil − floor) / (1 + exp(slope · (age − midpoint)))
+  <h3>Current first-step curve</h3>
+  <p>The prototype currently uses a hand-built continuous curve so the visual can be tested. This is acceptable for layout and interaction only. It is not a model of human aging. It should not be tuned further as if the formula itself is the destination.</p>
 
-floor    = β₀ + β₁ · Reserve + β₂ · Risk
-ceil     = β₃ + β₄ · Reserve + β₅ · Risk
-midpoint = β₆ + β₇ · Reserve + β₈ · Risk
-slope    = β₉ + β₁₀ · Reserve + β₁₁ · Risk</div>
-
-  <h3>Fit procedure</h3>
+  <h3>Replacement calibration approach</h3>
   <ol>
-    <li>Stratify cohort into 16 groups: Reserve quartile × Risk quartile.</li>
-    <li>Within each group, fit a logistic curve to mean QoL vs age across waves.</li>
-    <li>Regress the four logistic parameters (floor, ceil, midpoint, slope) against the underlying continuous Reserve and Risk values to recover β₀…β₁₁.</li>
-    <li>Repeat sex-stratified.</li>
-    <li>Validate against HRS held-out cohort.</li>
+    <li>Build empirical reference trajectories for elite reserve, average reserve, low reserve, high event burden, and mixed cases.</li>
+    <li>Use HRS and NHATS for average and low-reserve aging trajectories.</li>
+    <li>Use BLSA, NECS, SuperAger, and centenarian disability literature for high-reserve and late-life compression shapes.</li>
+    <li>Use CHS frailty and multimorbidity cohorts for low-reserve and high-burden shapes.</li>
+    <li>Interpolate between trajectory templates rather than tuning one universal formula.</li>
   </ol>
-
-  <h3>Cohort</h3>
-  <p>Primary: UK Biobank (~500k, repeat assessments, comprehensive biomarkers and capacity tests). Validation: HRS (US, ages 50+, biennial waves). Tertiary: ELSA (UK, ages 50+).</p>
 
   <h2>5 · Line render</h2>
 
   <div class="brief"><b>IN BRIEF</b>
-  The render encodes felt vitality, defined as SF-36 Vitality scale (0–100). Base render is a regression of vitality against reserve and lifestyle. Age decay is fit from longitudinal vitality trajectories stratified by reserve, modulating the render mix to produce visible fade across the lifespan. Both fits use UK Biobank cross-sectional and HRS longitudinal data.</div>
+  The render encodes felt vitality, defined as SF-36 Vitality scale (0 to 100). Base render is a regression of vitality against reserve and lifestyle. Age decay is fit from longitudinal vitality trajectories stratified by reserve, modulating the render mix to produce visible fade across the lifespan. Both fits use UK Biobank cross-sectional and HRS longitudinal data.</div>
 
   <h3>Vitality construct</h3>
-  <p>SF-36 Vitality (4 items: feel full of life, have energy, feel worn out, feel tired). Scored 0–100, higher = better. Selected over PROMIS Global because of cleaner single-construct definition and longer longitudinal data history.</p>
+  <p>SF-36 Vitality (4 items: feel full of life, have energy, feel worn out, feel tired). Scored 0 to 100, higher = better. Selected over PROMIS Global because of cleaner single-construct definition and longer longitudinal data history.</p>
 
   <h3>Base regression</h3>
   <div class="formula">Vitality = α + β_R · Reserve_pct + β_L · Lifestyle_pct + ε
 
 Render mix (calibrated) = (β_R · Reserve + β_L · Lifestyle) / (β_R · 100 + β_L · 100)</div>
-  <p>Replaces current eyeballed 0.5/0.5 weights. Empirical coefficients may be unequal — likely β_L &gt; β_R because lifestyle directly samples felt-state instruments while reserve samples capacity.</p>
+  <p>Replaces current eyeballed 0.5/0.5 weights. Empirical coefficients may be unequal: likely β_L &gt; β_R because lifestyle directly samples felt-state instruments while reserve samples capacity.</p>
 
   <h3>Age decay regression</h3>
   <div class="formula">Vitality(age, Reserve) = floor(R) + (1 − floor(R)) / (1 + exp(k(R) · (age − center(R))))
@@ -240,18 +232,18 @@ Render mix (calibrated) = (β_R · Reserve + β_L · Lifestyle) / (β_R · 100 +
 floor(R)  = γ₀ + γ₁ · Reserve_pct
 k(R)      = γ₂ + γ₃ · Reserve_pct
 center(R) = γ₄ + γ₅ · Reserve_pct</div>
-  <p>Fit by stratifying age trajectories of vitality by reserve quartile in HRS (longitudinal vitality data ages 50–95+). Recover γ₀…γ₅ from logistic fits per stratum, then linear fit against continuous reserve.</p>
+  <p>Fit by stratifying age trajectories of vitality by reserve quartile in HRS (longitudinal vitality data ages 50 to 95+). Recover γ₀…γ₅ from logistic fits per stratum, then linear fit against continuous reserve.</p>
 
   <h2>6 · Avg American anchor</h2>
 
   <div class="brief"><b>IN BRIEF</b>
-  Replaces three eyeballed numbers (Risk 65, Reserve 28, Lifestyle 42) with composite scores computed from public-health surveillance data. NHANES is the primary source; BRFSS and the Surgeon General's loneliness reports fill gaps. Each composite is built using the same instrument list and weights defined in sections 1–3.</div>
+  Replaces three eyeballed numbers (Risk 65, Reserve 28, Lifestyle 42) with composite scores computed from public-health surveillance data. NHANES is the primary source; BRFSS and the Surgeon General's loneliness reports fill gaps. Each composite is built using the same instrument list and weights defined in sections 1 to 3.</div>
 
   <h3>Sources by axis</h3>
   <table>
     <tr><th>Axis</th><th>Components</th><th>Sources</th></tr>
-    <tr><td>Risk</td><td>lipids, BP, BMI, smoking, diabetes, eGFR</td><td>NHANES 2017–2020</td></tr>
-    <tr><td>Reserve</td><td>VO₂max, grip, DEXA, gait speed, cognitive</td><td>NHANES 1999–2004 (CPET); 2011–2014 (DEXA, grip); HRS for cognitive</td></tr>
+    <tr><td>Risk</td><td>lipids, BP, BMI, smoking, diabetes, eGFR</td><td>NHANES 2017 to 2020</td></tr>
+    <tr><td>Reserve</td><td>VO₂max, grip, DEXA, gait speed, cognitive</td><td>NHANES 1999 to 2004 (CPET); 2011 to 2014 (DEXA, grip); HRS for cognitive</td></tr>
     <tr><td>Lifestyle</td><td>sleep, mood, anxiety, loneliness, pain, fatigue</td><td>BRFSS, NHANES Mental Health module, Surgeon General Loneliness 2023</td></tr>
   </table>
 
@@ -262,12 +254,12 @@ center(R) = γ₄ + γ₅ · Reserve_pct</div>
 
   <table>
     <tr><th>Step</th><th>Effort</th><th>Blocks</th><th>Data</th></tr>
-    <tr><td>1. Lock variable spec</td><td>1 wk</td><td>2–7</td><td>None (this doc)</td></tr>
-    <tr><td>2. NHANES anchors</td><td>2 wk</td><td>—</td><td>NHANES + BRFSS public</td></tr>
+    <tr><td>1. Lock variable spec</td><td>1 wk</td><td>2 to 7</td><td>None (this doc)</td></tr>
+    <tr><td>2. NHANES anchors</td><td>2 wk</td><td>None</td><td>NHANES + BRFSS public</td></tr>
     <tr><td>3. Reserve weight derivation</td><td>4 wk</td><td>4, 5</td><td>UK Biobank Cox</td></tr>
     <tr><td>4. Risk residualization fit</td><td>2 wk</td><td>5</td><td>NHANES + #3</td></tr>
-    <tr><td>5. QoL curve fit</td><td>8 wk</td><td>7</td><td>UK Biobank longitudinal + HRS validation</td></tr>
-    <tr><td>6. Render regression</td><td>4 wk</td><td>—</td><td>UK Biobank + HRS</td></tr>
+    <tr><td>5. Empirical trajectory templates</td><td>8 wk</td><td>7</td><td>HRS, NHATS, BLSA, NECS, CHS, UK Biobank</td></tr>
+    <tr><td>6. Render regression</td><td>4 wk</td><td>None</td><td>UK Biobank + HRS</td></tr>
     <tr><td>7. Validation pass</td><td>4 wk</td><td>Ship</td><td>Held-out cohort</td></tr>
   </table>
 
@@ -281,53 +273,59 @@ center(R) = γ₄ + γ₅ · Reserve_pct</div>
     <li><strong>Multi-domain risk vs CVD-only.</strong> v1 is CVD via PREVENT. Cancer (LCBC, BCSC), dementia (CAIDE, LIBRA), and fall/fracture (FRAX) all have validated 10-year models. Combining them into one all-event probability vs carrying separately is a real product decision.</li>
     <li><strong>DEXA reliance.</strong> Reserve leans on DEXA-derived ALMI and bone density; DEXA isn't routine. Substituting BIA and screening-questionnaire bone risk loses precision.</li>
     <li><strong>Vitality construct.</strong> SF-36 Vitality is older and well-validated; PROMIS Global is newer and modular. v1 picks SF-36 for longitudinal data depth.</li>
-    <li><strong>Update cadence.</strong> Once calibrated, weights and reference distributions decay. Annual re-fit against latest NHANES is the floor; quarterly is overkill.</li>
-    <li><strong>Personalization vs universal.</strong> This spec defines the universal teaching tool. The personalized clinical instrument requires different surface decisions (today marker, KPIs, action library) but the calibration carries over.</li>
+    <li><strong>Update cadence.</strong> Once fitted, weights and reference distributions decay. Annual re-fit against latest NHANES is the floor; quarterly is overkill.</li>
+    <li><strong>Personalization vs universal.</strong> This spec defines the universal teaching tool. The personalized clinical instrument requires different surface decisions (today marker, KPIs, action library) but the model logic carries over.</li>
   </ol>
 
-  <h2>What stays valid before calibration</h2>
+  <h2 id="current-step">Current first step: logic scaffold, not calibration</h2>
 
-  <p>The structural design choices survive recalibration: three orthogonal axes, geometry vs render split, age-fading vitality, residualization to keep risk and reserve independent, no input appearing in two columns. Those are model architecture. The numbers, weights, and curve parameters are what calibration replaces. The end-user surface remains essentially identical.</p>
+  <div class="brief"><b>IN BRIEF</b>
+  The current prototype is not a calibrated model. It is a first-step teaching scaffold meant to test whether the visual logic is directionally coherent: Risk and Reserve shape the curve, Lifestyle affects the line render, and the y-axis is functional capacity. The current formula should not be described as validated. It is a temporary sketch that needs empirical template replacement.</div>
 
-  <p class="footer">v1 · spec lock pending · ← <a href="./">back to prototype</a></p>
+  <h3>What the current prototype is doing</h3>
+  <table>
+    <tr><th>Layer</th><th>Current behavior</th><th>Status</th></tr>
+    <tr><td>Risk</td><td>Moves the curve down and earlier by increasing late-life event burden.</td><td>Conceptually sound. Not yet a live multi-domain model.</td></tr>
+    <tr><td>Reserve</td><td>Moves the curve up and later by increasing functional headroom.</td><td>Conceptually sound. Current composite is partial.</td></tr>
+    <tr><td>Lifestyle</td><td>Renders the line as vitality, separate from curve geometry.</td><td>Conceptually sound, but visual encoding is still being iterated.</td></tr>
+    <tr><td>Functional capacity bands</td><td>Translate the y-axis into real-world independence states.</td><td>Soundest part of the prototype. Keep.</td></tr>
+    <tr><td>Lifetime curve formula</td><td>Uses a single parametric curve with risk and reserve parameters.</td><td>Not sound enough as a calibration target. Replace with empirical templates.</td></tr>
+  </table>
+
+  <h3>Logic review</h3>
+  <p><strong>The overall product logic works:</strong> Risk, Reserve, Vitality, and Functional Capacity are distinct constructs. Risk represents event probability. Reserve represents biological and functional headroom. Vitality represents lived state. Functional Capacity represents what the person can still do over time.</p>
+
+  <p><strong>The current curve logic does not work as a whole:</strong> one universal sigmoid cannot represent all profiles. High-reserve trajectories can plausibly look sigmoidal: long high-function plateau, late compression, terminal decline. Low-reserve high-risk trajectories should not start at the same ceiling and then fall like a slide. They likely start lower, decline earlier, decline more steadily, and are heavily affected by mortality selection.</p>
+
+  <p><strong>The failed assumption:</strong> Risk and Reserve do not merely change the parameters of one curve. They change the shape family. Treating every profile as the same curve with different floor, midpoint, and slope creates visually plausible corners but implausible paths between them.</p>
+
+  <p><strong>The current corner-case exercise is useful only as a falsification pass:</strong> it can catch obviously impossible outputs. It does not validate the curve. Passing a small set of hand-selected cases is especially weak when the formula has many tunable parameters. The prior 14 of 15 pass claim should be treated as an overfit warning, not evidence of validity.</p>
+
+  <h3>What should replace the current formula</h3>
+  <p>The next real step is empirical template construction, not more coefficient tuning. Build a small set of reference trajectories from cohort-derived shapes, then interpolate between those shapes.</p>
+
+  <table>
+    <tr><th>Template</th><th>Intended shape</th><th>Candidate evidence family</th></tr>
+    <tr><td>Elite reserve, low event burden</td><td>High plateau, late decline, short terminal compression.</td><td>BLSA, NECS, SuperAger cohorts, centenarian disability trajectories.</td></tr>
+    <tr><td>Average midlife adult</td><td>Gradual decline from midlife, steeper after 75, meaningful heterogeneity.</td><td>HRS, NHATS, ELSA.</td></tr>
+    <tr><td>Low reserve, high burden</td><td>Lower starting capacity, earlier decline, less visible late plateau because mortality selection dominates.</td><td>HRS bottom functional strata, CHS frailty, multimorbidity cohorts.</td></tr>
+    <tr><td>Low risk, low reserve</td><td>Clean event-risk profile but limited capacity envelope.</td><td>HRS sarcopenia, gait-speed, frailty strata.</td></tr>
+    <tr><td>High risk, high reserve</td><td>Capacity remains high until event burden breaks through reserve.</td><td>MESA, UK Biobank high fitness with elevated risk markers.</td></tr>
+  </table>
+
+  <h3>First-step acceptance criteria</h3>
+  <ol>
+    <li>Every extreme slider combination must be inspected as a full curve, not just at selected ages.</li>
+    <li>Each curve must have a real-world narrative that matches cohort evidence.</li>
+    <li>If a curve looks clinically wrong, the visual is wrong even if a few numeric checkpoints pass.</li>
+    <li>The spec must distinguish falsification checks from validation.</li>
+    <li>The public prototype should not use phrases like calibrated, validated, or model output until a cohort-fit exists.</li>
+  </ol>
+
+  <h3>What stays valid</h3>
+  <p>The durable architecture is the three-axis split: Risk shapes event burden, Reserve shapes the capacity envelope, and Lifestyle contributes to vitality rendering. The banded y-axis also holds up because it maps the abstract number to real-world independence states. What does not hold up is the current single-formula curve.</p>
+
+  <p class="footer">first-step scaffold · not calibrated · ← <a href="./">back to prototype</a></p>
 </div>
-
-<h2 id="calibration">Curve geometry calibration (v6)</h2>
-<p>The QoL curve geometry is fitted by random search against 15 corner and edge cases. Each case has a published expected band drawn from cohort data — HRS / NHATS for population averages, NECS centenarian study and BLSA for top-decile elite, Gill's <em>NEJM 2010</em> and <em>JAMA 2013</em> work on terminal disability trajectories, Fried CHS frailty for the worst-alive cases. The current formula passes 14/15. Receipts below.</p>
-
-<h3>Formula</h3>
-<p><code>floor = 36 + 18·r − 8·k</code> &nbsp; <code>ceil = 96</code> &nbsp; <code>midpoint = 66 + 20·r − 8·k</code> &nbsp; <code>slope = 0.09 − 0.01·r + 0.03·k</code></p>
-<p><code>base = floor + (ceil − floor) / (1 + exp(slope · (age − midpoint)))</code></p>
-<p><code>terminal = (1.5/0.6) · ln(1 + exp(0.6 · (age − 85)))</code> &nbsp; <code>QoL = max(15, base − terminal)</code></p>
-<p>Where <code>r = reserve/100</code> and <code>k = risk/100</code>. The terminal-compression term enforces Gill's finding that even no-disability-at-80 cohorts experience a final disability window — reserve buys years in the high bands, not exemption from the bottom ones.</p>
-
-<h3>Corner-case validation table</h3>
-<table>
-<thead><tr><th>Case</th><th>Age</th><th>R</th><th>Re</th><th>Expected band</th><th>Predicted</th><th>Status</th><th>Source</th></tr></thead>
-<tbody>
-<tr><td>Avg American 50</td><td>50</td><td>66</td><td>50</td><td>80–90</td><td>90.2</td><td>OFF +0.2</td><td>NHANES + HRS</td></tr>
-<tr><td>Avg American 70</td><td>70</td><td>66</td><td>50</td><td>65–75</td><td>68.9</td><td>OK</td><td>HRS</td></tr>
-<tr><td>Avg American 80</td><td>80</td><td>66</td><td>50</td><td>55–65</td><td>55.2</td><td>OK</td><td>HRS</td></tr>
-<tr><td>Avg American 90</td><td>90</td><td>66</td><td>50</td><td>38–50</td><td>38.8</td><td>OK</td><td>HRS + NHATS</td></tr>
-<tr><td>Best 50</td><td>50</td><td>0</td><td>100</td><td>92–98</td><td>93.8</td><td>OK</td><td>BLSA top decile</td></tr>
-<tr><td>Best 70</td><td>70</td><td>0</td><td>100</td><td>85–92</td><td>86.9</td><td>OK</td><td>BLSA / SuperAger</td></tr>
-<tr><td>Best 80</td><td>80</td><td>0</td><td>100</td><td>75–85</td><td>79.9</td><td>OK</td><td>NECS</td></tr>
-<tr><td>Best 90</td><td>90</td><td>0</td><td>100</td><td>60–72</td><td>64.2</td><td>OK</td><td>NECS / Christensen Lancet 2009</td></tr>
-<tr><td>Best 95</td><td>95</td><td>0</td><td>100</td><td>50–62</td><td>52.8</td><td>OK</td><td>Gill NEJM 2010</td></tr>
-<tr><td>Best 100</td><td>100</td><td>0</td><td>100</td><td>35–50</td><td>41.8</td><td>OK</td><td>Centenarian cohorts</td></tr>
-<tr><td>Worst-alive 60</td><td>60</td><td>100</td><td>0</td><td>50–65</td><td>57.9</td><td>OK</td><td>HRS bottom decile</td></tr>
-<tr><td>Worst-alive 70</td><td>70</td><td>100</td><td>0</td><td>35–50</td><td>41.0</td><td>OK</td><td>HRS bottom decile + Fried</td></tr>
-<tr><td>Worst-alive 80</td><td>80</td><td>100</td><td>0</td><td>20–35</td><td>32.5</td><td>OK</td><td>Severely impaired survivors</td></tr>
-<tr><td>Hi-Risk Hi-Reserve 70</td><td>70</td><td>80</td><td>80</td><td>70–80</td><td>77.5</td><td>OK</td><td>Athlete w/ comorbidity (interpolated)</td></tr>
-<tr><td>Lo-Risk Lo-Reserve 70</td><td>70</td><td>20</td><td>20</td><td>55–68</td><td>64.8</td><td>OK</td><td>Clean labs but sarcopenic (interpolated)</td></tr>
-</tbody>
-</table>
-<p><strong>Result:</strong> 14/15 inside literature bands. The single miss (Avg American 50) is 0.2 points above the upper bound — within rounding noise of the band edge.</p>
-
-<h3>What this validation does and does not establish</h3>
-<p><strong>Establishes:</strong> the curve's shape and the relative effect sizes of risk and reserve are consistent with what published cohort data would predict at 15 reference points spanning the realistic range of human trajectories. The geometry is no longer hand-tuned by aesthetic.</p>
-<p><strong>Does not establish:</strong> the curve's behavior at <em>arbitrary</em> intermediate combinations is calibrated. A formal fit against a single longitudinal cohort (e.g. UK Biobank with HRS-style ADL endpoints) would be required to claim that. The lifestyle render layer remains a separate question and is not validated by this exercise — it does not affect curve geometry.</p>
-<p><strong>Reproducibility:</strong> the random-search procedure and the case list live in this session's transcript; would be cleaner moved into a <code>calibration/</code> folder of the qol-calibration repo as the next step.</p>
-
 </body>
 </html>
