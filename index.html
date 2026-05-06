@@ -165,6 +165,24 @@ function lineStyle(mix) {
   return { width, color, glowOp, glowWidth };
 }
 
+// Age-driven vitality decay. Preserves relative differences:
+// high reserve still fades less than low. Uses a soft curve that holds
+// near-flat through 30s, drifts through middle age, fades visibly past 70.
+function ageDecay(age, reserve) {
+  // reserve modulates the decay rate — more reserve = slower fade.
+  const r = reserve / 100;
+  const k = 0.045 - 0.020*r;          // decay slope
+  const center = 55 + 12*r;            // half-decay point shifts later with reserve
+  const floor = 0.45 + 0.15*r;         // never fully dark; high reserve preserves more
+  return floor + (1 - floor) / (1 + Math.exp(k*(age - center)));
+}
+
+function styleAtAge(age, mixBase, reserve) {
+  const decay = ageDecay(age, reserve);
+  const m = Math.max(0.10, mixBase * decay);
+  return lineStyle(m);
+}
+
 // Average American reference. Defensible-but-illustrative anchors:
 // Risk ~65 (≈47% obese/overweight, ≈48% hypertension, ≈11% diabetes, ≈38% prediabetes,
 //   high LDL/ApoB prevalence, persistent smoking/alcohol burden — well above population midpoint).
@@ -184,7 +202,7 @@ function render() {
   document.getElementById('lifeVal').textContent = life;
 
   const mix = renderMix(reserve, life);
-  const st = lineStyle(mix);
+  const baseSt = lineStyle(mix);
 
   let s = '';
 
@@ -201,21 +219,39 @@ function render() {
   s += `<text x="${(cx0+cx1)/2}" y="${cy_bot+44}" fill="#5e5c56" font-size="11" text-anchor="middle" letter-spacing="1.5">AGE</text>`;
   s += `<text x="${cx0-46}" y="${(cy_top+cy_bot)/2}" fill="#5e5c56" font-size="11" text-anchor="middle" letter-spacing="1.5" transform="rotate(-90 ${cx0-46} ${(cy_top+cy_bot)/2})">QUALITY OF LIFE  ·  0–100</text>`;
 
-  // soft area fill under curve
-  const fill = [`${cx0},${cy_bot}`, ...curvePath(risk, reserve).split(' '), `${cx1},${cy_bot}`].join(' ');
-  s += `<polygon points="${fill}" fill="${st.color}" opacity="0.06"/>`;
-
-  // Average American reference curve — always behind active curve
+  // Average American reference curve — drawn first so active curve overlays it
   const avgPath = curvePath(AVG_AMERICAN.risk, AVG_AMERICAN.reserve);
   s += `<polyline points="${avgPath}" fill="none" stroke="#5e5c56" stroke-width="1.5" stroke-dasharray="6 5" opacity="0.85"/>`;
-  // label at right edge of avg curve
   const avgY80 = yQol(qol(80, AVG_AMERICAN.risk, AVG_AMERICAN.reserve));
   s += `<text x="${cx1+8}" y="${avgY80+4}" fill="#8f8c84" font-size="11" font-style="italic">avg American</text>`;
 
-  if (st.glowOp > 0.02) {
-    s += `<polyline points="${curvePath(risk, reserve)}" fill="none" stroke="${st.color}" stroke-width="${st.glowWidth}" opacity="${st.glowOp}" stroke-linecap="round" stroke-linejoin="round" filter="blur(4px)"/>`;
+  // Active curve as segmented path, each segment age-faded.
+  // Build sample points then draw segments with per-segment color/width/glow.
+  const samples = [];
+  for (let a = AGE_MIN; a <= AGE_MAX; a += 0.5) {
+    samples.push({ a, x: xAge(a), y: yQol(qol(a, risk, reserve)) });
   }
-  s += `<polyline points="${curvePath(risk, reserve)}" fill="none" stroke="${st.color}" stroke-width="${st.width}" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+  // Soft area fill under curve uses base color
+  const fill = [`${cx0},${cy_bot}`, ...samples.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`), `${cx1},${cy_bot}`].join(' ');
+  s += `<polygon points="${fill}" fill="${baseSt.color}" opacity="0.05"/>`;
+
+  // Glow pass (segments) — only where mix*decay is high enough
+  for (let i = 0; i < samples.length-1; i++) {
+    const p0 = samples[i], p1 = samples[i+1];
+    const aMid = (p0.a + p1.a) / 2;
+    const st = styleAtAge(aMid, mix, reserve);
+    if (st.glowOp > 0.04) {
+      s += `<line x1="${p0.x.toFixed(1)}" y1="${p0.y.toFixed(1)}" x2="${p1.x.toFixed(1)}" y2="${p1.y.toFixed(1)}" stroke="${st.color}" stroke-width="${st.glowWidth.toFixed(1)}" opacity="${st.glowOp.toFixed(2)}" stroke-linecap="round" filter="blur(4px)"/>`;
+    }
+  }
+  // Main line pass (segments)
+  for (let i = 0; i < samples.length-1; i++) {
+    const p0 = samples[i], p1 = samples[i+1];
+    const aMid = (p0.a + p1.a) / 2;
+    const st = styleAtAge(aMid, mix, reserve);
+    s += `<line x1="${p0.x.toFixed(1)}" y1="${p0.y.toFixed(1)}" x2="${p1.x.toFixed(1)}" y2="${p1.y.toFixed(1)}" stroke="${st.color}" stroke-width="${st.width.toFixed(2)}" stroke-linecap="round"/>`;
+  }
 
   svg.innerHTML = s;
 }
