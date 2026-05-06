@@ -170,9 +170,11 @@ function lineStyle(mix) {
 // drifts through middle age, fades visibly past 70.
 function ageDecay(age, reserve) {
   const r = reserve / 100;
-  const k = 0.075 - 0.030*r;          // steeper decay slope
-  const center = 58 + 14*r;            // half-decay shifts later with reserve
-  const floor = 0.28 + 0.22*r;         // low-reserve fades to ~28%, high-reserve floors at ~50%
+  // Even at peak reserve, vitality fades meaningfully across a lifetime.
+  // Decay starts gently in 30s, accelerates through 50s-70s.
+  const k = 0.055 - 0.020*r;          // decay slope (slower with reserve, but still real)
+  const center = 50 + 12*r;            // half-decay shifts later with reserve
+  const floor = 0.20 + 0.18*r;         // floor: low-reserve fades to 20%, high-reserve floors at 38%
   return floor + (1 - floor) / (1 + Math.exp(k*(age - center)));
 }
 
