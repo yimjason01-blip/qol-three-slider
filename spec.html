@@ -298,7 +298,7 @@ center(R) = γ₄ + γ₅ · Reserve_pct</div>
 <h3>Formula</h3>
 <p><code>floor = 36 + 18·r − 8·k</code> &nbsp; <code>ceil = 96</code> &nbsp; <code>midpoint = 66 + 20·r − 8·k</code> &nbsp; <code>slope = 0.09 − 0.01·r + 0.03·k</code></p>
 <p><code>base = floor + (ceil − floor) / (1 + exp(slope · (age − midpoint)))</code></p>
-<p><code>terminal = max(0, age − 85) · 1.5</code> &nbsp; <code>QoL = max(15, base − terminal)</code></p>
+<p><code>terminal = (1.5/0.6) · ln(1 + exp(0.6 · (age − 85)))</code> &nbsp; <code>QoL = max(15, base − terminal)</code></p>
 <p>Where <code>r = reserve/100</code> and <code>k = risk/100</code>. The terminal-compression term enforces Gill's finding that even no-disability-at-80 cohorts experience a final disability window — reserve buys years in the high bands, not exemption from the bottom ones.</p>
 
 <h3>Corner-case validation table</h3>

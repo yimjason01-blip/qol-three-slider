@@ -230,9 +230,11 @@ function qol(age, risk, reserve) {
   const slope    = 0.09 - 0.01*r + 0.03*k;   // gentler decline w/ reserve, steeper w/ risk
   const base = floor + (ceil - floor) / (1 + Math.exp(slope*(age - midpoint)));
   // Terminal compression (Gill 2010): even no-disability-at-80 cohorts had a final
-  // disability window. Activates at 85, 1.5 pts/year, hits everyone — reserve buys
-  // the YEARS in the high bands, not exemption from the bottom ones.
-  const terminal = Math.max(0, age - 85) * 1.5;
+  // disability window. Reserve buys the YEARS in the high bands, not exemption
+  // from the bottom ones. Softplus hinge centered on 85 — same asymptotic
+  // 1.5 pts/year decline as a hard hinge, but transitions in smoothly over
+  // ~6 years so the curve has no visible kink.
+  const terminal = (1.5 / 0.6) * Math.log(1 + Math.exp(0.6 * (age - 85)));
   return Math.max(15, base - terminal);
 }
 
