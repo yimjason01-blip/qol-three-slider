@@ -3,23 +3,23 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Quality of Life — three-axis model</title>
+<title>Quality of Life — risk, reserve, lifestyle</title>
 <style>
   :root {
     --bg:#0c0d10; --panel:#15171c; --panel-2:#181a20; --border:#23262d;
     --ink:#eceae3; --dim:#8f8c84; --subdim:#5e5c56;
-    --gold:#d4a574; --gold-dim:#7a6147;
+    --gold:#d4a574;
     --risk:#e08a6f; --reserve:#9ec5fe; --life:#86efac;
   }
   * { box-sizing: border-box; }
   html, body { margin:0; padding:0; background:var(--bg); color:var(--ink);
     font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-  .wrap { max-width: 1280px; margin: 0 auto; padding: 40px 32px 80px; }
-  h1 { font-size: 30px; font-weight: 600; letter-spacing:-0.5px; margin: 0 0 6px; }
-  .sub { color: var(--dim); font-size: 15px; margin: 0 0 6px; line-height:1.55; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 48px 32px 80px; }
+  h1 { font-size: 32px; font-weight: 600; letter-spacing:-0.5px; margin: 0 0 8px; }
+  .sub { color: var(--dim); font-size: 15px; margin: 0; line-height:1.6; max-width: 880px; }
   .sub b { color: var(--ink); font-weight: 600; }
   .stage { background: var(--panel); border:1px solid var(--border); border-radius: 12px;
-    padding: 28px 32px 20px; margin-top: 24px; }
+    padding: 28px 32px 22px; margin-top: 28px; }
   .panel-label { color: var(--gold); font-size: 12px; font-weight: 600;
     letter-spacing: 2px; margin: 0 0 6px; }
   .panel-meta { color: var(--dim); font-size: 12px; }
@@ -34,154 +34,116 @@
   .ctl-name.reserve { color: var(--reserve); }
   .ctl-name.life { color: var(--life); }
   .ctl-val  { font-size: 22px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
-  .ctl-tag { font-size: 11px; color: var(--dim); margin: 0 0 12px; line-height: 1.4; min-height: 30px; }
+  .ctl-tag { font-size: 11px; color: var(--dim); margin: 0 0 12px; line-height: 1.5; min-height: 32px; }
   .ctl-tag em { color: var(--ink); font-style: normal; font-weight: 500; }
   input[type=range] { width: 100%; -webkit-appearance: none; appearance: none;
     height: 4px; background: #2a2d33; border-radius: 2px; outline: none; margin-bottom: 14px; }
   input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px;
     border-radius: 50%; background: var(--ink); cursor: pointer; border: 2px solid var(--bg); }
-  .inputs { font-size: 11px; color: var(--subdim); line-height: 1.55; }
+  .inputs { font-size: 11px; color: var(--subdim); line-height: 1.6; }
   .inputs b { color: var(--dim); font-weight: 500; }
-  .legend { display:flex; gap: 22px; align-items:center; margin-top: 10px; font-size: 12px; color: var(--dim); }
-  .swatch { display:inline-block; width: 28px; height: 3px; vertical-align: middle; margin-right:8px; }
-  .kpis { display:grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 24px;
-    background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
-  .kpi { padding: 16px 20px; border-right: 1px solid var(--border); }
-  .kpi:last-child { border-right: none; }
-  .kpi-lab { font-size: 10px; letter-spacing:1.6px; color: var(--dim); }
-  .kpi-val { font-size: 26px; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
-  .kpi-sub { font-size: 11px; color: var(--dim); margin-top: 4px; }
 
-  .actions { margin-top: 28px; background: var(--panel); border:1px solid var(--border); border-radius: 12px; padding: 24px 28px 26px; }
-  .actions-h { display:flex; justify-content:space-between; align-items:flex-end; }
-  .actions-h h3 { margin: 0; font-size: 14px; font-weight:600; letter-spacing:1.8px; color: var(--gold); }
-  .actions-h p { margin: 0; font-size: 12px; color: var(--dim); max-width: 540px; text-align:right; }
-  .action-grid { display:grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 16px; }
-  .action { background: var(--panel-2); border:1px solid var(--border); border-radius: 8px;
-    padding: 14px 14px 12px; cursor: pointer; transition: border-color .15s, transform .1s; }
-  .action:hover { border-color: #3a3d44; transform: translateY(-1px); }
-  .action:active { transform: translateY(0); }
-  .action-name { font-size: 13px; font-weight:600; color: var(--ink); margin-bottom: 8px; }
-  .action-deltas { display:flex; gap: 10px; font-size: 11px; font-variant-numeric: tabular-nums; }
-  .delta { display:flex; align-items:center; gap:3px; }
-  .delta b { font-weight: 600; }
-  .d-risk { color: var(--risk); }
-  .d-reserve { color: var(--reserve); }
-  .d-life { color: var(--life); }
-  .reset { background: transparent; border:1px solid var(--border); color: var(--dim); border-radius: 6px; padding: 6px 12px; font-size: 11px; letter-spacing:1.5px; cursor: pointer; }
-  .reset:hover { color: var(--ink); border-color: #3a3d44; }
-  .note { color: var(--subdim); font-size: 11px; margin-top: 18px; line-height: 1.6; }
-  .note b { color: var(--dim); font-weight:500; }
+  .presets { display:flex; flex-wrap:wrap; gap: 8px; margin-top: 18px; }
+  .preset { background: var(--panel-2); border:1px solid var(--border); color: var(--ink);
+    border-radius: 6px; padding: 8px 14px; font-size: 12px; cursor: pointer; transition: border-color .12s; }
+  .preset:hover { border-color: #3a3d44; }
+  .preset.reset { color: var(--dim); }
+
+  .note { color: var(--subdim); font-size: 11px; margin-top: 22px; line-height: 1.65; max-width: 880px; }
+  .note b { color: var(--dim); font-weight: 500; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Quality of Life · age 47</h1>
-  <p class="sub">Three orthogonal input axes. <b>Risk and reserve shape the curve.</b> <b>Reserve and lifestyle render the line.</b> Real interventions cross all three.</p>
-  <p class="sub" style="margin-top:8px">Axes are constructed to be statistically independent: <em style="color:var(--risk);font-style:normal">Risk</em> is residualized against reserve (event predictors not already explained by capacity). <em style="color:var(--reserve);font-style:normal">Reserve</em> is functional capacity. <em style="color:var(--life);font-style:normal">Lifestyle</em> is strictly non-physical, non-capacity felt inputs. No input appears in two columns.</p>
+  <h1>Quality of Life · risk, reserve, lifestyle</h1>
+  <p class="sub">A teaching tool, not a forecast. Slide the three axes to see how they shape a lifetime quality-of-life curve. <b>Risk and reserve shape the geometry.</b> <b>Reserve and lifestyle render the line.</b> The three axes are constructed to be statistically independent — no input appears in two columns.</p>
 
   <div class="stage">
     <div class="head-row">
       <div>
-        <div class="panel-label">QUALITY OF LIFE TRAJECTORY</div>
-        <div class="panel-meta">Curve geometry = f(risk, reserve). Line render = g(reserve, lifestyle).</div>
+        <div class="panel-label">QUALITY OF LIFE OVER A LIFETIME</div>
+        <div class="panel-meta">Geometry = f(risk, reserve). Render = g(reserve, lifestyle).</div>
       </div>
       <div class="panel-meta">illustrative · not calibrated</div>
     </div>
     <svg id="chart" viewBox="0 0 1200 540" preserveAspectRatio="xMidYMid meet"></svg>
-    <div class="legend">
-      <span><span class="swatch" style="background:var(--gold)"></span>current plan</span>
-      <span><span class="swatch" style="background:var(--gold-dim);height:2px;border-top:1px dashed var(--gold-dim)"></span>no intervention</span>
-    </div>
   </div>
 
   <div class="controls">
     <div class="ctl">
-      <div class="ctl-head"><span class="ctl-name risk">RISK · residualized</span><span class="ctl-val" id="riskVal">35</span></div>
-      <p class="ctl-tag">Event probability <em>not already explained</em> by reserve. Biomarkers and structure.</p>
-      <input type="range" id="risk" min="0" max="100" value="35"/>
+      <div class="ctl-head"><span class="ctl-name risk">RISK · residualized</span><span class="ctl-val" id="riskVal">50</span></div>
+      <p class="ctl-tag">Probability of discrete bad events <em>not already explained</em> by reserve. Biomarkers and structure.</p>
+      <input type="range" id="risk" min="0" max="100" value="50"/>
       <div class="inputs">
         <b>Lipids</b> LDL-C, ApoB, Lp(a) · <b>BP</b> SBP, DBP · <b>Glycemic</b> A1c, fasting insulin · <b>Vascular</b> CAC, carotid IMT, plaque · <b>Inflammation</b> hsCRP · <b>Kidney</b> eGFR, UACR · <b>Genetic</b> ApoE, PRS, FH · <b>Family hx</b> · <b>Screening</b> colon, breast, prostate, lung · <b>Exposures</b> smoking, alcohol burden
       </div>
     </div>
 
     <div class="ctl">
-      <div class="ctl-head"><span class="ctl-name reserve">RESERVE · capacity</span><span class="ctl-val" id="reserveVal">65</span></div>
-      <p class="ctl-tag">Functional headroom. Bends the curve up <em>and</em> raises baseline render.</p>
-      <input type="range" id="reserve" min="0" max="100" value="65"/>
+      <div class="ctl-head"><span class="ctl-name reserve">RESERVE · capacity</span><span class="ctl-val" id="reserveVal">50</span></div>
+      <p class="ctl-tag">Functional headroom. Bends the curve up <em>and</em> contributes to the rendered ride.</p>
+      <input type="range" id="reserve" min="0" max="100" value="50"/>
       <div class="inputs">
         <b>Cardiorespiratory</b> VO₂max, recovery HR · <b>Musculoskeletal</b> lean mass, grip, leg strength · <b>Skeletal</b> bone density · <b>Metabolic flex</b> fat-ox capacity, RER · <b>Cognitive</b> processing speed, executive fn, brain volume · <b>Balance</b> SPPB, gait speed · <b>Pulmonary</b> FEV₁ · <b>Hormonal</b> free T, IGF-1, thyroid
       </div>
     </div>
 
     <div class="ctl">
-      <div class="ctl-head"><span class="ctl-name life">LIFESTYLE · felt</span><span class="ctl-val" id="lifeVal">60</span></div>
-      <p class="ctl-tag">Strictly non-physical, non-capacity. Render only — does not shape the curve.</p>
-      <input type="range" id="life" min="0" max="100" value="60"/>
+      <div class="ctl-head"><span class="ctl-name life">LIFESTYLE · felt</span><span class="ctl-val" id="lifeVal">50</span></div>
+      <p class="ctl-tag">Strictly non-physical, non-capacity. Renders the line — does not shape the curve.</p>
+      <input type="range" id="life" min="0" max="100" value="50"/>
       <div class="inputs">
         <b>Sleep quality</b> · <b>Mood</b> depression, anxiety · <b>Stress</b> perceived load, allostasis · <b>Connection</b> loneliness, relationships · <b>Purpose</b> meaning, engagement · <b>Drive</b> motivation, energy · <b>Libido</b> · <b>Pain</b> chronic burden · <b>Fatigue</b> subjective
       </div>
     </div>
   </div>
 
-  <div class="kpis">
-    <div class="kpi"><div class="kpi-lab">10-YR EVENT RISK</div><div class="kpi-val" id="kRisk">—</div><div class="kpi-sub">residualized risk slider</div></div>
-    <div class="kpi"><div class="kpi-lab">RESERVE PERCENTILE</div><div class="kpi-val" id="kReserve">—</div><div class="kpi-sub">vs age-matched cohort</div></div>
-    <div class="kpi"><div class="kpi-lab">PROJECTED QOL @ 75</div><div class="kpi-val" id="kQol">—</div><div class="kpi-sub">current plan</div></div>
-    <div class="kpi"><div class="kpi-lab">VITALITY (RENDER)</div><div class="kpi-val" id="kVit">—</div><div class="kpi-sub">0.5·reserve + 0.5·lifestyle</div></div>
-  </div>
-
-  <div class="actions">
-    <div class="actions-h">
-      <h3>ACTION LIBRARY</h3>
-      <p>Real interventions cross axes. Click one to apply its effect — sliders move together because biology doesn't respect column boundaries.</p>
-    </div>
-    <div class="action-grid" id="actionGrid"></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">
-      <div class="note" style="margin:0;max-width:760px">
-        <b>How to read deltas:</b> a Zone 2 program lifts <em style="color:var(--reserve);font-style:normal">reserve</em> directly (VO₂max, mito), lowers <em style="color:var(--risk);font-style:normal">residualized risk</em> indirectly (BP, lipids, A1c), and lifts <em style="color:var(--life);font-style:normal">lifestyle</em> via sleep and mood. Three axes, one habit. The chart geometry and render both move.
-      </div>
-      <button class="reset" id="resetBtn">RESET</button>
-    </div>
+  <div class="presets">
+    <button class="preset" data-r="10"  data-re="90" data-li="85">Strong on every axis</button>
+    <button class="preset" data-r="85"  data-re="20" data-li="25">Weak on every axis</button>
+    <button class="preset" data-r="20"  data-re="85" data-li="25">High reserve, burned out</button>
+    <button class="preset" data-r="80"  data-re="25" data-li="85">Feels great, no margin</button>
+    <button class="preset" data-r="20"  data-re="50" data-li="50">Low risk only</button>
+    <button class="preset" data-r="80"  data-re="50" data-li="50">High risk only</button>
+    <button class="preset reset" data-r="50" data-re="50" data-li="50">Reset</button>
   </div>
 
   <p class="note">
-    <b>Stress-test cases:</b>
-    high reserve + low lifestyle = curve bends up, line stays muted (the burned-out 50yo).
-    Low reserve + high lifestyle = curve collapses, line stays warm (the 25yo who feels invincible).
-    The model can show both honestly because the axes don't double-count.
+    <b>What the curve teaches.</b> Risk lowers the late-life floor by raising event probability. Reserve raises the floor and shifts the inflection point later, so decline starts later and is gentler. Together they produce the <em>shape</em> — the geometry that determines how the back half of life goes.
   </p>
   <p class="note">
-    <b>Render mix is locked:</b> brightness/saturation = 0.5·reserve + 0.5·lifestyle, floor 0.15. Risk does not affect render — only curve geometry. Reserve affects both, by design, because reserve genuinely contributes to felt vitality.
+    <b>What the line teaches.</b> Reserve and lifestyle together render brightness, color, and weight. High reserve alone produces a respectable glow because reserve genuinely contributes to felt vitality. Lifestyle adds the rest. The line carries the <em>ride</em> — how alive the system feels as it travels the curve.
+  </p>
+  <p class="note">
+    <b>What you can read off the model.</b> A bright line on a collapsing curve is the person who feels great today on a trajectory that is quietly failing. A muted line on a beautiful curve is the person whose biology is intact but who is not enjoying the journey. Both are real, and the model has to be able to show both honestly. That is the test the three axes pass — and the test the original two-axis (risk + reserve = quality of life) framing fails.
   </p>
 </div>
 
 <script>
-const AGE_MIN = 30, AGE_MAX = 85, TODAY = 47;
+const AGE_MIN = 20, AGE_MAX = 100;
 const W = 1200, H = 540;
 const M = { l: 70, r: 70, t: 40, b: 70 };
 const cx0 = M.l, cx1 = W - M.r;
 const cy_top = M.t, cy_bot = H - M.b;
 const svg = document.getElementById('chart');
-const DEFAULTS = { risk: 35, reserve: 65, life: 60 };
 
 function xAge(a) { return cx0 + (a-AGE_MIN)/(AGE_MAX-AGE_MIN) * (cx1-cx0); }
-function yQol(v) { return cy_bot - (v-20)/80 * (cy_bot-cy_top); }
+function yQol(v) { return cy_bot - (v-0)/100 * (cy_bot-cy_top); }
 
-function qol(age, risk, reserve, withPlan) {
-  const r = withPlan ? reserve/100 : 0.35;
-  const k = withPlan ? risk/100   : 0.65;
-  const floor = 25 + 45*r - 15*k;
-  const ceil  = 95;
-  const midpoint = 60 + 18*r - 8*k;
-  const slope   = 0.18 - 0.07*r + 0.05*k;
+function qol(age, risk, reserve) {
+  const r = reserve/100;
+  const k = risk/100;
+  const floor = 15 + 45*r - 18*k;
+  const ceil  = 95 + 3*r - 2*k;
+  const midpoint = 58 + 22*r - 10*k;
+  const slope   = 0.20 - 0.09*r + 0.06*k;
   return floor + (ceil - floor) / (1 + Math.exp(slope*(age - midpoint)));
 }
 
-function curvePath(risk, reserve, withPlan) {
+function curvePath(risk, reserve) {
   const pts = [];
   for (let a = AGE_MIN; a <= AGE_MAX; a += 0.5) {
-    pts.push(`${xAge(a).toFixed(1)},${yQol(qol(a, risk, reserve, withPlan)).toFixed(1)}`);
+    pts.push(`${xAge(a).toFixed(1)},${yQol(qol(a, risk, reserve)).toFixed(1)}`);
   }
   return pts.join(' ');
 }
@@ -192,30 +154,15 @@ function renderMix(reserve, life) {
 }
 
 function lineStyle(mix) {
-  const width = 1.6 + 2.9 * mix;
-  const hue = 30 + 10*mix;
-  const sat = 25 + 55*mix;
-  const lit = 38 + 32*mix;
+  const width = 1.8 + 3.2 * mix;
+  const hue = 30 + 12*mix;
+  const sat = 22 + 60*mix;
+  const lit = 36 + 36*mix;
   const color = `hsl(${hue}, ${sat}%, ${lit}%)`;
-  const glowOp = 0.0 + 0.55*Math.max(0, mix-0.2);
-  const glowWidth = width + 6 + 8*mix;
+  const glowOp = 0.0 + 0.6*Math.max(0, mix-0.18);
+  const glowWidth = width + 6 + 10*mix;
   return { width, color, glowOp, glowWidth };
 }
-
-const ACTIONS = [
-  { name: "Zone 2 cardio (4×/wk)", risk: -10, reserve: +15, life: +6 },
-  { name: "Strength training (3×/wk)", risk: -5,  reserve: +14, life: +5 },
-  { name: "Sleep coaching",         risk: -3,  reserve: +4,  life: +14 },
-  { name: "Statin + ApoB target",   risk: -22, reserve: 0,   life: -1 },
-  { name: "GLP-1 + diet protocol",  risk: -12, reserve: -3,  life: +4 },
-  { name: "Stress / mindfulness",   risk: -2,  reserve: +1,  life: +12 },
-  { name: "Smoking cessation",      risk: -18, reserve: +6,  life: +5 },
-  { name: "BP optimization",        risk: -14, reserve: +2,  life: +1 },
-  { name: "Strong social practice", risk: -3,  reserve: 0,   life: +13 },
-  { name: "Cognitive training",     risk: 0,   reserve: +6,  life: +4 },
-];
-
-function clamp(v) { return Math.max(0, Math.min(100, v)); }
 
 function render() {
   const risk = +document.getElementById('risk').value;
@@ -229,19 +176,14 @@ function render() {
   const mix = renderMix(reserve, life);
   const st = lineStyle(mix);
 
-  document.getElementById('kRisk').textContent = (4 + 0.20*risk).toFixed(0) + '%';
-  document.getElementById('kReserve').textContent = reserve;
-  document.getElementById('kQol').textContent = qol(75, risk, reserve, true).toFixed(0);
-  document.getElementById('kVit').textContent = (10*mix).toFixed(1);
-
   let s = '';
 
-  for (const v of [20,40,60,80,100]) {
+  for (const v of [0,20,40,60,80,100]) {
     const y = yQol(v);
     s += `<line x1="${cx0}" y1="${y}" x2="${cx1}" y2="${y}" stroke="#23262d" opacity="0.6"/>`;
     s += `<text x="${cx0-10}" y="${y+4}" fill="#8f8c84" font-size="11" text-anchor="end">${v}</text>`;
   }
-  for (const a of [30,40,50,60,70,80]) {
+  for (const a of [20,30,40,50,60,70,80,90,100]) {
     const x = xAge(a);
     s += `<line x1="${x}" y1="${cy_bot}" x2="${x}" y2="${cy_bot+5}" stroke="#5e5c56"/>`;
     s += `<text x="${x}" y="${cy_bot+22}" fill="#8f8c84" font-size="12" text-anchor="middle">${a}</text>`;
@@ -249,47 +191,16 @@ function render() {
   s += `<text x="${(cx0+cx1)/2}" y="${cy_bot+44}" fill="#5e5c56" font-size="11" text-anchor="middle" letter-spacing="1.5">AGE</text>`;
   s += `<text x="${cx0-46}" y="${(cy_top+cy_bot)/2}" fill="#5e5c56" font-size="11" text-anchor="middle" letter-spacing="1.5" transform="rotate(-90 ${cx0-46} ${(cy_top+cy_bot)/2})">QUALITY OF LIFE  ·  0–100</text>`;
 
-  const fillTop = [], fillBot = [];
-  for (let a = TODAY; a <= AGE_MAX; a += 0.5) {
-    fillTop.push(`${xAge(a).toFixed(1)},${yQol(qol(a, risk, reserve, true)).toFixed(1)}`);
-    fillBot.push(`${xAge(a).toFixed(1)},${yQol(qol(a, risk, reserve, false)).toFixed(1)}`);
-  }
-  s += `<polygon points="${fillTop.concat(fillBot.reverse()).join(' ')}" fill="${st.color}" opacity="0.08"/>`;
-
-  s += `<polyline points="${curvePath(risk, reserve, false)}" fill="none" stroke="#7a6147" stroke-width="2" stroke-dasharray="5 5" opacity="0.65"/>`;
+  // soft area fill under curve
+  const fill = [`${cx0},${cy_bot}`, ...curvePath(risk, reserve).split(' '), `${cx1},${cy_bot}`].join(' ');
+  s += `<polygon points="${fill}" fill="${st.color}" opacity="0.06"/>`;
 
   if (st.glowOp > 0.02) {
-    s += `<polyline points="${curvePath(risk, reserve, true)}" fill="none" stroke="${st.color}" stroke-width="${st.glowWidth}" opacity="${st.glowOp}" stroke-linecap="round" stroke-linejoin="round" filter="blur(4px)"/>`;
+    s += `<polyline points="${curvePath(risk, reserve)}" fill="none" stroke="${st.color}" stroke-width="${st.glowWidth}" opacity="${st.glowOp}" stroke-linecap="round" stroke-linejoin="round" filter="blur(4px)"/>`;
   }
-  s += `<polyline points="${curvePath(risk, reserve, true)}" fill="none" stroke="${st.color}" stroke-width="${st.width}" stroke-linecap="round" stroke-linejoin="round"/>`;
-
-  const tx = xAge(TODAY), ty = yQol(qol(TODAY, risk, reserve, true));
-  s += `<line x1="${tx}" y1="${cy_top}" x2="${tx}" y2="${cy_bot}" stroke="#eceae3" stroke-width="1" stroke-dasharray="3 4" opacity="0.3"/>`;
-  s += `<circle cx="${tx}" cy="${ty}" r="7" fill="#eceae3"/>`;
-  s += `<text x="${tx+12}" y="${ty-10}" fill="#eceae3" font-size="13" font-weight="600">today</text>`;
-
-  const x80 = xAge(80);
-  const y80yes = yQol(qol(80, risk, reserve, true));
-  const y80no  = yQol(qol(80, risk, reserve, false));
-  s += `<circle cx="${x80}" cy="${y80yes}" r="4" fill="${st.color}"/>`;
-  s += `<text x="${x80-10}" y="${y80yes-10}" fill="${st.color}" font-size="12" font-weight="600" text-anchor="end">with plan · ${qol(80,risk,reserve,true).toFixed(0)}</text>`;
-  s += `<circle cx="${x80}" cy="${y80no}" r="3" fill="#7a6147"/>`;
-  s += `<text x="${x80-10}" y="${y80no+16}" fill="#7a6147" font-size="11" text-anchor="end">no plan · ${qol(80,risk,reserve,false).toFixed(0)}</text>`;
+  s += `<polyline points="${curvePath(risk, reserve)}" fill="none" stroke="${st.color}" stroke-width="${st.width}" stroke-linecap="round" stroke-linejoin="round"/>`;
 
   svg.innerHTML = s;
-}
-
-function applyAction(a) {
-  // Risk delta is negative = risk goes DOWN. Slider value = risk magnitude, so subtract.
-  const r = document.getElementById('risk');
-  const re = document.getElementById('reserve');
-  const li = document.getElementById('life');
-  const targetR  = clamp(+r.value  + a.risk);
-  const targetRe = clamp(+re.value + a.reserve);
-  const targetLi = clamp(+li.value + a.life);
-  animateTo(r,  targetR);
-  animateTo(re, targetRe);
-  animateTo(li, targetLi);
 }
 
 function animateTo(input, target) {
@@ -307,35 +218,14 @@ function animateTo(input, target) {
   requestAnimationFrame(step);
 }
 
-function fmtDelta(n) {
-  if (n === 0) return '0';
-  return (n > 0 ? '+' : '') + n;
-}
-
-function buildActions() {
-  const grid = document.getElementById('actionGrid');
-  grid.innerHTML = ACTIONS.map((a, i) => `
-    <div class="action" data-i="${i}">
-      <div class="action-name">${a.name}</div>
-      <div class="action-deltas">
-        <span class="delta d-risk">RISK <b>${fmtDelta(a.risk)}</b></span>
-        <span class="delta d-reserve">RES <b>${fmtDelta(a.reserve)}</b></span>
-        <span class="delta d-life">LIFE <b>${fmtDelta(a.life)}</b></span>
-      </div>
-    </div>
-  `).join('');
-  grid.querySelectorAll('.action').forEach(el => {
-    el.addEventListener('click', () => applyAction(ACTIONS[+el.dataset.i]));
-  });
-}
-
 ['risk','reserve','life'].forEach(id => document.getElementById(id).addEventListener('input', render));
-document.getElementById('resetBtn').addEventListener('click', () => {
-  animateTo(document.getElementById('risk'), DEFAULTS.risk);
-  animateTo(document.getElementById('reserve'), DEFAULTS.reserve);
-  animateTo(document.getElementById('life'), DEFAULTS.life);
+document.querySelectorAll('.preset').forEach(b => {
+  b.addEventListener('click', () => {
+    animateTo(document.getElementById('risk'),    +b.dataset.r);
+    animateTo(document.getElementById('reserve'), +b.dataset.re);
+    animateTo(document.getElementById('life'),    +b.dataset.li);
+  });
 });
-buildActions();
 render();
 </script>
 </body>
