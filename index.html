@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Quality of Life — three-slider prototype</title>
+<style>
+  :root {
+    --bg:#0c0d10; --panel:#15171c; --border:#23262d;
+    --ink:#eceae3; --dim:#8f8c84; --subdim:#5e5c56;
+    --gold:#d4a574; --gold-dim:#7a6147;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:var(--bg); color:var(--ink);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 40px 32px 64px; }
+  h1 { font-size: 30px; font-weight: 600; letter-spacing:-0.5px; margin: 0 0 6px; }
+  .sub { color: var(--dim); font-size: 15px; margin: 0 0 28px; }
+  .stage { background: var(--panel); border:1px solid var(--border); border-radius: 12px;
+    padding: 28px 32px 20px; }
+  .panel-label { color: var(--gold); font-size: 12px; font-weight: 600;
+    letter-spacing: 2px; margin: 0 0 6px; }
+  .panel-meta { color: var(--dim); font-size: 12px; }
+  .head-row { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 6px; }
+  svg { display:block; width:100%; height:auto; }
+  .controls { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;
+    margin-top: 28px; }
+  .ctl { background: var(--panel); border:1px solid var(--border); border-radius: 10px;
+    padding: 18px 20px; }
+  .ctl-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 4px; }
+  .ctl-name { font-size: 11px; font-weight:600; letter-spacing:1.8px; color: var(--dim); }
+  .ctl-val  { font-size: 22px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .ctl-desc { font-size: 12px; color: var(--dim); margin: 0 0 14px; line-height: 1.45; min-height: 32px; }
+  input[type=range] { width: 100%; -webkit-appearance: none; appearance: none;
+    height: 4px; background: #2a2d33; border-radius: 2px; outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px;
+    border-radius: 50%; background: var(--ink); cursor: pointer; border: 2px solid var(--bg); }
+  .legend { display:flex; gap: 22px; align-items:center; margin-top: 12px; font-size: 12px; color: var(--dim); }
+  .swatch { display:inline-block; width: 28px; height: 3px; vertical-align: middle; margin-right:8px; }
+  .kpis { display:grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 28px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
+  .kpi { padding: 18px 22px; border-right: 1px solid var(--border); }
+  .kpi:last-child { border-right: none; }
+  .kpi-lab { font-size: 10px; letter-spacing:1.6px; color: var(--dim); }
+  .kpi-val { font-size: 28px; font-weight: 700; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  .kpi-sub { font-size: 11px; color: var(--dim); margin-top: 4px; }
+  .note { color: var(--subdim); font-size: 11px; margin-top: 18px; line-height: 1.55; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Quality of Life · age 47</h1>
+  <p class="sub">Risk and reserve shape the curve. Reserve and lifestyle render the ride.</p>
+
+  <div class="stage">
+    <div class="head-row">
+      <div>
+        <div class="panel-label">QUALITY OF LIFE TRAJECTORY</div>
+        <div class="panel-meta">Curve geometry = f(risk, reserve). Line render = g(reserve, lifestyle).</div>
+      </div>
+      <div class="panel-meta">illustrative · not calibrated</div>
+    </div>
+    <svg id="chart" viewBox="0 0 1200 540" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--gold)"></span>current plan</span>
+      <span><span class="swatch" style="background:var(--gold-dim);height:2px;border-top:1px dashed var(--gold-dim)"></span>no intervention</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="ctl">
+      <div class="ctl-head"><span class="ctl-name">RISK</span><span class="ctl-val" id="riskVal">50</span></div>
+      <p class="ctl-desc">Probability of discrete bad events (MI, cancer dx, fracture). Lowering risk lifts the late-life floor.</p>
+      <input type="range" id="risk" min="0" max="100" value="35"/>
+    </div>
+    <div class="ctl">
+      <div class="ctl-head"><span class="ctl-name">RESERVE</span><span class="ctl-val" id="reserveVal">50</span></div>
+      <p class="ctl-desc">Functional headroom — VO₂max, muscle, cognition, bone. Bends the curve up <em>and</em> raises baseline render.</p>
+      <input type="range" id="reserve" min="0" max="100" value="65"/>
+    </div>
+    <div class="ctl">
+      <div class="ctl-head"><span class="ctl-name">LIFESTYLE FACTORS</span><span class="ctl-val" id="lifeVal">50</span></div>
+      <p class="ctl-desc">Non-reserve vitality inputs — sleep, mood, recovery, libido, drive, stress. Renders only; does not shape the curve.</p>
+      <input type="range" id="life" min="0" max="100" value="60"/>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-lab">10-YR EVENT RISK</div><div class="kpi-val" id="kRisk">—</div><div class="kpi-sub">derived from risk slider</div></div>
+    <div class="kpi"><div class="kpi-lab">RESERVE PERCENTILE</div><div class="kpi-val" id="kReserve">—</div><div class="kpi-sub">vs age-matched cohort</div></div>
+    <div class="kpi"><div class="kpi-lab">PROJECTED QOL @ 75</div><div class="kpi-val" id="kQol">—</div><div class="kpi-sub">current plan</div></div>
+    <div class="kpi"><div class="kpi-lab">VITALITY (RENDER)</div><div class="kpi-val" id="kVit">—</div><div class="kpi-sub">0.5·reserve + 0.5·lifestyle</div></div>
+  </div>
+
+  <p class="note">Render mix is locked: brightness/saturation = 0.5·reserve + 0.5·lifestyle (both 0–1). Floor ≥ 0.15 so the line is always legible. Risk does not affect render — only curve geometry. Reserve affects both.</p>
+</div>
+
+<script>
+const AGE_MIN = 30, AGE_MAX = 85, TODAY = 47;
+const W = 1200, H = 540;
+const M = { l: 70, r: 70, t: 40, b: 70 };
+const cx0 = M.l, cx1 = W - M.r;
+const cy_top = M.t, cy_bot = H - M.b;
+
+const svg = document.getElementById('chart');
+
+function xAge(a) { return cx0 + (a-AGE_MIN)/(AGE_MAX-AGE_MIN) * (cx1-cx0); }
+function yQol(v) { return cy_bot - (v-20)/80 * (cy_bot-cy_top); }
+
+// Curve model
+// risk slider 0..100  → higher = more event probability → lower late-life floor
+// reserve slider 0..100 → higher = headroom maintained later, gentler decline
+function qol(age, risk, reserve, withPlan) {
+  // baseline logistic decline
+  // floor and midpoint move with risk and reserve
+  const r = withPlan ? reserve/100 : 0.35;          // no-plan baseline
+  const k = withPlan ? risk/100   : 0.65;            // no-plan baseline
+  const floor = 25 + 45*r - 15*k;                    // late-life floor
+  const ceil  = 95;
+  const midpoint = 60 + 18*r - 8*k;                  // when decline hits halfway
+  const slope   = 0.18 - 0.07*r + 0.05*k;            // gentler with reserve
+  return floor + (ceil - floor) / (1 + Math.exp(slope*(age - midpoint)));
+}
+
+function curvePath(risk, reserve, withPlan) {
+  const pts = [];
+  for (let a = AGE_MIN; a <= AGE_MAX; a += 0.5) {
+    pts.push(`${xAge(a).toFixed(1)},${yQol(qol(a, risk, reserve, withPlan)).toFixed(1)}`);
+  }
+  return pts.join(' ');
+}
+
+// Render mix
+function renderMix(reserve, life) {
+  const m = 0.5*(reserve/100) + 0.5*(life/100);  // 0..1
+  return Math.max(0.15, Math.min(1, m));
+}
+
+// Map mix → visual treatment
+function lineStyle(mix) {
+  // width: 1.6 → 4.5
+  const width = 1.6 + 2.9 * mix;
+  // saturation/brightness: dim gold → bright warm gold
+  // use hsl: gold-dim ~ hsl(30, 25%, 38%); gold ~ hsl(30, 50%, 64%); peak ~ hsl(40, 78%, 70%)
+  const hue = 30 + 10*mix;
+  const sat = 25 + 55*mix;
+  const lit = 38 + 32*mix;
+  const color = `hsl(${hue}, ${sat}%, ${lit}%)`;
+  // glow opacity 0 → 0.55
+  const glowOp = 0.0 + 0.55*Math.max(0, mix-0.2);
+  const glowWidth = width + 6 + 8*mix;
+  return { width, color, glowOp, glowWidth };
+}
+
+function render() {
+  const risk = +document.getElementById('risk').value;
+  const reserve = +document.getElementById('reserve').value;
+  const life = +document.getElementById('life').value;
+
+  document.getElementById('riskVal').textContent = risk;
+  document.getElementById('reserveVal').textContent = reserve;
+  document.getElementById('lifeVal').textContent = life;
+
+  const mix = renderMix(reserve, life);
+  const st = lineStyle(mix);
+
+  // KPIs
+  const eventRisk = (4 + 0.20*risk).toFixed(0);
+  const reservePct = reserve;
+  const qol75 = qol(75, risk, reserve, true).toFixed(0);
+  const vit = (10 * mix).toFixed(1);
+  document.getElementById('kRisk').textContent = eventRisk + '%';
+  document.getElementById('kReserve').textContent = reservePct;
+  document.getElementById('kQol').textContent = qol75;
+  document.getElementById('kVit').textContent = vit;
+
+  // Build SVG
+  let s = '';
+
+  // grid
+  for (const v of [20,40,60,80,100]) {
+    const y = yQol(v);
+    s += `<line x1="${cx0}" y1="${y}" x2="${cx1}" y2="${y}" stroke="#23262d" opacity="0.6"/>`;
+    s += `<text x="${cx0-10}" y="${y+4}" fill="#8f8c84" font-size="11" text-anchor="end">${v}</text>`;
+  }
+  // age axis
+  for (const a of [30,40,50,60,70,80]) {
+    const x = xAge(a);
+    s += `<line x1="${x}" y1="${cy_bot}" x2="${x}" y2="${cy_bot+5}" stroke="#5e5c56"/>`;
+    s += `<text x="${x}" y="${cy_bot+22}" fill="#8f8c84" font-size="12" text-anchor="middle">${a}</text>`;
+  }
+  s += `<text x="${(cx0+cx1)/2}" y="${cy_bot+44}" fill="#5e5c56" font-size="11" text-anchor="middle" letter-spacing="1.5">AGE</text>`;
+  s += `<text x="${cx0-46}" y="${(cy_top+cy_bot)/2}" fill="#5e5c56" font-size="11" text-anchor="middle" letter-spacing="1.5" transform="rotate(-90 ${cx0-46} ${(cy_top+cy_bot)/2})">QUALITY OF LIFE  ·  0–100</text>`;
+
+  // shaded gain region (between no-plan and plan, age >= TODAY)
+  const fillTop = [], fillBot = [];
+  for (let a = TODAY; a <= AGE_MAX; a += 0.5) {
+    fillTop.push(`${xAge(a).toFixed(1)},${yQol(qol(a, risk, reserve, true)).toFixed(1)}`);
+    fillBot.push(`${xAge(a).toFixed(1)},${yQol(qol(a, risk, reserve, false)).toFixed(1)}`);
+  }
+  s += `<polygon points="${fillTop.concat(fillBot.reverse()).join(' ')}" fill="${st.color}" opacity="0.08"/>`;
+
+  // no-plan curve
+  s += `<polyline points="${curvePath(risk, reserve, false)}" fill="none" stroke="#7a6147" stroke-width="2" stroke-dasharray="5 5" opacity="0.65"/>`;
+
+  // plan curve — glow + main
+  if (st.glowOp > 0.02) {
+    s += `<polyline points="${curvePath(risk, reserve, true)}" fill="none" stroke="${st.color}" stroke-width="${st.glowWidth}" opacity="${st.glowOp}" stroke-linecap="round" stroke-linejoin="round" filter="blur(4px)"/>`;
+  }
+  s += `<polyline points="${curvePath(risk, reserve, true)}" fill="none" stroke="${st.color}" stroke-width="${st.width}" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+  // today marker
+  const tx = xAge(TODAY), ty = yQol(qol(TODAY, risk, reserve, true));
+  s += `<line x1="${tx}" y1="${cy_top}" x2="${tx}" y2="${cy_bot}" stroke="#eceae3" stroke-width="1" stroke-dasharray="3 4" opacity="0.3"/>`;
+  s += `<circle cx="${tx}" cy="${ty}" r="7" fill="#eceae3"/>`;
+  s += `<text x="${tx+12}" y="${ty-10}" fill="#eceae3" font-size="13" font-weight="600">today</text>`;
+
+  // end-state callouts at 80
+  const x80 = xAge(80);
+  const y80yes = yQol(qol(80, risk, reserve, true));
+  const y80no  = yQol(qol(80, risk, reserve, false));
+  s += `<circle cx="${x80}" cy="${y80yes}" r="4" fill="${st.color}"/>`;
+  s += `<text x="${x80-10}" y="${y80yes-10}" fill="${st.color}" font-size="12" font-weight="600" text-anchor="end">with plan · ${qol(80,risk,reserve,true).toFixed(0)}</text>`;
+  s += `<circle cx="${x80}" cy="${y80no}" r="3" fill="#7a6147"/>`;
+  s += `<text x="${x80-10}" y="${y80no+16}" fill="#7a6147" font-size="11" text-anchor="end">no plan · ${qol(80,risk,reserve,false).toFixed(0)}</text>`;
+
+  svg.innerHTML = s;
+}
+
+['risk','reserve','life'].forEach(id => document.getElementById(id).addEventListener('input', render));
+render();
+</script>
+</body>
+</html>
