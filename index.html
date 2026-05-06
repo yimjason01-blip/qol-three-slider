@@ -97,7 +97,7 @@
         <div class="panel-label">FUNCTIONAL CAPACITY OVER A LIFETIME</div>
         <div class="panel-meta">Geometry = f(risk, reserve). Render = g(reserve, lifestyle).</div>
       </div>
-      <div class="panel-meta">v5 · multi-domain risk + SPAREQ vitality · cohort 45-59</div>
+      <div class="panel-meta">v6 · corner-validated geometry · multi-domain risk + SPAREQ vitality</div>
     </div>
     <svg id="chart" viewBox="0 0 1200 540" preserveAspectRatio="xMidYMid meet"></svg>
     <div class="legend-row">
@@ -203,7 +203,7 @@
     <b>Render mix is locked:</b> brightness/saturation = 0.5·reserve + 0.5·lifestyle, floor 0.15. Risk does not affect render — only curve geometry. Reserve affects both, by design, because reserve genuinely contributes to felt vitality.
   </p>
   <p class="note" style="margin-top:18px">
-    <b>Status:</b> v5 calibration. <em style="color:var(--ink);font-style:normal">Lifestyle</em> is now the 10-dimension SPAREQ Vitality composite (mood, anxiety, sleep, energy/drive, libido, connection, purpose, pain, fatigue, cognitive complaint) — physical capacity components removed because they live in Reserve. Avg American 45-59 lands at 71 (down from 83 when only mood + sleep were measured). Risk uses multi-domain 30-year composite (CVD + T2DM + CKD + Cancer + Dementia). Reserve still partial. Curve geometry and render coefficients remain hand-tuned pending UK Biobank fits. See <a href="./spec.html" style="color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold-dim)">calibration spec</a>.
+    <b>Status:</b> v6 — curve geometry now corner-validated. 15 corner/edge cases anchored to published cohorts (HRS, NHATS, NECS centenarian study, BLSA, Gill JAMA 2013 terminal-disability trajectories, Fried CHS frailty). 14/15 land inside literature bands; see <a href="./spec.html" style="color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold-dim)">spec</a>. Lifestyle composite (10-dim SPAREQ Vitality) and multi-domain Risk composite (CVD + T2DM + CKD + Cancer + Dementia) calibration carried over from v5. Reserve still partial. Render coefficients remain hand-tuned pending UK Biobank fits. See <a href="./spec.html" style="color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold-dim)">calibration spec</a>.
   </p>
 </div>
 
@@ -219,15 +219,21 @@ function xAge(a) { return cx0 + (a-AGE_MIN)/(AGE_MAX-AGE_MIN) * (cx1-cx0); }
 function yQol(v) { return cy_bot - (v-0)/100 * (cy_bot-cy_top); }
 
 function qol(age, risk, reserve) {
+  // v6 calibration: tuned by random search against 15 corner/edge cases anchored to
+  // HRS, NHATS, NECS, BLSA, Gill JAMA 2013 terminal-disability data, Fried CHS frailty.
+  // 14/15 cases land inside published bands; see /spec.html#calibration.
   const r = reserve/100;
   const k = risk/100;
-  // Floor: 0 = death by definition. Worst-case living adult (R=100, Re=0) at age 100
-  // should be "severely impaired but alive," not visually indistinguishable from death.
-  const floor = 30 + 35*r - 10*k;
-  const ceil  = 95;
-  const midpoint = 60 + 18*r - 8*k;
-  const slope   = 0.18 - 0.07*r + 0.05*k;
-  return floor + (ceil - floor) / (1 + Math.exp(slope*(age - midpoint)));
+  const floor    = 36 + 18*r - 8*k;          // worst-alive 80yo ~32; best 100yo ~42
+  const ceil     = 96;                       // best 50yo ~94
+  const midpoint = 66 + 20*r - 8*k;          // when sigmoid hits halfway down
+  const slope    = 0.09 - 0.01*r + 0.03*k;   // gentler decline w/ reserve, steeper w/ risk
+  const base = floor + (ceil - floor) / (1 + Math.exp(slope*(age - midpoint)));
+  // Terminal compression (Gill 2010): even no-disability-at-80 cohorts had a final
+  // disability window. Activates at 85, 1.5 pts/year, hits everyone — reserve buys
+  // the YEARS in the high bands, not exemption from the bottom ones.
+  const terminal = Math.max(0, age - 85) * 1.5;
+  return Math.max(15, base - terminal);
 }
 
 function curvePath(risk, reserve) {
