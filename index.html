@@ -80,7 +80,7 @@
         <div class="panel-label">QUALITY OF LIFE OVER A LIFETIME</div>
         <div class="panel-meta">Geometry = f(risk, reserve). Render = g(reserve, lifestyle).</div>
       </div>
-      <div class="panel-meta">v4 · multi-domain risk · cohort 45-59</div>
+      <div class="panel-meta">v5 · multi-domain risk + SPAREQ vitality · cohort 45-59</div>
     </div>
     <svg id="chart" viewBox="0 0 1200 540" preserveAspectRatio="xMidYMid meet"></svg>
     <div class="legend-row">
@@ -137,7 +137,7 @@
         <span class="tick" style="left:0%"><b>0</b>chronic<br/>poor</span>
         <span class="tick" style="left:25%"><b>25</b>poor</span>
         <span class="tick" style="left:50%"><b>50</b>moderate</span>
-        <span class="tick avg" style="left:83%"><b>83</b>avg<br/>American</span>
+        <span class="tick avg" style="left:71%"><b>71</b>avg<br/>American</span>
         <span class="tick" style="left:100%"><b>100</b>optimal</span>
       </div>
       <div class="inputs">
@@ -153,7 +153,7 @@
     <button class="preset" data-r="80"  data-re="25" data-li="85">Feels great, no margin</button>
     <button class="preset" data-r="20"  data-re="50" data-li="50">Low risk only</button>
     <button class="preset" data-r="80"  data-re="50" data-li="50">High risk only</button>
-    <button class="preset" data-r="66"  data-re="50" data-li="83">Avg American 45-59</button>
+    <button class="preset" data-r="66"  data-re="50" data-li="71">Avg American 45-59</button>
     <button class="preset reset" data-r="50" data-re="50" data-li="50">Reset to neutral</button>
   </div>
 
@@ -170,7 +170,7 @@
     <b>Render mix is locked:</b> brightness/saturation = 0.5·reserve + 0.5·lifestyle, floor 0.15. Risk does not affect render — only curve geometry. Reserve affects both, by design, because reserve genuinely contributes to felt vitality.
   </p>
   <p class="note" style="margin-top:18px">
-    <b>Status:</b> v4 calibration. <em style="color:var(--ink);font-style:normal">Risk</em> is the multi-domain 30-year composite of CVD, T2DM, CKD, cancer, and dementia (independent composition; reserve-orthogonal by construction since no model uses capacity inputs). Avg American 45-59 has 86% probability of at least one major event in 30 years, mapped to slider 66. Per-domain: T2DM 54%, CKD 37%, Cancer 33%, Dementia 24%, CVD 23%. Reserve and Lifestyle remain partially-calibrated NHANES composites; curve geometry and render coefficients still hand-tuned pending UK Biobank fits. See <a href="./spec.html" style="color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold-dim)">calibration spec</a>.
+    <b>Status:</b> v5 calibration. <em style="color:var(--ink);font-style:normal">Lifestyle</em> is now the 10-dimension SPAREQ Vitality composite (mood, anxiety, sleep, energy/drive, libido, connection, purpose, pain, fatigue, cognitive complaint) — physical capacity components removed because they live in Reserve. Avg American 45-59 lands at 71 (down from 83 when only mood + sleep were measured). Risk uses multi-domain 30-year composite (CVD + T2DM + CKD + Cancer + Dementia). Reserve still partial. Curve geometry and render coefficients remain hand-tuned pending UK Biobank fits. See <a href="./spec.html" style="color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold-dim)">calibration spec</a>.
   </p>
 </div>
 
@@ -238,15 +238,15 @@ function styleAtAge(age, mixBase, reserve) {
   return lineStyle(m);
 }
 
-// Average American reference. v4 calibration (multi-domain 30-year):
+// Average American reference. v5 calibration (10-dimension SPAREQ Vitality lifestyle):
 //   Risk     = 66  (composite of CVD + T2DM + CKD + Cancer + Dementia, 30-year horizon, NHANES 45-59)
-//                   86% of midlife Americans will experience at least one major event in 30 years.
-//                   Per-domain: T2DM 54%, CKD 37%, Cancer 33%, Dementia 24%, CVD 23%.
 //   Reserve  = 50  (3-component composite: VO2max + grip + DSST, NHANES medians, literature anchors)
-//   Lifestyle = 83 (NHANES PHQ-9 + sleep, with -8 adjustment for uncovered components)
+//   Lifestyle = 71 (10-dimension composite: NHANES mood + sleep + 8 prevalence-derived dimensions
+//                   covering anxiety, energy/drive, libido, connection, purpose, pain, fatigue,
+//                   cognitive complaint; SPAREQ Vitality dimensions minus physical capacity)
 // Cohort focus: ages 45-59 (Meridian's prevention-curious midlife target).
 // See spec.html and the qol-calibration repo for full methodology.
-const AVG_AMERICAN = { risk: 66, reserve: 50, life: 83 };
+const AVG_AMERICAN = { risk: 66, reserve: 50, life: 71 };
 
 function render() {
   const risk = +document.getElementById('risk').value;
