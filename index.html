@@ -80,7 +80,7 @@
         <div class="panel-label">QUALITY OF LIFE OVER A LIFETIME</div>
         <div class="panel-meta">Geometry = f(risk, reserve). Render = g(reserve, lifestyle).</div>
       </div>
-      <div class="panel-meta">partially calibrated · v2</div>
+      <div class="panel-meta">v3 · partially calibrated · cohort 45-59</div>
     </div>
     <svg id="chart" viewBox="0 0 1200 540" preserveAspectRatio="xMidYMid meet"></svg>
     <div class="legend-row">
@@ -98,12 +98,12 @@
 
   <div class="controls">
     <div class="ctl">
-      <div class="ctl-head"><span class="ctl-name risk">RISK · residualized</span><span class="ctl-val" id="riskVal">50</span></div>
-      <p class="ctl-tag">Probability of discrete bad events <em>not already explained</em> by reserve. Biomarkers and structure.</p>
+      <div class="ctl-head"><span class="ctl-name risk">RISK · 30-year CVD event probability</span><span class="ctl-val" id="riskVal">50</span></div>
+      <p class="ctl-tag">Lifetime probability of MI, stroke, CV death, or hospitalized HF over 30 years. PREVENT 2024.</p>
       <input type="range" id="risk" min="0" max="100" value="50"/>
       <div class="ctl-scale">
         <span class="tick" style="left:0%"><b>0</b>optimal</span>
-        <span class="tick avg" style="left:22%"><b>22</b>avg<br/>American</span>
+        <span class="tick avg" style="left:25%"><b>25</b>avg<br/>American</span>
         <span class="tick" style="left:50%"><b>50</b>moderate</span>
         <span class="tick" style="left:75%"><b>75</b>elevated</span>
         <span class="tick" style="left:100%"><b>100</b>high</span>
@@ -153,7 +153,7 @@
     <button class="preset" data-r="80"  data-re="25" data-li="85">Feels great, no margin</button>
     <button class="preset" data-r="20"  data-re="50" data-li="50">Low risk only</button>
     <button class="preset" data-r="80"  data-re="50" data-li="50">High risk only</button>
-    <button class="preset" data-r="22"  data-re="50" data-li="83">Avg American</button>
+    <button class="preset" data-r="25"  data-re="50" data-li="83">Avg American 45-59</button>
     <button class="preset reset" data-r="50" data-re="50" data-li="50">Reset to neutral</button>
   </div>
 
@@ -170,7 +170,7 @@
     <b>Render mix is locked:</b> brightness/saturation = 0.5·reserve + 0.5·lifestyle, floor 0.15. Risk does not affect render — only curve geometry. Reserve affects both, by design, because reserve genuinely contributes to felt vitality.
   </p>
   <p class="note" style="margin-top:18px">
-    <b>Status:</b> partially calibrated (v2). Avg American is now <em style="color:var(--ink);font-style:normal">NHANES-derived</em>: Risk from PREVENT 2024 across 5,597 adults; Reserve from VO₂max + grip + DSST medians; Lifestyle from PHQ-9 + sleep with documented gap adjustment for uncovered components. Curve geometry and render coefficients remain hand-tuned pending UK Biobank fits. See <a href="./spec.html" style="color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold-dim)">calibration spec</a>.
+    <b>Status:</b> v3 calibration. <em style="color:var(--ink);font-style:normal">Risk</em> uses PREVENT 2024 with a 30-year horizon to capture lifetime trajectory rather than near-term events. <em style="color:var(--ink);font-style:normal">Avg American</em> is anchored to ages 45-59 (Meridian's prevention-curious target): mean 30-year CVD risk ≈ 23%, mapped to slider 25. Reserve and Lifestyle remain partially-calibrated NHANES composites; curve geometry and render coefficients still hand-tuned pending UK Biobank fits. See <a href="./spec.html" style="color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold-dim)">calibration spec</a>.
   </p>
 </div>
 
@@ -238,12 +238,13 @@ function styleAtAge(age, mixBase, reserve) {
   return lineStyle(m);
 }
 
-// Average American reference. v2 calibration (NHANES-derived):
-//   Risk     = 22  (PREVENT 2024 total CVD, population mean as percentile of NHANES distribution; CVD-only)
-//   Reserve  = 50  (3-component composite: VO2max + grip + DSST, NHANES medians mapped to literature anchors)
-//   Lifestyle = 83 (NHANES PHQ-9 + sleep duration, with -8 adjustment for uncovered components)
+// Average American reference. v3 calibration (NHANES + PREVENT 30-year):
+//   Risk     = 25  (PREVENT 2024 30-year total CVD, NHANES adults 45-59 mean lifetime risk ~23%)
+//   Reserve  = 50  (3-component composite: VO2max + grip + DSST, NHANES medians, literature anchors)
+//   Lifestyle = 83 (NHANES PHQ-9 + sleep, with -8 adjustment for uncovered components)
+// Cohort focus: ages 45-59 (Meridian's prevention-curious midlife target).
 // See spec.html and the qol-calibration repo for full methodology.
-const AVG_AMERICAN = { risk: 22, reserve: 50, life: 83 };
+const AVG_AMERICAN = { risk: 25, reserve: 50, life: 83 };
 
 function render() {
   const risk = +document.getElementById('risk').value;
