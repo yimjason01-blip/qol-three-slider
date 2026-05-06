@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>QoL · Calibration Spec v1</title>
+<style>
+  :root {
+    --bg:#0c0d10; --panel:#15171c; --panel-2:#181a20; --border:#23262d;
+    --ink:#eceae3; --dim:#a8a59c; --subdim:#6e6c66;
+    --gold:#d4a574;
+    --risk:#e08a6f; --reserve:#9ec5fe; --life:#86efac;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:var(--bg); color:var(--ink);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.65; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 56px 32px 96px; }
+  a { color: var(--gold); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .topnav { font-size: 12px; color: var(--dim); margin-bottom: 24px; letter-spacing: 1px; }
+  h1 { font-size: 30px; font-weight: 600; letter-spacing:-0.5px; margin: 0 0 8px; }
+  .meta { color: var(--dim); font-size: 13px; margin-bottom: 36px; }
+  h2 { font-size: 19px; font-weight: 600; margin: 48px 0 14px; padding-top: 20px;
+    border-top: 1px solid var(--border); letter-spacing: -0.2px; }
+  h3 { font-size: 15px; font-weight: 600; margin: 28px 0 8px; color: var(--ink);
+    letter-spacing: 1px; text-transform: uppercase; font-size: 12px; color: var(--dim); }
+  p { margin: 0 0 14px; font-size: 15px; color: var(--ink); }
+  .brief { background: var(--panel); border-left: 2px solid var(--gold);
+    padding: 16px 22px; margin: 14px 0 24px; border-radius: 0 8px 8px 0; font-size: 15px; }
+  .brief b { color: var(--gold); font-weight: 600; letter-spacing: 1.5px; font-size: 11px;
+    display: block; margin-bottom: 4px; }
+  ul { padding-left: 22px; margin: 0 0 14px; }
+  li { margin-bottom: 8px; font-size: 15px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 22px; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--dim); font-weight: 500; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; }
+  td { color: var(--ink); }
+  td.weight { color: var(--gold); font-variant-numeric: tabular-nums; font-weight: 500; width: 60px; }
+  code { background: var(--panel); border:1px solid var(--border); border-radius: 4px;
+    padding: 1px 7px; font-family: 'SF Mono', Menlo, monospace; font-size: 13px; color: var(--ink); }
+  .formula { background: var(--panel); border:1px solid var(--border); border-radius: 8px;
+    padding: 16px 20px; margin: 14px 0 22px; font-family: 'SF Mono', Menlo, monospace; font-size: 13px;
+    color: var(--ink); white-space: pre; overflow-x: auto; }
+  .terms { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px 24px 14px; margin: 18px 0 28px; }
+  .terms dt { font-weight: 600; color: var(--ink); margin-top: 10px; font-size: 14px; }
+  .terms dt:first-child { margin-top: 0; }
+  .terms dd { margin: 2px 0 0; color: var(--dim); font-size: 14px; }
+  .terms dd em { color: var(--ink); font-style: normal; }
+  .footer { color: var(--subdim); font-size: 12px; margin-top: 48px; padding-top: 18px;
+    border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topnav">← <a href="./">prototype</a></div>
+
+  <h1>Quality of Life · Calibration Spec v1</h1>
+  <p class="meta">Operationalizes the three-axis QoL teaching tool into a measurable, fittable model. Names every instrument, declares every weight, sequences the data work. Not a clinical instrument until calibrated against the cohorts named below.</p>
+
+  <h2>Purpose</h2>
+
+  <div class="brief"><b>IN BRIEF</b>
+  This spec converts the three-axis prototype from a teaching tool into a calibrated model. Each axis becomes a measurable composite of named instruments with declared weights and a normative reference distribution. The QoL curve becomes a longitudinal fit against UK Biobank with HRS validation. The line render becomes a regression of felt vitality against reserve and lifestyle, with an age-decay term fit from longitudinal trajectories. Avg American becomes a NHANES + BRFSS pull rather than an eyeballed anchor.</div>
+
+  <p>The prototype's architecture (three orthogonal axes, geometry vs render split, age-fading vitality) is held fixed. The calibration changes <em>what's behind the labels</em>, not <em>what the user sees</em>. The end-user surface is essentially unchanged after calibration; the rigor moves from prose disclaimers ("illustrative · not calibrated") into the methodology this spec defines.</p>
+
+  <h2>Defined Terms</h2>
+
+  <p>This document uses the following terms with specific meanings. They are referenced throughout the body without re-definition.</p>
+
+  <div class="terms">
+    <dt>Risk · residualized</dt>
+    <dd>10-year probability of a major adverse cardiovascular event, residualized against the reserve composite. The portion of risk <em>not</em> already explained by capacity.</dd>
+    <dt>Reserve · capacity</dt>
+    <dd>Multi-domain functional capacity composite: cardiorespiratory, musculoskeletal, skeletal, cognitive, balance, pulmonary. Age- and sex-normalized to a 0–100 percentile.</dd>
+    <dt>Lifestyle · felt</dt>
+    <dd>Composite of validated patient-reported outcomes covering felt vitality dimensions that are non-physical and non-capacity. Sleep, mood, stress, connection, purpose, drive, libido, pain, fatigue.</dd>
+    <dt>Vitality (felt)</dt>
+    <dd>The single-construct outcome that the line render encodes. v1 uses SF-36 Vitality (4 items, 0–100). Distinct from the Lifestyle composite, which is one of the two predictors of Vitality.</dd>
+    <dt>Quality of Life</dt>
+    <dd>The curve's y-axis. Equal-weighted composite of physical function, cognitive function, social function, and independence at age <em>A</em>. Bounded 0–100. Death = 0.</dd>
+    <dt>Render mix</dt>
+    <dd>The 0–1 quantity that drives line color, width, and glow. Currently <code>0.5·Reserve + 0.5·Lifestyle</code>. Calibrated form: regression coefficients from the Vitality fit.</dd>
+    <dt>Age decay</dt>
+    <dd>The age-driven attenuation of the render mix. Currently a logistic with floor, slope, and center modulated by reserve. Calibrated form: parameters fit from longitudinal vitality trajectories.</dd>
+    <dt>Avg American</dt>
+    <dd>The dashed reference curve and preset. The median U.S. adult's position on each axis, computed from public-health surveillance data.</dd>
+  </div>
+
+  <h2>1 · Risk · residualized</h2>
+
+  <div class="brief"><b>IN BRIEF</b>
+  Risk is operationalized as 10-year MACE probability from the AHA PREVENT model, residualized against the reserve composite to remove the variance reserve already explains. The slider value is the residual ranked against the NHANES adult distribution. v1 is cardiovascular only; cancer, dementia, and fracture are deferred to v2. Adults 30–79 to stay in PREVENT validity range.</div>
+
+  <h3>Construct</h3>
+  <p>10-year probability of MI, stroke, cardiovascular death, or hospitalized heart failure.</p>
+
+  <h3>Base model</h3>
+  <p>PREVENT (Predicting Risk of CVD EVENTs), AHA 2024. Inputs: age, sex, total cholesterol, HDL-C, SBP, antihypertensive use, current smoking, diabetes, eGFR, BMI, statin use. Optional: UACR, A1c, social deprivation index.</p>
+
+  <h3>Residualization procedure</h3>
+  <div class="formula">1.  PREVENT_pct  = percentile(PREVENT 10yr CVD, NHANES adults)
+2.  predicted   = β₀ + β₁ · Reserve_pct           [linear regression on NHANES]
+3.  residual    = PREVENT_pct − predicted
+4.  Risk_slider = percentile(residual, residual_distribution)</div>
+
+  <h3>Slider mapping</h3>
+  <ul>
+    <li><strong>0</strong> = lowest 1st percentile residualized risk after accounting for reserve</li>
+    <li><strong>100</strong> = highest 99th percentile residualized risk</li>
+    <li><strong>Avg American</strong> = computed from NHANES (replaces eyeballed 65)</li>
+  </ul>
+
+  <h3>v1 simplifications</h3>
+  <ul>
+    <li>Linear residualization. v2 may use GAM or quantile regression if nonlinearity is meaningful.</li>
+    <li>Single 10-year time horizon.</li>
+    <li>Cardiovascular events only; multi-domain risk deferred.</li>
+    <li>Adults 30–79; pediatric and very-elderly out of scope.</li>
+  </ul>
+
+  <h2>2 · Reserve · capacity</h2>
+
+  <div class="brief"><b>IN BRIEF</b>
+  Reserve is an eight-component composite covering the major domains of functional capacity. Each component is normalized to age- and sex-adjusted percentile against NHANES (US) or HUNT4 (Norway, more complete activity data), then weighted and summed to a 0–100 score. v1 weights are clinical-prior; v2 derives them by regressing all-cause mortality against the components in UK Biobank. Avg American is computed by composing each NHANES component median.</div>
+
+  <h3>Components and v1 weights</h3>
+  <table>
+    <tr><th>Domain</th><th>Instrument</th><th>Weight</th></tr>
+    <tr><td>Cardiorespiratory</td><td>VO₂max (CPET preferred; submax estimate acceptable)</td><td class="weight">30%</td></tr>
+    <tr><td>Lean mass</td><td>DEXA-derived ALMI (BIA acceptable substitute)</td><td class="weight">15%</td></tr>
+    <tr><td>Grip strength</td><td>Hand dynamometer, dominant hand</td><td class="weight">10%</td></tr>
+    <tr><td>Lower-body power</td><td>Sit-to-stand power or leg press 1RM</td><td class="weight">10%</td></tr>
+    <tr><td>Bone density</td><td>DEXA T-score, femoral neck</td><td class="weight">10%</td></tr>
+    <tr><td>Gait/balance</td><td>4m or 6m gait speed</td><td class="weight">10%</td></tr>
+    <tr><td>Cognitive</td><td>DSST or processing-speed equivalent</td><td class="weight">10%</td></tr>
+    <tr><td>Pulmonary</td><td>FEV₁ % predicted</td><td class="weight">5%</td></tr>
+  </table>
+
+  <h3>Normalization</h3>
+  <div class="formula">For each component i:
+  z_i  = (raw_i − μ(age, sex)) / σ(age, sex)     [reference: NHANES or HUNT4]
+  p_i  = Φ(z_i) · 100
+Reserve_pct = Σ wᵢ · pᵢ</div>
+
+  <h3>Slider mapping</h3>
+  <ul>
+    <li><strong>0</strong> = severe deconditioning, composite below 5th percentile</li>
+    <li><strong>50</strong> = population median for age and sex</li>
+    <li><strong>100</strong> = top 1% for age and sex</li>
+    <li><strong>Avg American</strong> = composed from NHANES component medians (replaces eyeballed 28)</li>
+  </ul>
+
+  <h3>v2 weight derivation</h3>
+  <p>Fit a Cox proportional-hazards model for 10-year all-cause mortality on the eight components in UK Biobank. Take the standardized hazard-ratio coefficients, normalize their absolute values to sum to 1.0, use as weights. This replaces clinical-prior weights with mortality-anchored weights.</p>
+
+  <h2>3 · Lifestyle · felt</h2>
+
+  <div class="brief"><b>IN BRIEF</b>
+  Lifestyle is a weighted composite of validated patient-reported outcomes covering ten non-physical, non-capacity dimensions. Each instrument is converted to a 0–100 percentile against its published reference distribution and weighted to a single score. The avg-American anchor combines BRFSS sleep and mental-health prevalences with NHANES Mental Health module and ELSA-equivalent loneliness data.</div>
+
+  <h3>Components and v1 weights</h3>
+  <table>
+    <tr><th>Domain</th><th>Instrument</th><th>Weight</th></tr>
+    <tr><td>General HRQoL</td><td>PROMIS-29 Global</td><td class="weight">20%</td></tr>
+    <tr><td>Sleep</td><td>PSQI</td><td class="weight">15%</td></tr>
+    <tr><td>Depression</td><td>PHQ-9</td><td class="weight">10%</td></tr>
+    <tr><td>Anxiety</td><td>GAD-7</td><td class="weight">5%</td></tr>
+    <tr><td>Loneliness</td><td>UCLA-3</td><td class="weight">10%</td></tr>
+    <tr><td>Pain burden</td><td>Brief Pain Inventory Short Form</td><td class="weight">10%</td></tr>
+    <tr><td>Fatigue</td><td>PROMIS Fatigue 4a</td><td class="weight">10%</td></tr>
+    <tr><td>Meaning/purpose</td><td>MLQ Presence subscale</td><td class="weight">10%</td></tr>
+    <tr><td>Libido</td><td>FSFI items 1–2 / IIEF Q12</td><td class="weight">5%</td></tr>
+    <tr><td>Drive</td><td>PROMIS Positive Affect 4a</td><td class="weight">5%</td></tr>
+  </table>
+
+  <h3>Normalization</h3>
+  <p>PROMIS instruments use T-scores (population mean 50, SD 10) which convert directly to percentile via Φ. PSQI, PHQ-9, GAD-7, UCLA-3, BPI, MLQ, FSFI/IIEF each have published reference distributions (general population norms). For each, convert raw → reference percentile (0–100), reverse-coded where higher raw = worse (PSQI, PHQ-9, GAD-7, UCLA-3, BPI). Weighted sum.</p>
+
+  <h3>Slider mapping</h3>
+  <ul>
+    <li><strong>0</strong> = chronic poor, composite below 5th percentile</li>
+    <li><strong>50</strong> = population median</li>
+    <li><strong>100</strong> = optimal felt vitality, top 1%</li>
+    <li><strong>Avg American</strong> = computed from BRFSS + NHANES + national PRO surveillance (replaces eyeballed 42)</li>
+  </ul>
+
+  <h2>4 · Quality of Life curve</h2>
+
+  <div class="brief"><b>IN BRIEF</b>
+  The QoL outcome variable is an equal-weighted composite of physical function, cognitive function, social function, and independence, scored 0–100 with death = 0. The curve geometry is a logistic with floor, ceiling, midpoint, and slope as linear functions of risk and reserve. Coefficients are fit from UK Biobank longitudinal data stratified by risk-quartile × reserve-quartile, with HRS validation. Sex-stratified in v1.</div>
+
+  <h3>Outcome variable definition</h3>
+  <table>
+    <tr><th>Domain</th><th>Instrument</th><th>Weight</th></tr>
+    <tr><td>Physical function</td><td>PROMIS Physical Function 8b → 0–100</td><td class="weight">25%</td></tr>
+    <tr><td>Cognitive function</td><td>MoCA → 0–100</td><td class="weight">25%</td></tr>
+    <tr><td>Social function</td><td>PROMIS Ability to Participate</td><td class="weight">25%</td></tr>
+    <tr><td>Independence</td><td>Lawton IADL + Katz ADL composite</td><td class="weight">25%</td></tr>
+  </table>
+
+  <h3>Functional form</h3>
+  <div class="formula">QoL(age) = floor + (ceil − floor) / (1 + exp(slope · (age − midpoint)))
+
+floor    = β₀ + β₁ · Reserve + β₂ · Risk
+ceil     = β₃ + β₄ · Reserve + β₅ · Risk
+midpoint = β₆ + β₇ · Reserve + β₈ · Risk
+slope    = β₉ + β₁₀ · Reserve + β₁₁ · Risk</div>
+
+  <h3>Fit procedure</h3>
+  <ol>
+    <li>Stratify cohort into 16 groups: Reserve quartile × Risk quartile.</li>
+    <li>Within each group, fit a logistic curve to mean QoL vs age across waves.</li>
+    <li>Regress the four logistic parameters (floor, ceil, midpoint, slope) against the underlying continuous Reserve and Risk values to recover β₀…β₁₁.</li>
+    <li>Repeat sex-stratified.</li>
+    <li>Validate against HRS held-out cohort.</li>
+  </ol>
+
+  <h3>Cohort</h3>
+  <p>Primary: UK Biobank (~500k, repeat assessments, comprehensive biomarkers and capacity tests). Validation: HRS (US, ages 50+, biennial waves). Tertiary: ELSA (UK, ages 50+).</p>
+
+  <h2>5 · Line render</h2>
+
+  <div class="brief"><b>IN BRIEF</b>
+  The render encodes felt vitality, defined as SF-36 Vitality scale (0–100). Base render is a regression of vitality against reserve and lifestyle. Age decay is fit from longitudinal vitality trajectories stratified by reserve, modulating the render mix to produce visible fade across the lifespan. Both fits use UK Biobank cross-sectional and HRS longitudinal data.</div>
+
+  <h3>Vitality construct</h3>
+  <p>SF-36 Vitality (4 items: feel full of life, have energy, feel worn out, feel tired). Scored 0–100, higher = better. Selected over PROMIS Global because of cleaner single-construct definition and longer longitudinal data history.</p>
+
+  <h3>Base regression</h3>
+  <div class="formula">Vitality = α + β_R · Reserve_pct + β_L · Lifestyle_pct + ε
+
+Render mix (calibrated) = (β_R · Reserve + β_L · Lifestyle) / (β_R · 100 + β_L · 100)</div>
+  <p>Replaces current eyeballed 0.5/0.5 weights. Empirical coefficients may be unequal — likely β_L &gt; β_R because lifestyle directly samples felt-state instruments while reserve samples capacity.</p>
+
+  <h3>Age decay regression</h3>
+  <div class="formula">Vitality(age, Reserve) = floor(R) + (1 − floor(R)) / (1 + exp(k(R) · (age − center(R))))
+
+floor(R)  = γ₀ + γ₁ · Reserve_pct
+k(R)      = γ₂ + γ₃ · Reserve_pct
+center(R) = γ₄ + γ₅ · Reserve_pct</div>
+  <p>Fit by stratifying age trajectories of vitality by reserve quartile in HRS (longitudinal vitality data ages 50–95+). Recover γ₀…γ₅ from logistic fits per stratum, then linear fit against continuous reserve.</p>
+
+  <h2>6 · Avg American anchor</h2>
+
+  <div class="brief"><b>IN BRIEF</b>
+  Replaces three eyeballed numbers (Risk 65, Reserve 28, Lifestyle 42) with composite scores computed from public-health surveillance data. NHANES is the primary source; BRFSS and the Surgeon General's loneliness reports fill gaps. Each composite is built using the same instrument list and weights defined in sections 1–3.</div>
+
+  <h3>Sources by axis</h3>
+  <table>
+    <tr><th>Axis</th><th>Components</th><th>Sources</th></tr>
+    <tr><td>Risk</td><td>lipids, BP, BMI, smoking, diabetes, eGFR</td><td>NHANES 2017–2020</td></tr>
+    <tr><td>Reserve</td><td>VO₂max, grip, DEXA, gait speed, cognitive</td><td>NHANES 1999–2004 (CPET); 2011–2014 (DEXA, grip); HRS for cognitive</td></tr>
+    <tr><td>Lifestyle</td><td>sleep, mood, anxiety, loneliness, pain, fatigue</td><td>BRFSS, NHANES Mental Health module, Surgeon General Loneliness 2023</td></tr>
+  </table>
+
+  <h2>7 · Sequencing and dependencies</h2>
+
+  <div class="brief"><b>IN BRIEF</b>
+  Variable spec (this doc) blocks every other step. NHANES anchors and reserve composite weights run in parallel once spec is locked. Curve fit and render regression both depend on UK Biobank access, which has a ~3 month application window. Total time from spec-lock to a v1 calibrated tool is roughly six months.</div>
+
+  <table>
+    <tr><th>Step</th><th>Effort</th><th>Blocks</th><th>Data</th></tr>
+    <tr><td>1. Lock variable spec</td><td>1 wk</td><td>2–7</td><td>None (this doc)</td></tr>
+    <tr><td>2. NHANES anchors</td><td>2 wk</td><td>—</td><td>NHANES + BRFSS public</td></tr>
+    <tr><td>3. Reserve weight derivation</td><td>4 wk</td><td>4, 5</td><td>UK Biobank Cox</td></tr>
+    <tr><td>4. Risk residualization fit</td><td>2 wk</td><td>5</td><td>NHANES + #3</td></tr>
+    <tr><td>5. QoL curve fit</td><td>8 wk</td><td>7</td><td>UK Biobank longitudinal + HRS validation</td></tr>
+    <tr><td>6. Render regression</td><td>4 wk</td><td>—</td><td>UK Biobank + HRS</td></tr>
+    <tr><td>7. Validation pass</td><td>4 wk</td><td>Ship</td><td>Held-out cohort</td></tr>
+  </table>
+
+  <p>UK Biobank application window adds ~3 months upfront. Sequence work to use NHANES first while UK Biobank application processes.</p>
+
+  <h2>8 · Open questions and decisions still required</h2>
+
+  <ol>
+    <li><strong>Single cohort vs harmonized.</strong> UK Biobank has the depth but is a healthy-volunteer-biased UK adult cohort. Adding HRS and ELSA improves generalization but adds harmonization work.</li>
+    <li><strong>Stratification beyond sex.</strong> v1 is sex-stratified, race-blind. Race/ethnicity stratification is a near-term decision with both validity and ethical implications.</li>
+    <li><strong>Multi-domain risk vs CVD-only.</strong> v1 is CVD via PREVENT. Cancer (LCBC, BCSC), dementia (CAIDE, LIBRA), and fall/fracture (FRAX) all have validated 10-year models. Combining them into one all-event probability vs carrying separately is a real product decision.</li>
+    <li><strong>DEXA reliance.</strong> Reserve leans on DEXA-derived ALMI and bone density; DEXA isn't routine. Substituting BIA and screening-questionnaire bone risk loses precision.</li>
+    <li><strong>Vitality construct.</strong> SF-36 Vitality is older and well-validated; PROMIS Global is newer and modular. v1 picks SF-36 for longitudinal data depth.</li>
+    <li><strong>Update cadence.</strong> Once calibrated, weights and reference distributions decay. Annual re-fit against latest NHANES is the floor; quarterly is overkill.</li>
+    <li><strong>Personalization vs universal.</strong> This spec defines the universal teaching tool. The personalized clinical instrument requires different surface decisions (today marker, KPIs, action library) but the calibration carries over.</li>
+  </ol>
+
+  <h2>What stays valid before calibration</h2>
+
+  <p>The structural design choices survive recalibration: three orthogonal axes, geometry vs render split, age-fading vitality, residualization to keep risk and reserve independent, no input appearing in two columns. Those are model architecture. The numbers, weights, and curve parameters are what calibration replaces. The end-user surface remains essentially identical.</p>
+
+  <p class="footer">v1 · spec lock pending · ← <a href="./">back to prototype</a></p>
+</div>
+</body>
+</html>
