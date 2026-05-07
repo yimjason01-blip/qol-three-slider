@@ -63,7 +63,35 @@
   <div class="brief"><b>IN BRIEF</b>
   This spec defines a teaching tool that maps physical capability across the lifespan against age, with three pedagogically independent levers (Conditioning, Lifestyle Optimization, Residual Risk) shaping the curve. The y-axis is VO₂max. The line's color encodes felt vitality. The spec is a chain of decision logs documenting why each construct was chosen, what it explicitly does not represent, and what is still open. It is a working spec for an implementable v1, not a validated clinical instrument.</div>
 
-  <p>The architecture is built bottom-up through four decision logs in sequence: <a href="#yaxis">Y-axis</a> → <a href="#levers">Lever architecture</a> → <a href="#vitality">Vitality color render</a> → <a href="#modeling">Modeling decisions</a>. Each one names what it supersedes from prior framings and what propagates into the next. A reader can follow the breadcrumbs from "what should the y-axis measure" to "what does each event look like on the curve" without losing the chain of reasoning.</p>
+  <p>The architecture is built bottom-up through six decision logs in sequence: <a href="#scope">Scope and audience</a> → <a href="#yaxis">Y-axis</a> → <a href="#levers">Lever architecture</a> → <a href="#vitality">Vitality color render</a> → <a href="#modeling">Modeling decisions</a> → <a href="#construction">Curve construction</a>. Each one names what it supersedes from prior framings and what propagates into the next. A reader can follow the breadcrumbs from "who is this for" to "exactly how the curve is built" without losing the chain of reasoning.</p>
+
+  <h2 id="scope">Scope and audience</h2>
+
+  <div class="brief"><b>IN BRIEF</b>
+  This is a teaching tool for two audiences: patients exploring on their own, and providers using the artifact in clinic as a conversation surface with a patient. It is not a personalized clinical prediction tool. The goal is for both audiences to internalize patterns — how Conditioning shapes the curve, why Lifestyle Optimization shows up mostly as vitality color, what events do to the trajectory — not to predict any individual person's path. Precision target: directionally honest, not patient-fidelity. This shapes every downstream decision.</div>
+
+  <h3>Two audiences, one artifact</h3>
+  <p><b>Patient self-explore.</b> Patient moves sliders, watches the curve change, internalizes which lever does what. Walks away with an intuition for "Conditioning is the dominant lever; Lifestyle Optimization shapes how the years feel; Residual Risk introduces the events." No calibrated number is delivered to the patient. The teaching is the takeaway.</p>
+  <p><b>Provider conversation tool.</b> Provider sits with a patient, sets sliders based on a real assessment of that patient's state, uses the curve as a visual aid in care discussion. The provider is not asking the tool "what will happen to this patient." The provider is asking "how do I show this patient what their levers do." Same teaching frame, different room.</p>
+
+  <h3>What this is not</h3>
+  <ol>
+    <li><b>Not personalized prediction.</b> The tool does not take real lab values, real VO₂max measurements, real risk scores, or real PROs and produce that patient's trajectory. Personalized prediction is a different product with different precision requirements, validation gates, and regulatory exposure.</li>
+    <li><b>Not a calibrated clinical instrument.</b> Numbers shown are illustrative, anchored to literature where possible. The curve is directionally honest, not patient-fidelity.</li>
+    <li><b>Not a substitute for the patient's actual care plan.</b> A care plan acts on real measurements and real interventions. This tool teaches the structure that makes a care plan readable.</li>
+  </ol>
+
+  <h3>What "directionally honest" means as a precision target</h3>
+  <p>The curve must satisfy three things:</p>
+  <ol>
+    <li><b>Slider movements produce the right qualitative response.</b> Moving Conditioning from Average to Elite raises the curve and slows decline. Moving Lifestyle Optimization from Maintained to Highly Optimized brightens the line color and slightly buffers slope. Moving Residual Risk introduces or removes events. The viewer can see what each lever does.</li>
+    <li><b>Magnitudes are within published literature ranges.</b> Elite vs sedentary VO₂max gap, MI acute drop, recovery trajectories — all within the bounds of what cohort studies and clinical literature actually show.</li>
+    <li><b>The curve does not over-claim.</b> No event happens with certainty. No specific number gets delivered as if it were measured. The "this is one representative path" caption travels with the chart.</li>
+  </ol>
+  <p>What the curve does <em>not</em> need to satisfy: patient-level predictive accuracy, cohort-validated point estimates, statistical confidence intervals on the trajectory. Those are the tests for a clinical prediction tool, which this is not.</p>
+
+  <h3>Why this matters for downstream decisions</h3>
+  <p>Audience locks precision. Precision locks construction. If the audience were "personalized clinical prediction," the curve would need cohort fitting, validation against held-out data, and confidence rendering. Because the audience is "internalize patterns," the curve construction can rely on empirical reference trajectories with interpolation between them. The tool is allowed to be a teaching artifact, not a calibrated instrument. The Curve Construction decision log makes this concrete.</p>
 
   <h2>Defined Terms</h2>
 
@@ -412,6 +440,100 @@
     <li>Kavanagh T et al. <em>Circulation</em> 2002 (cardiac rehab VO₂max recovery)</li>
     <li>Saunders DH et al. <em>Cochrane</em> 2020 (stroke fitness recovery)</li>
     <li>Magaziner J et al. <em>J Gerontol</em> 2000 (hip fracture functional recovery)</li>
+  </ul>
+
+  <h2 id="construction">Curve construction: choice and rationale (decision log)</h2>
+
+  <div class="brief"><b>IN BRIEF</b>
+  The curve is built by interpolating between a small library of empirical reference trajectories, not by computing from a universal formula. Conditioning selects which trajectory family the curve belongs to (elite, average, deconditioned). Age decay within each family follows published cohort shapes (BLSA, masters athletes, NHANES, HRS). Lifestyle Optimization applies a small slope multiplier on top. Residual Risk overlays events at modal ages with calibrated drop and recovery dynamics. The curve is reproducible: same slider positions always produce the same curve. This construction matches the "directionally honest, not patient-fidelity" precision target locked in Scope and Audience.</div>
+
+  <h3>Why this decision matters</h3>
+  <p>Curve construction is what turns three slider positions into a rendered trajectory. The choice between formula-based, template-based, and hybrid construction propagates everywhere: it determines what calibration data is needed, how the curve responds to slider changes, whether two viewers see the same curve for the same inputs, and how honest the tool can claim to be. Choosing wrong here means either over-promising precision the tool cannot deliver, or under-delivering visual coherence the tool needs to teach.</p>
+
+  <h3>Three candidate approaches</h3>
+
+  <h4>Option A · Universal formula with parameters</h4>
+  <p>One parametric curve (e.g., logistic or Gompertz) with floor, slope, and inflection point modulated by Conditioning and Residual Risk. Lifestyle Optimization tweaks slope. Events overlay drops.</p>
+  <p><b>Pro:</b> Smooth slider response. Mathematically tidy. Easy to implement.</p>
+  <p><b>Con:</b> One curve family cannot represent all profiles. Real trajectory shapes differ between elite-trained adults (long high plateau, late steep compression), average adults (gradual decline accelerating after 75), and deconditioned high-risk adults (lower starting capacity, earlier decline, no plateau). A universal formula forces all three into the same family with different parameters, which produces visually plausible corners but implausible interpolations between them. The prior version of this prototype made exactly this mistake.</p>
+
+  <h4>Option B · Empirical reference trajectories with interpolation</h4>
+  <p>Build a small library of reference trajectories, each calibrated against a published cohort or literature family. Conditioning selects which trajectories to interpolate between. Age decay within each trajectory follows that cohort's shape. Slider positions interpolate between named templates rather than tuning one universal formula.</p>
+  <p><b>Pro:</b> Honest about the fact that different lever profiles produce genuinely different curve shapes. Each template can be defended by name against a specific cohort or literature family. Avoids the "over-tuned formula" trap. Matches what aging research actually does.</p>
+  <p><b>Con:</b> Library construction takes work. Interpolation between templates needs to be visually smooth or the curve will jump as sliders move. Requires deciding how many templates is enough.</p>
+
+  <h4>Option C · Hybrid — formula for trajectory shape, templates for parameter ranges</h4>
+  <p>One parametric curve, but its parameters are pulled from cohort-derived ranges rather than tuned by hand. Conditioning maps to BLSA-derived slope coefficients. Residual Risk maps to event probabilities and ages from PREVENT/FRAX/SEER. The formula is the rendering layer; the cohorts are the calibration layer.</p>
+  <p><b>Pro:</b> Smooth response of A with the cohort-anchored honesty of B. Implementable without a full template library.</p>
+  <p><b>Con:</b> Still inherits A's core problem of forcing all profiles into one curve family. Cohort-derived parameters do not solve the fact that elite trajectories and deconditioned trajectories are different <em>shapes</em>, not just different <em>parameters</em>.</p>
+
+  <h3>Choice: Option B with three reference trajectories at v1, expandable</h3>
+  <p>The teaching tool's purpose is for viewers to internalize the structural difference between conditioning families. That difference is the difference in trajectory <em>shape</em>, not just trajectory <em>position</em>. A formula collapses shape difference into parameter difference and loses the teaching payload. Templates preserve it. The audience precision target ("directionally honest, internalize patterns") is exactly served by named, defensible templates.</p>
+
+  <p>The v1 library contains three reference trajectories, each calibrated to a specific literature family:</p>
+
+  <table>
+    <tr><th>Template</th><th>Conditioning anchor</th><th>Trajectory shape</th><th>Calibration source</th></tr>
+    <tr><td><b>Elite</b></td><td>~95th percentile FRIEND</td><td>VO₂max ~55 at age 30, gradual decline ~5%/decade through 60s, accelerating ~10%/decade through 70s and 80s. Long high plateau.</td><td>Masters athletes literature: Hawkins, Wiswell, Trappe. BLSA top quintile.</td></tr>
+    <tr><td><b>Average</b></td><td>~50th percentile FRIEND</td><td>VO₂max ~38 at age 30, ~7%/decade decline through 60s, ~15%/decade through 70s and 80s. No clear plateau.</td><td>BLSA cohort means (Fleg 2005). FRIEND 50th percentile by age and sex (Kaminsky 2015, 2022).</td></tr>
+    <tr><td><b>Deconditioned</b></td><td>~15th percentile FRIEND</td><td>VO₂max ~25 at age 30, ~10%/decade decline through 60s, accelerating to ADL threshold by mid-70s. Earlier and faster.</td><td>NHANES low-fitness strata. CHS frailty cohort. HRS bottom functional quartile.</td></tr>
+  </table>
+
+  <p><b>What about Well-conditioned (between Elite and Average)?</b> Interpolated. The Conditioning slider's intermediate positions blend the Elite and Average templates by weighted average. Same for "between Average and Deconditioned." This is the interpolation work the templates buy.</p>
+
+  <h3>How the levers attach to the templates</h3>
+
+  <h4>Conditioning</h4>
+  <p>Selects which two templates to interpolate between, and the weight. Elite slider position = pure Elite template. Deconditioned position = pure Deconditioned template. Anywhere in between = weighted blend. This is the dominant lever and produces the largest visible curve change.</p>
+
+  <h4>Lifestyle Optimization (slope effect)</h4>
+  <p>Applies a multiplier on the rate of decline within whatever blended template Conditioning selected. Highly Optimized = decline rate × 0.9 (10% slower). Maintained = no change. Neglected = decline rate × 1.1 (10% faster). The ±10% bound matches the defensible range stated in the lever architecture section. Lifestyle does <em>not</em> shift the starting altitude — that is Conditioning's job.</p>
+
+  <h4>Lifestyle Optimization (vitality render)</h4>
+  <p>Drives the line color via the render mix formula in the Vitality decision log. This is Lifestyle Optimization's primary mechanism and visible signature.</p>
+
+  <h4>Residual Risk</h4>
+  <p>Overlays events on the templated trajectory at modal ages. Each event is rendered as an acute drop with recovery curve following the parameters in Modeling Decision 4. Higher Residual Risk fires more events earlier; lower fires fewer or none. The events sit on top of the trajectory, they do not change the underlying template.</p>
+
+  <h4>Age</h4>
+  <p>The x-axis. Trajectory follows the template's published shape from age 30 to 90 solid, age 90 to 100 dashed (uncertainty rendering, deferred from y-axis open questions).</p>
+
+  <h3>What about events that fire on a template that doesn't normally produce them</h3>
+  <p>An Elite-conditioned, High-Residual-Risk profile produces events on top of the Elite template. The MI fires at age 67 (modal age for High Risk), drops VO₂max by 25%, recovers to 75% of pre-event level over 6 months. The post-event trajectory continues to follow the Elite template's slope from the recovered point. Conditioning does not become "less Elite" because of the event — the slider remains where the user set it. The cross-talk panel discloses that real events do change conditioning, and the tool does not model this.</p>
+
+  <h3>Reproducibility</h3>
+  <p>Same slider positions always produce the same curve. No stochastic resampling. This is locked from Modeling Decision 2 and reaffirmed here because curve construction is where reproducibility either holds or breaks. The viewer can compare two slider configurations directly because the only thing changing between them is the lever positions.</p>
+
+  <h3>What this construction is honest about, and what it admits</h3>
+  <p><b>Honest:</b> The three templates are real published cohort shapes. The interpolation between them is mathematically simple but visually defensible. The events are real published modal ages and recovery trajectories. The vitality render is anchored to validated PROs. Every visible feature of the curve has a defensible source.</p>
+  <p><b>Admits:</b> Real individual trajectories vary far more than three templates can capture. Two patients with the same Conditioning slider position will have different curves in real life because they have different bodies, behaviors, genetics, and histories. The tool teaches the structure of the levers; it does not predict any individual person's path. This admission is not buried — it is the point of the Scope and Audience section.</p>
+
+  <h3>v2 expansion targets</h3>
+  <ol>
+    <li><b>More templates.</b> Add sex-specific Elite/Average/Deconditioned. Add age-of-onset variations for events. Add cancer-survivor and post-cardiac-event templates as their own trajectory families.</li>
+    <li><b>Smoother interpolation.</b> v1 uses linear blending between templates. v2 may use spline interpolation if the linear blend produces visually rough transitions.</li>
+    <li><b>Cohort-fit rather than literature-anchored templates.</b> v1 templates are constructed from published cohort means and percentile tables. v2 fits trajectory shapes directly from longitudinal data (BLSA, HRS, UK Biobank).</li>
+    <li><b>Empirical Lifestyle slope effect.</b> v1 uses a clinical-prior ±10% multiplier. v2 fits the slope effect from longitudinal data stratified by Lifestyle Optimization PRO scores.</li>
+  </ol>
+
+  <h3>Open questions deferred to implementation</h3>
+  <ol>
+    <li>Linear vs spline interpolation between templates. Likely linear in v1, evaluate visually.</li>
+    <li>How to handle the very-old tail (90 to 100) where masters-athlete data thins. Likely render dashed, anchored to centenarian disability literature.</li>
+    <li>Whether sex-specific templates ship in v1 or wait for v2. Argues for sex-aware percentile lookup but shared trajectory shapes in v1.</li>
+    <li>Whether the user can see the templates labeled on the chart (e.g., a faint "Average" reference curve always visible) or only the active interpolated curve. Likely the active curve only, with optional reference toggle.</li>
+  </ol>
+
+  <h3>Citations</h3>
+  <ul>
+    <li>Fleg JL et al. <em>Circulation</em> 2005;112:674 (BLSA VO₂max longitudinal trajectories)</li>
+    <li>Kaminsky LA et al. <em>Mayo Clin Proc</em> 2015, 2022 (FRIEND registry VO₂max norms by age and sex)</li>
+    <li>Hawkins SA and Wiswell RA. <em>Sports Med</em> 2003 (masters athletes VO₂max decline)</li>
+    <li>Trappe S. <em>Med Sci Sports Exerc</em> 2007 (lifelong endurance training VO₂max trajectories)</li>
+    <li>Pollock ML et al. <em>J Appl Physiol</em> 1987 (master endurance athletes longitudinal)</li>
+    <li>Cardiovascular Health Study (CHS) frailty cohort</li>
+    <li>Health and Retirement Study (HRS) functional decline strata</li>
+    <li>NHANES cardiorespiratory fitness data (1999 to 2004)</li>
   </ul>
 
   <p class="footer">← <a href="./">back to prototype</a></p>
