@@ -396,6 +396,8 @@
   <p><b>Choice:</b> Events are deterministic. For a given Residual Risk profile, the tool renders only the events that fire on the representative trajectory at that risk level, and each rendered event appears at its modal age. The curve is reproducible across renders.</p>
   <p><b>Reasoning:</b> A teaching tool that re-rolls events on every slider change is unusable. The viewer cannot tell if a curve change is due to slider movement or stochastic resampling. Deterministic events with a clear "this is one representative path" caption gives the viewer a stable anchor while preserving honesty about variance.</p>
   <p><b>Important framing for the table below:</b> the modal-age values say "if this event fires, when." They do not say "everyone at this Risk level has this event." Whether an event renders at all on the representative trajectory depends on whether the lifetime probability for that event at that Risk stratum is above the rendering threshold. For Low Risk profiles, most events do not render because their lifetime probability is too low to belong on a representative curve. For High Risk profiles, more events render because their lifetime probability crosses the threshold.</p>
+
+  <p><b>v1 implementation cap on High Risk:</b> the v1 tool renders at most three events on a single trajectory at High Risk: cancer treatment, MI, and HF onset (the three with the highest lifetime probability gradient between Low and High Risk strata). Stroke, dialysis, and hip fracture remain in the event scope but are reserved for v2 once Risk fragments into per-domain sliders, since rendering all six at once on a single trajectory overstates co-occurrence and teaches a fatalism that the "directionally honest, not patient-fidelity" precision target rejects. The v1 cap is a conservative simplification, not a clinical claim about which events matter.</p>
   <p><b>Modal-age table (illustrative, calibrated in implementation):</b></p>
   <table>
     <tr><th>Event</th><th>Low Residual Risk</th><th>Average Residual Risk</th><th>High Residual Risk</th></tr>
@@ -456,6 +458,8 @@
     <tr><td>Dialysis initiation</td><td>30%</td><td>n/a (no recovery)</td><td>0%</td><td>USRDS, dialysis CRF studies</td></tr>
   </table>
   <p>Values shown are clinical-prior estimates for v1. v2 calibration tunes them against published cohort data.</p>
+
+  <p><b>Stacking semantics (v1 implementation):</b> events compound multiplicatively, not additively. Each event's acute drop is a fraction of capacity at the time the event fires, not an absolute mL/kg/min subtraction against the no-event baseline. A 25% MI drop after a prior 25% cancer-treatment drop leaves capacity at 0.75 × 0.75 = 0.5625 of the original — not at original − 50%. This preserves the teaching payload that Conditioning still buys altitude even when events hit: an Elite/HighR profile lands meaningfully higher than a Decon/HighR profile in late life because the same fractional drops apply to a higher starting capacity. An additive-stacking implementation would floor both profiles to roughly the same late-life value and erase the conditioning advantage, which is biologically wrong (the literature supports a multiplicative model).</p>
 
   <h3>Decision 5 · Conditioning ↔ Lifestyle Optimization independence</h3>
   <p><b>Choice:</b> Declared orthogonal by construction. Cross-talk disclosed in the panel covered by Decision 1.</p>

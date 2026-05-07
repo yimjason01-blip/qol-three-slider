@@ -288,46 +288,57 @@ function effectiveModalAge(event, riskSlider) {
 }
 
 // Active events for current Risk slider position.
+// Per spec: at each Risk stratum, only events whose lifetime probability crosses
+// the rendering threshold appear. Even at High Risk we cap at 3 events on the
+// representative trajectory — six-event cascades overstate co-occurrence and
+// teach fatalism that the tool's "directionally honest, not patient-fidelity"
+// precision target rejects. The 3 most-defensible High-Risk events are: cancer
+// treatment (lifetime ~40%), MI (~50% if high CV risk), and HF onset (~30%).
+// Stroke, dialysis, hip fracture remain in the event scope but are reserved for
+// scenarios where the spec's per-domain risk fragmentation arrives in v2.
 function activeEvents(riskSlider) {
+  const HIGH_RISK_PRIORITY = ['cancer', 'mi', 'hf'];
   const out = [];
   for (const ev of EVENTS) {
     const age = effectiveModalAge(ev, riskSlider);
-    if (age != null) out.push({ ...ev, age });
+    if (age == null) continue;
+    if (riskStratum(riskSlider) === 'high' && !HIGH_RISK_PRIORITY.includes(ev.id)) continue;
+    out.push({ ...ev, age });
   }
   return out.sort((a, b) => a.age - b.age);
 }
 
-// Apply event drops + recovery to the base capacity at a given age.
-// For each event that has fired by `age`, accumulate its effect.
-function eventAdjustedCapacity(base, events, age, eventBaseLookup) {
-  let v = base;
+// Apply event drops + recovery as multiplicative factors on current capacity.
+// Each event's acute drop is a fraction of capacity at the time the event fires,
+// not an absolute mL/kg/min subtraction against the no-event baseline. Events
+// compound (a 25% drop after a prior 25% drop = 0.75 × 0.75 = 0.5625 of original),
+// which preserves "Conditioning still buys altitude even when events hit."
+function eventFactor(events, age) {
+  let factor = 1.0;
   for (const ev of events) {
     if (age < ev.age) continue;
     const yearsSince = age - ev.age;
-    // Capacity at the event moment (use base trajectory at event_age, no recompute through other events for simplicity)
-    const preEventV = eventBaseLookup(ev.age, ev);
-    const D = ev.drop * preEventV;
-    const residual = D * (1 - ev.recoveryFrac);
-    let dropAmount;
+    let dropFrac;
     if (ev.tau == null) {
-      // No recovery: permanent step-down equal to D (since recoveryFrac=0, residual=D)
-      // For HF: progressive — add small extra slope after onset.
-      dropAmount = D;
-      if (ev.id === 'hf') dropAmount += yearsSince * 0.4; // ~0.4 mL/kg/min/yr extra decline
+      // No recovery: permanent fractional drop. HF adds progressive decline.
+      dropFrac = ev.drop;
+      if (ev.id === 'hf') dropFrac = Math.min(dropFrac + yearsSince * 0.013, 0.55);
     } else {
       const tauYears = ev.tau / 12;
-      dropAmount = residual + (D - residual) * Math.exp(-yearsSince / tauYears);
+      const residualFrac = ev.drop * (1 - ev.recoveryFrac);
+      // At t=0: dropFrac = ev.drop. At t→∞: dropFrac = residualFrac.
+      dropFrac = residualFrac + (ev.drop - residualFrac) * Math.exp(-yearsSince / tauYears);
     }
-    v -= dropAmount;
+    factor *= (1 - dropFrac);
   }
-  return Math.max(v, 2);
+  return factor;
 }
 
-// Final capacity render: base + events. Events use base (no-event) capacity at their event age as anchor.
+// Final capacity render: base × event factor.
 function capacityAt(condSlider, lifeSlider, riskSlider, age, events) {
   const base = baseCapacity(condSlider, lifeSlider, age);
-  const eventBaseLookup = (evAge) => baseCapacity(condSlider, lifeSlider, evAge);
-  return eventAdjustedCapacity(base, events, age, eventBaseLookup);
+  const factor = eventFactor(events, age);
+  return Math.max(base * factor, 3);
 }
 
 // ---- Vitality render mix ----
