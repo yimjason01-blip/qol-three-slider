@@ -192,7 +192,7 @@
   <h2>Lever architecture: choice and rationale (decision log)</h2>
 
   <div class="brief"><b>IN BRIEF</b>
-  The three levers that shape the curve are <b>Conditioning</b>, <b>Lifestyle</b>, and <b>Residual Risk</b>. Conditioning is a state slider (elite to deconditioned) whose position implies sustained behavior; it sets curve altitude and decline slope. Lifestyle is strictly non-physical (sleep, nutrition, stress, social, substance, adherence) and modulates slope at the margins. Residual Risk is the irreducible event-propensity bucket (genetics, prior disease, environmental exposure) and introduces step-downs from discrete events. Each lever has exactly one mechanism on the curve. The architecture replaces the prior Risk / Reserve / Lifestyle naming, which had unresolved overlap with the new VO₂max y-axis.</div>
+  The three levers that shape the curve are <b>Conditioning</b>, <b>Lifestyle Optimization</b>, and <b>Residual Risk</b>. Conditioning is a state slider (elite to deconditioned) whose position implies sustained behavior; it sets curve altitude and decline slope. Lifestyle Optimization covers non-training inputs that support vitality (sleep, nutrition, stress and recovery, social connection, substance exposure, hormone and metabolic optimization, medical adherence) and has two mechanisms: a small effect on decline slope, and a large effect on the vitality color render of the line. Residual Risk is the irreducible event-propensity bucket (genetics, prior disease, environmental exposure) and introduces step-downs from discrete events. The architecture replaces the prior Risk / Reserve / Lifestyle naming, which had unresolved overlap with the new VO₂max y-axis.</div>
 
   <h3>Why this decision matters</h3>
   <p>The y-axis decision propagates directly into how levers are defined. Once the y-axis is VO₂max, the prior <em>Reserve</em> lever (an 8-component capacity composite that included cardiorespiratory fitness) collapses into the y-axis itself: the lever and the chart axis would be measuring the same construct. The prior <em>Risk</em> definition (residualized against capacity) becomes circular: residualizing against the chart itself. The prior <em>Lifestyle</em> definition included training behavior, which is now redundant with Conditioning. The lever set must be redrawn so each slider has a distinct mechanism and no double-counting.</p>
@@ -213,11 +213,17 @@
   <p><b>Why a state, not a behavior:</b> Training is the input; conditioning is the result. Only the result drives the curve. A separate training slider would double-count.</p>
   <p><b>Why this is not the same as the y-axis:</b> The slider is set once, by the user, as a self-assessment. The y-axis is the rendered VO₂max trajectory at every age. The slider says "this is who I am"; the curve says "this is how that trajectory unfolds."</p>
 
-  <h4>Lifestyle · non-physical behavior</h4>
-  <p><b>Range:</b> Optimized → Average → Compromised.</p>
-  <p><b>What it represents:</b> Strictly non-physical behavioral inputs: sleep behavior, nutrition, stress and recovery load, social connection, substance exposure, medical adherence. Does <em>not</em> include training behavior — that lives in Conditioning.</p>
-  <p><b>Mechanism on the curve:</b> Modulates decline slope at the margins. Sleep deprivation, chronic stress, and social isolation accelerate VO₂max decline; the inverse buffers it. Effect size is real but smaller than Conditioning.</p>
-  <p><b>Why this lever still matters even though it is smaller:</b> It is the lever a Deconditioned person can move first, before they can credibly move Conditioning. It is also the lever that captures upstream behaviors (sleep, stress) that physicians and patients can act on without a training program.</p>
+  <h4>Lifestyle Optimization · non-training inputs that support vitality</h4>
+  <p><b>Range:</b> Highly Optimized → Maintained → Neglected.</p>
+  <p><b>What it represents:</b> Non-training behavioral and medical inputs that support vitality. Sleep behavior, nutrition, stress and recovery load, social connection, substance exposure, hormone and metabolic optimization, medical adherence. Does <em>not</em> include training behavior — that lives in Conditioning.</p>
+  <p><b>Why "Optimization" rather than "Lifestyle":</b> The lever covers both passive behaviors (sleep, social) and active medical layers (hormone panels, metabolic optimization, supplementation). "Lifestyle" alone reads as passive description. "Optimization" reads as deliberate stance, which is what the slider position represents — how much effort someone puts into vitality-supporting inputs across both behavioral and medical domains.</p>
+  <p><b>Why hormone management lives here:</b> Hormone optimization (testosterone, estrogen, thyroid, metabolic panels) belongs in the same bucket as other vitality-supporting inputs because it operates through the same mechanism: supporting felt energy, mood, recovery, drive, and connection. It is not the only medical optimization input, but it is named in the lever definition because it is a meaningful and increasingly common practice in the longevity-medicine space.</p>
+  <p><b>Mechanism on the curve, dual:</b></p>
+  <ol>
+    <li><b>Small effect on slope.</b> Sleep deprivation, chronic stress, and social isolation accelerate VO₂max decline; the inverse buffers it. Effect size is real but modest and weakly calibrated against VO₂max trajectory specifically. ±5 to 10% slope modulation is the defensible range.</li>
+    <li><b>Large effect on vitality color render.</b> The same inputs have well-documented effects on felt vitality (SF-36 Vitality, energy, mood, drive). This is the lever's primary mechanism. See the Vitality decision log section for full treatment.</li>
+  </ol>
+  <p><b>Why this lever still matters even though its slope effect is small:</b> Vitality is a first-class outcome the tool exists to teach. A patient at VO₂max 35 can feel vital or depleted based on this lever, and that difference matters more in lived experience than a 5% slope change. Lifestyle Optimization is also the lever a Deconditioned person can move first, before they can credibly move Conditioning.</p>
 
   <h4>Residual Risk · irreducible event propensity</h4>
   <p><b>Range:</b> Low → Average → High.</p>
@@ -245,6 +251,73 @@
 
   <h3>Sections superseded by this decision</h3>
   <p>§1 (Risk · residualized), §2 (Reserve · capacity), and §3 (Lifestyle · felt) reflect the prior framing and will be rewritten in the next spec uprev to match the architecture above. They are retained in this version as the historical record of what this section replaces.</p>
+
+  <h2>Vitality color render: choice and rationale (decision log)</h2>
+
+  <div class="brief"><b>IN BRIEF</b>
+  The chart renders two layers, not one. The line's <em>position</em> is the VO₂max trajectory (capacity over time). The line's <em>color</em> is felt vitality at each point of the trajectory. Vitality is operationalized as a continuous index drawing from validated patient-reported outcome instruments covering energy, mood, drive, connection, and pain. Conditioning contributes meaningfully to vitality because cardiovascular fitness genuinely supports felt energy, but Lifestyle Optimization is the dominant input. Vitality fades with age regardless of conditioning, because lived experience does. The render exists because capacity and vitality are genuinely different outcomes and a single curve cannot show both.</div>
+
+  <h3>Why this decision matters</h3>
+  <p>Capacity (what your body can do) and vitality (how living that life feels) are not the same. A 60-year-old at VO₂max 35 can feel alive or depleted depending on sleep, mood, hormones, pain, and connection. A 30-year-old at VO₂max 50 can be high-capacity and exhausted. The teaching tool exists in part to communicate that distinction. Without a vitality render, the tool would teach only physical capability and would miss the lived-experience layer that physicians and patients actually care about.</p>
+  <p>The vitality render is also what gives Lifestyle Optimization its primary mechanism. The slope effect of Lifestyle Optimization on VO₂max trajectory is real but modest and weakly calibrated. The color effect is large and well-supported. Without the vitality render, Lifestyle Optimization would be a weak lever. With it, the lever has a primary visual signature that reflects its real-world importance.</p>
+
+  <h3>What vitality is, and what it is not</h3>
+  <p><b>Vitality is:</b> the felt experience of being alive at a given physical capacity. Energy, mood, drive, connection, sense of purpose, freedom from pain and fatigue, libido, presence. Downstream of physiology and behavior, but a first-class outcome in its own right.</p>
+  <p><b>Vitality is not:</b> physical capability, cognitive function, or risk of disease. It is not measured by VO₂max, by ADL count, by frailty index, or by mortality probability. A person can have high vitality at any physical capacity, and low vitality at any physical capacity. The independence is not perfect, but it is real.</p>
+
+  <h3>Operationalization</h3>
+  <p>Vitality is a continuous 0 to 100 index drawing from validated patient-reported outcome dimensions. v1 anchors the construct to SF-36 Vitality (4 items: feel full of life, have energy, feel worn out, feel tired) for its single-construct definition and longitudinal data history. v2 broadens to a multi-instrument composite covering vitality dimensions not captured by SF-36 alone: PROMIS Emotional Distress (mood), PROMIS Social Health (connection), brief sexual function (drive), pain interference, and purpose-in-life. The v2 composite is acknowledged as composite construction, but is justified here because vitality is genuinely multidimensional in lived experience — collapsing to one instrument would underrepresent it.</p>
+  <p><b>Why a composite is acceptable here when a composite was rejected for the y-axis:</b> The y-axis decision required a single coherent measurement because the curve is the dependent variable and any composite would have inherited the Frankenstein problem (incommensurable scales, arbitrary weights, no published trajectory data). Vitality as render is a secondary visual layer informed by a composite is acceptable because the render does not need a published lifespan trajectory. It needs to encode the directional signal of felt experience at each point of the curve. Different evidence requirement, different acceptable construction.</p>
+
+  <h3>Inputs to vitality</h3>
+  <p>Vitality at age <em>A</em> is a function of three inputs:</p>
+  <ol>
+    <li><b>Lifestyle Optimization</b> — dominant input. Sleep, nutrition, stress and recovery, social connection, substance exposure, hormone and metabolic optimization, medical adherence all directly drive felt vitality. This is where the lever has its primary teaching signal.</li>
+    <li><b>Conditioning</b> — meaningful contribution. Cardiovascular fitness genuinely supports felt energy and recovery. A Highly Optimized but Deconditioned person will not feel as vital as a Highly Optimized and Well-conditioned person, because the body itself contributes to felt aliveness. The render mix should reflect this.</li>
+    <li><b>Age</b> — vitality fades with age regardless of the other two inputs, because lived experience does. Even at peak optimization and elite conditioning, vitality at age 85 is lower than at age 35. The age decay is gentle for high-optimization, high-conditioning profiles and steeper for low ones.</li>
+  </ol>
+  <p>Residual Risk does not directly drive vitality between events. Residual Risk drives event step-downs in the capacity curve; events themselves cause acute vitality drops via pain, recovery burden, and psychological impact. The vitality render handles this by dropping color saturation and brightness around event windows, recovering as the curve recovers.</p>
+
+  <h3>Render mix, v1 form</h3>
+  <p>The render mix is a 0 to 1 quantity that drives line color, brightness, saturation, and weight. v1 form:</p>
+  <pre style="font-family:JetBrains Mono, ui-monospace, monospace; font-size:12px; padding:0.6em; background:#1c1e22; border-radius:4px; overflow-x:auto;">render_mix(age) = 0.65 · Lifestyle_Optimization 
+                + 0.35 · Conditioning_contribution
+                − age_decay(age, Lifestyle, Conditioning)
+                − event_acute_drop(age, Risk)</pre>
+  <p>The 0.65 / 0.35 weight reflects that Lifestyle Optimization is the dominant input but Conditioning contributes meaningfully. The age decay term ensures vitality fades across a lifetime even at peak inputs. The event acute drop term ensures events visibly tank vitality at the moment of impact and during recovery.</p>
+  <p>v2 calibration replaces the 0.65 / 0.35 weights with regression coefficients fit against the vitality composite outcome in UK Biobank cross-sectional and HRS longitudinal data. v1 weights are clinical-prior estimates.</p>
+
+  <h3>Visual treatment</h3>
+  <ol>
+    <li><b>Color ramp:</b> red (depleted) through neutral through green (vital). Red-green ramp tested for color-blind safety; alternative is dark-purple to bright-amber if red-green is rejected.</li>
+    <li><b>Brightness and saturation</b> co-vary with the render mix. High vitality is bright and saturated; low vitality is muted and desaturated.</li>
+    <li><b>Line weight</b> scales subtly with vitality. High vitality reads as a confident, full line; low vitality reads as a thinner, less-present line.</li>
+    <li><b>No fill underneath the curve.</b> The line itself carries the render. Filled area under the curve would compete visually with the band zones in the chart background.</li>
+    <li><b>Per-segment rendering.</b> The curve is sampled at fine intervals (every 0.5 years) and each segment is colored by the vitality at that age. The viewer sees a gradient along the curve, not a monochrome line.</li>
+  </ol>
+
+  <h3>Why Conditioning contributes to vitality, not just Lifestyle Optimization</h3>
+  <p>The prior version of this model attempted to make Lifestyle the sole render input and treat Conditioning as render-neutral. That construction is not honest. Cardiovascular fitness contributes to felt energy in a way the longevity-medicine literature consistently documents. A Highly Optimized but Deconditioned person feels less vital than a Highly Optimized and Well-conditioned person, holding everything else constant. The render mix therefore must include Conditioning. The 0.65 / 0.35 split is the v1 estimate; the precise weight is a v2 calibration target.</p>
+
+  <h3>The cross-talk this creates with the lever architecture</h3>
+  <p>Conditioning now has two effects: capacity (its primary role) and vitality (its secondary role). This means moving the Conditioning slider visibly changes both the line position and the line color. That is correct and reflects reality. It does mean Conditioning is even more dominant in the model than the lever architecture section already acknowledged. The "three sliders, three independent effects" frame becomes "three sliders, four to five distinct visible effects." The teaching frame still holds — the viewer sees what each lever does — but the model is honest that Conditioning's reach is larger than a single slider's worth of effect.</p>
+
+  <h3>Open questions deferred to implementation</h3>
+  <ol>
+    <li>Whether v1 ships with SF-36 Vitality as the sole anchor, or with the broader v2 composite from the start. Argues for SF-36 in v1, composite as a v2 target documented in the spec.</li>
+    <li>Whether age decay parameters differ by sex. Likely yes, because vitality trajectories differ; deferred to calibration.</li>
+    <li>Whether the event-acute-drop term recovers fully or leaves a residual vitality penalty after event recovery. Likely partial residual, calibrated to literature on post-event quality of life.</li>
+    <li>Whether the color ramp has a fixed scale (e.g., 0 to 100 vitality maps to red-to-green absolutely) or a relative scale (the user's own range across slider settings). Likely fixed, because relative would let any setting look bright.</li>
+  </ol>
+
+  <h3>Citations</h3>
+  <ul>
+    <li>Ware JE and Sherbourne CD. <em>Med Care</em> 1992 (SF-36 Vitality scale)</li>
+    <li>Cella D et al. <em>J Clin Epidemiol</em> 2010 (PROMIS instrument bank)</li>
+    <li>Penedo FJ and Dahn JR. <em>Curr Opin Psychiatry</em> 2005 (exercise and felt vitality)</li>
+    <li>Holt-Lunstad J et al. <em>PLoS Med</em> 2010 (social connection and mortality, vitality channel)</li>
+    <li>Steptoe A et al. <em>Lancet</em> 2015 (subjective wellbeing and aging trajectories)</li>
+  </ul>
 
   <h2>1 · Risk · residualized</h2>
 
