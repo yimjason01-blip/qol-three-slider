@@ -85,26 +85,31 @@
   .footer-links { margin-top: 28px; color: var(--subdim); font-size: 12px;
     display: flex; justify-content: space-between; }
 
-  /* Trajectory legend — clickable pills toggle each branch's visibility. */
-  .legend { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0 4px;
+  /* Trajectory legend — toggles control each branch's visibility on the chart. */
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; padding: 12px 0 4px;
     justify-content: flex-start; }
-  .legend-pill { display: inline-flex; align-items: center; gap: 8px;
-    background: var(--panel); border: 1px solid var(--border);
-    border-radius: 999px; padding: 6px 12px 6px 10px;
-    font-size: 11px; letter-spacing: 0.3px; color: var(--ink);
+  .legend-toggle { display: inline-flex; align-items: center; gap: 10px;
+    background: transparent; border: none; padding: 4px 2px;
+    font-size: 12px; letter-spacing: 0.2px; color: var(--ink);
     font-family: 'Inter', sans-serif; cursor: pointer;
-    user-select: none; transition: opacity 120ms, border-color 120ms;
-    line-height: 1.2; }
-  .legend-pill .swatch { width: 10px; height: 10px; border-radius: 50%;
-    flex-shrink: 0; }
-  .legend-pill .label { color: var(--ink); }
-  .legend-pill .pct { color: var(--dim); font-variant-numeric: tabular-nums;
-    margin-left: 2px; }
-  .legend-pill[data-active="false"] { opacity: 0.42; border-style: dashed; }
-  .legend-pill[data-active="false"] .swatch { opacity: 0.4; }
-  .legend-pill[data-active="false"] .label { text-decoration: line-through;
-    text-decoration-color: var(--subdim); color: var(--dim); }
-  .legend-pill:hover { border-color: var(--ink); }
+    user-select: none; line-height: 1.2; }
+  .legend-toggle .track { position: relative; width: 30px; height: 16px;
+    background: #2a2d34; border-radius: 999px; flex-shrink: 0;
+    transition: background 140ms ease; }
+  .legend-toggle .track::after { content: ''; position: absolute;
+    top: 2px; left: 2px; width: 12px; height: 12px;
+    background: #6e6c66; border-radius: 50%;
+    transition: transform 140ms ease, background 140ms ease; }
+  .legend-toggle[data-active="true"] .track::after {
+    transform: translateX(14px); background: var(--swatch, #d4a574); }
+  .legend-toggle[data-active="true"] .track { background: rgba(212,165,116,0.22); }
+  .legend-toggle .label { color: var(--ink); }
+  .legend-toggle .pct { color: var(--dim); font-variant-numeric: tabular-nums;
+    margin-left: 2px; font-size: 11px; }
+  .legend-toggle[data-active="false"] .label { color: var(--dim); }
+  .legend-toggle[data-active="false"] .pct { color: var(--subdim); }
+  .legend-toggle:hover .track { background: #3a3d44; }
+  .legend-toggle[data-active="true"]:hover .track { background: rgba(212,165,116,0.32); }
 
   /* SVG element styles */
   .ax-tick { stroke: #2a2d34; }
@@ -763,8 +768,8 @@ function renderLegend(probVisibleOutcomes) {
     const swatch = vitalityColor(last.vit);
     const pct = Math.round(outcome.p * 100);
     const active = activeOutcomes[id] !== false;
-    return `<button class="legend-pill" data-outcome="${id}" data-active="${active}" type="button" aria-pressed="${active}">
-      <span class="swatch" style="background:${swatch}"></span>
+    return `<button class="legend-toggle" data-outcome="${id}" data-active="${active}" type="button" role="switch" aria-checked="${active}" style="--swatch:${swatch}">
+      <span class="track" aria-hidden="true"></span>
       <span class="label">${outcome.label}</span>
       <span class="pct">${pct}%</span>
     </button>`;
@@ -779,7 +784,7 @@ function renderLegend(probVisibleOutcomes) {
 // Legend pill clicks toggle outcome visibility. Event delegation on the
 // container so pills get re-bound automatically when renderLegend rebuilds.
 document.getElementById('legend').addEventListener('click', e => {
-  const pill = e.target.closest('.legend-pill');
+  const pill = e.target.closest('.legend-toggle');
   if (!pill) return;
   const id = pill.dataset.outcome;
   // Don't allow turning off the last visible outcome — chart would go empty.
