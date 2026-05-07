@@ -113,11 +113,7 @@
   <div class="chart-wrap">
     <svg id="chart" viewBox="0 0 920 520" preserveAspectRatio="xMidYMid meet"></svg>
     <div class="caption-row">
-      <label class="toggle">
-        <input type="checkbox" id="showBranches"/>
-        <span>Show probability branches</span>
-      </label>
-      <div class="caption" id="caption">Two events fork: cancer treatment (~age 65) and CV event (~age 75). Toggle on to see how probability splits the trajectory.</div>
+      <div class="caption" id="caption">Two events fork the trajectory: cancer treatment (~age 65) and CV event (~age 75). Four real futures render: spared both, cancer only, CV only, both. Joint probabilities sum to 100%.</div>
     </div>
   </div>
 
@@ -291,26 +287,26 @@ const FORK_EVENTS = [
   {
     id: 'cancer',
     name: 'Cancer treatment',
+    shortName: 'cancer',
     modalAge: 65,
     anchors: [[0.30, 0.25], [0.55, 0.40], [0.80, 0.55]],
     drop: 0.25,
-    tau: 24,           // months to plateau (recovery dynamics)
-    recoveryFrac: 0.20, // 20% of acute drop recovers; 80% leaves residual deconditioning. Matches Jones 2012 cancer-survivor VO₂max literature.
-    visibleYears: 7    // how long both branches render before reconvergence
+    tau: 24,            // months to plateau
+    recoveryFrac: 0.20  // 20% of acute drop recovers → 20% permanent residual loss. Jones 2012 cancer-survivor VO₂max literature.
   },
   {
     id: 'cv',
     name: 'CV event',
+    shortName: 'CV',
     modalAge: 75,
     anchors: [[0.30, 0.10], [0.55, 0.30], [0.80, 0.55]],
     drop: 0.25,
     tau: 6,
-    recoveryFrac: 0.75,
-    visibleYears: 12   // CV branches stay visible longer; this is the dominant late-life teaching split
+    recoveryFrac: 0.75  // 75% recovers → 6.25% permanent residual loss. Cardiac rehab literature.
   }
 ];
 
-// For a given R_eff, return the active forks with their probabilities.
+// For a given R_eff, return the events with their lifetime probabilities.
 function activeForks(R) {
   return FORK_EVENTS.map(ev => ({
     ...ev,
@@ -318,7 +314,9 @@ function activeForks(R) {
   }));
 }
 
-// Compute the with-event drop factor at age, given event fired at event.modalAge.
+// Per-event multiplicative factor at age. Before the modal age, factor = 1.
+// After the modal age: acute drop → asymptotic recovery to a permanent residual.
+// The residual penalty persists for the rest of the trajectory.
 function eventFactorAt(event, age) {
   if (age < event.modalAge) return 1.0;
   const yearsSince = age - event.modalAge;
@@ -328,120 +326,55 @@ function eventFactorAt(event, age) {
   return 1 - dropFrac;
 }
 
-// ---- Branch-aware capacity model ----
-// In the divergent-timeline view, the trajectory is a sequence of segments:
-//   [base segment] → [fork 1: dominant + subordinate branches] → [reconvergence]
-//   → [base segment] → [fork 2: ...] → [reconvergence] → ...
+// ---- Joint-outcome trajectory model ----
 //
-// On each fork, the with-event branch suffers a multiplicative drop+recovery.
-// After the recovery window, the dominant branch is selected as the "main"
-// trajectory; the next fork happens on this dominant branch.
+// Two independent forking events (cancer @ 65, CV @ 75) generate four joint
+// outcomes. Each outcome is a real future the patient could live. Each carries
+// a joint probability and renders as its own trajectory.
 //
-// In the deterministic view (toggle off), only the "expected" trajectory is
-// shown — the probability-weighted average of branches. This produces a
-// single line that visually resembles the prior render but is now
-// mathematically a probability-weighted aggregate, not a deterministic step-down.
+//   spared:       P = (1 - Pc)(1 - Pcv)
+//   cancer only:  P = Pc(1 - Pcv)
+//   CV only:      P = (1 - Pc)Pcv
+//   both:         P = Pc · Pcv
+//
+// Each outcome's capacity at age = base capacity × ∏(event factors for events
+// that fired in this outcome). Event factors persist permanently (with their
+// asymptotic residual penalty), so a branch that took cancer treatment stays
+// permanently below the spared branch for the rest of the chart. No
+// reconvergence. No probability-weighted "expected" curve. The four lines
+// are the model.
+//
+// Independence assumption (v1): cancer and CV are treated as independent.
+// Real cardio-oncology cross-talk (cardiotoxicity raising CV risk in cancer
+// survivors) is acknowledged as a v2 calibration target.
 
-// Compute trajectory factor at age, walking through forks chronologically.
-// Returns:
-//   { dominant: factor for dominant-branch (with or without event, whichever has higher probability)
-//     subordinate: factor for subordinate-branch (the other one)
-//     expected: probability-weighted factor for the aggregate "expected" trajectory
-//     forkInfo: array of { event, age, pEvent, dominantHasEvent, branchAtAge }
-//   }
-function trajectoryAt(forks, age) {
-  // Sort forks by modalAge
-  const sorted = [...forks].sort((a, b) => a.modalAge - b.modalAge);
+function jointOutcomes(forks) {
+  const cancer = forks.find(f => f.id === 'cancer');
+  const cv = forks.find(f => f.id === 'cv');
+  const pc = cancer.pEvent;
+  const pcv = cv.pEvent;
+  return [
+    { id: 'spared',  label: 'spared both', shortLabel: 'spared',     p: (1 - pc) * (1 - pcv), events: [] },
+    { id: 'cancer',  label: 'cancer only', shortLabel: 'cancer only', p: pc * (1 - pcv),       events: [cancer] },
+    { id: 'cv',      label: 'CV only',     shortLabel: 'CV only',     p: (1 - pc) * pcv,       events: [cv] },
+    { id: 'both',    label: 'both events', shortLabel: 'both',        p: pc * pcv,             events: [cancer, cv] }
+  ];
+}
 
-  // We track three factors: dominant, subordinate, expected.
-  // After each fork, dominant + subordinate get reset based on the new dominant
-  // branch (i.e., the dominant of the previous fork becomes the new "main"
-  // trunk that the next fork splits from).
-  let dominantFactor = 1.0;
-  let subordinateFactor = 1.0;
-  let expectedFactor = 1.0;
-  // Track which fork is currently active (for visualization)
-  let activeForkIdx = -1;
-  let activeForkEvent = null;
-  let inReconvergence = false;
-
-  for (let i = 0; i < sorted.length; i++) {
-    const ev = sorted[i];
-    const reconvAge = ev.modalAge + ev.visibleYears;
-
-    if (age < ev.modalAge) {
-      // Before this fork: trajectory is whatever the last reconverged value was
-      // dominant/subordinate are equal (no branching yet)
-      return {
-        dominant: dominantFactor,
-        subordinate: dominantFactor,
-        expected: expectedFactor,
-        activeForkIdx: -1,
-        activeForkEvent: null,
-        inFork: false
-      };
-    }
-
-    if (age <= reconvAge) {
-      // We are inside this fork's window
-      const eventFactor = eventFactorAt(ev, age);
-      // dominant branch: whichever (event vs no-event) has higher probability
-      const eventDominant = ev.pEvent > 0.5;
-      const withEventFactor = dominantFactor * eventFactor;
-      const noEventFactor = dominantFactor; // unchanged
-      return {
-        dominant: eventDominant ? withEventFactor : noEventFactor,
-        subordinate: eventDominant ? noEventFactor : withEventFactor,
-        expected: expectedFactor * (ev.pEvent * eventFactor + (1 - ev.pEvent) * 1.0),
-        activeForkIdx: i,
-        activeForkEvent: ev,
-        inFork: true,
-        pEvent: ev.pEvent,
-        eventDominant,
-        withEventFactor,
-        noEventFactor
-      };
-    }
-
-    // Past this fork's reconvergence — collapse branches into the new trunk.
-    // The dominant branch becomes the new trunk. The expected aggregates the
-    // probability-weighted effect.
-    const eventFactorAtReconv = eventFactorAt(ev, reconvAge);
-    const eventDominant = ev.pEvent > 0.5;
-    const dominantBranchAtReconv = eventDominant
-      ? dominantFactor * eventFactorAtReconv
-      : dominantFactor;
-    dominantFactor = dominantBranchAtReconv;
-    subordinateFactor = dominantBranchAtReconv;
-    expectedFactor = expectedFactor * (ev.pEvent * eventFactorAtReconv + (1 - ev.pEvent) * 1.0);
+// Capacity for a specific joint outcome at age.
+function capacityForOutcome(condSlider, lifeSlider, age, outcomeEvents) {
+  let factor = 1.0;
+  for (const ev of outcomeEvents) {
+    factor *= eventFactorAt(ev, age);
   }
-
-  // Past all forks
-  return {
-    dominant: dominantFactor,
-    subordinate: dominantFactor,
-    expected: expectedFactor,
-    activeForkIdx: -1,
-    activeForkEvent: null,
-    inFork: false
-  };
+  return Math.max(baseCapacity(condSlider, lifeSlider, age) * factor, 3);
 }
 
-// Capacity helpers — return capacity values for each branch type.
-function capacityDominant(condSlider, lifeSlider, age, forks) {
-  const base = baseCapacity(condSlider, lifeSlider, age);
-  const t = trajectoryAt(forks, age);
-  return Math.max(base * t.dominant, 3);
-}
-function capacitySubordinate(condSlider, lifeSlider, age, forks) {
-  const base = baseCapacity(condSlider, lifeSlider, age);
-  const t = trajectoryAt(forks, age);
-  return Math.max(base * t.subordinate, 3);
-}
-function capacityExpected(condSlider, lifeSlider, age, forks) {
-  const base = baseCapacity(condSlider, lifeSlider, age);
-  const t = trajectoryAt(forks, age);
-  return Math.max(base * t.expected, 3);
+// Vitality for a specific joint outcome at age. Each branch experiences only
+// the events that fired in that branch.
+function vitalityForOutcome(condSlider, lifeSlider, age, outcomeEvents) {
+  const vEvents = outcomeEvents.map(ev => ({ age: ev.modalAge, drop: ev.drop, tau: ev.tau }));
+  return vitalityAt(condSlider, lifeSlider, age, vEvents);
 }
 
 // ---- Vitality render mix ----
@@ -572,8 +505,7 @@ function render() {
 
   const R = effectiveRisk(cond, life, risk);
   const forks = activeForks(R);
-  const showBranches = document.getElementById('showBranches') &&
-    document.getElementById('showBranches').checked;
+  const outcomes = jointOutcomes(forks);
   const neuroOnset = neurodegenOnset(cond, life, risk);
 
   let s = '';
@@ -618,50 +550,32 @@ function render() {
   s += `<polyline points="${refPts.join(' ')}" class="ref-curve"/>`;
   s += `<text x="${xAge(95)}" y="${yV(templateAt(TEMPLATES.average, 95)) - 6}" class="ref-label" text-anchor="end">avg American</text>`;
 
-  // Build samples for both branches and the expected trajectory
-  const samples = [];
-  for (let a = AGE_MIN; a <= AGE_MAX; a += 0.5) {
-    const t = trajectoryAt(forks, a);
-    const base = baseCapacity(cond, life, a);
-    samples.push({
-      a,
-      x: xAge(a),
-      yDom: yV(Math.max(base * t.dominant, 3)),
-      ySub: yV(Math.max(base * t.subordinate, 3)),
-      yExp: yV(Math.max(base * t.expected, 3)),
-      vit: vitalityAt(cond, life, a, []),
-      inFork: t.inFork,
-      forkIdx: t.activeForkIdx
-    });
-  }
+  // Build per-outcome sample arrays. Each outcome carries its own capacity
+  // and vitality trajectory because each experiences a different event set.
+  const outcomeSamples = outcomes.map(o => {
+    const pts = [];
+    for (let a = AGE_MIN; a <= AGE_MAX; a += 0.5) {
+      pts.push({
+        a,
+        x: xAge(a),
+        y: yV(capacityForOutcome(cond, life, a, o.events)),
+        vit: vitalityForOutcome(cond, life, a, o.events)
+      });
+    }
+    return { outcome: o, pts };
+  });
+
+  // Drop outcomes whose probability rounds to 0% — they're noise.
+  const visibleOutcomes = outcomeSamples.filter(({ outcome }) => outcome.p >= 0.005);
 
   const dashStart = neuroOnset != null ? neuroOnset : 90;
 
-  if (showBranches) {
-    // Branched view: render dominant and subordinate as separate lines.
-    // Subordinate gets ~50% opacity and slightly thinner stroke.
-    for (let i = 0; i < samples.length - 1; i++) {
-      const p0 = samples[i], p1 = samples[i + 1];
-      const aMid = (p0.a + p1.a) / 2;
-      const vitMid = (p0.vit + p1.vit) / 2;
-      const color = vitalityColor(vitMid);
-      const dashed = aMid >= dashStart;
-      const dashAttr = dashed ? 'stroke-dasharray="4 3"' : '';
-      const baseOpacity = dashed ? 0.55 : 1.0;
-      const width = 2.0 + vitMid * 1.4;
-      // Dominant
-      s += `<line x1="${p0.x}" y1="${p0.yDom}" x2="${p1.x}" y2="${p1.yDom}" stroke="${color}" stroke-width="${width.toFixed(2)}" stroke-linecap="round" opacity="${baseOpacity}" ${dashAttr}/>`;
-      // Subordinate (only render if it differs visibly)
-      if (Math.abs(p0.ySub - p0.yDom) > 0.5 || Math.abs(p1.ySub - p1.yDom) > 0.5) {
-        const subOpacity = baseOpacity * 0.35;
-        const subWidth = Math.max(width - 0.8, 1.4);
-        s += `<line x1="${p0.x}" y1="${p0.ySub}" x2="${p1.x}" y2="${p1.ySub}" stroke="${color}" stroke-width="${subWidth.toFixed(2)}" stroke-linecap="round" opacity="${subOpacity}" ${dashAttr}/>`;
-      }
-    }
-  } else {
-    // Expected (default) view: single weighted-average trajectory.
-    for (let i = 0; i < samples.length - 1; i++) {
-      const p0 = samples[i], p1 = samples[i + 1];
+  // Render each outcome as its own line, full visual weight, colored by its
+  // own per-segment vitality. No opacity weighting by probability — labels
+  // carry that information. The four lines are the model.
+  for (const { outcome, pts } of visibleOutcomes) {
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i], p1 = pts[i + 1];
       const aMid = (p0.a + p1.a) / 2;
       const vitMid = (p0.vit + p1.vit) / 2;
       const color = vitalityColor(vitMid);
@@ -669,49 +583,54 @@ function render() {
       const dashAttr = dashed ? 'stroke-dasharray="4 3"' : '';
       const opacity = dashed ? 0.55 : 1.0;
       const width = 2.0 + vitMid * 1.4;
-      s += `<line x1="${p0.x}" y1="${p0.yExp}" x2="${p1.x}" y2="${p1.yExp}" stroke="${color}" stroke-width="${width.toFixed(2)}" stroke-linecap="round" opacity="${opacity}" ${dashAttr}/>`;
+      s += `<line x1="${p0.x}" y1="${p0.y}" x2="${p1.x}" y2="${p1.y}" stroke="${color}" stroke-width="${width.toFixed(2)}" stroke-linecap="round" opacity="${opacity}" ${dashAttr}/>`;
     }
   }
 
-  // Fork markers — vertical lines at each fork's modal age, with probability labels
+  // Fork markers — vertical guide at each event age, with a small dot on the
+  // pre-fork trunk indicating where the trajectory splits.
   for (const ev of forks) {
     const x = xAge(ev.modalAge);
-    const pct = Math.round(ev.pEvent * 100 / 5) * 5;
-    const noPct = 100 - pct;
-    // Find the dominant y at the modal age (where the fork starts)
-    const sample = samples.find(p => Math.abs(p.a - ev.modalAge) < 0.3);
-    if (!sample) continue;
-    const yFork = sample.yDom;
-    // Marker dot
-    s += `<circle cx="${x}" cy="${yFork}" r="3" class="event-marker"/>`;
-    // Vertical guide line (faint)
+    // Faint vertical guide
     s += `<line x1="${x}" y1="${PAD.t + 4}" x2="${x}" y2="${PAD.t + CH}" stroke="#3a3d44" stroke-width="0.6" stroke-dasharray="2 3" opacity="0.45"/>`;
-
-    if (showBranches) {
-      // Show probability labels for both branches
-      // Find the value of dominant + subordinate at end of fork window
-      const reconvAge = Math.min(ev.modalAge + ev.visibleYears, AGE_MAX);
-      const reconvSample = samples.find(p => Math.abs(p.a - reconvAge) < 0.3);
-      if (reconvSample) {
-        const yLabel1 = reconvSample.yDom - 4;
-        // If subordinate label is too close to dominant (within 12px), offset it
-        const ySubRaw = reconvSample.ySub - 4;
-        const yLabel2 = Math.abs(ySubRaw - yLabel1) < 12
-          ? (ySubRaw < yLabel1 ? ySubRaw - 8 : ySubRaw + 12)
-          : ySubRaw;
-        const xLabel = xAge(reconvAge) + 4;
-        const domPct = ev.pEvent > 0.5 ? pct : noPct;
-        const subPct = ev.pEvent > 0.5 ? noPct : pct;
-        const domTag = ev.pEvent > 0.5 ? `${ev.name}` : `no ${ev.name.toLowerCase()}`;
-        const subTag = ev.pEvent > 0.5 ? `no ${ev.name.toLowerCase()}` : `${ev.name}`;
-        s += `<text x="${xLabel}" y="${yLabel1}" class="event-label" style="font-size:10px">${domPct}% ${domTag}</text>`;
-        s += `<text x="${xLabel}" y="${yLabel2}" class="event-label" style="font-size:10px;opacity:0.6">${subPct}% ${subTag}</text>`;
-      }
-    } else {
-      // Single label above the marker showing event name + probability
-      const labelY = yFork - 8;
-      s += `<text x="${x + 5}" y="${labelY}" class="event-label">${ev.name} · ${pct}%</text>`;
+    // Dot on the spared trajectory at the modal age (this is the "trunk" everything forks from)
+    const sparedSamples = outcomeSamples.find(o => o.outcome.id === 'spared').pts;
+    const sample = sparedSamples.find(p => Math.abs(p.a - ev.modalAge) < 0.3);
+    if (sample) {
+      s += `<circle cx="${x}" cy="${sample.y}" r="3" class="event-marker"/>`;
     }
+    // Event label above the chart
+    s += `<text x="${x}" y="${PAD.t - 4}" text-anchor="middle" class="event-label" style="font-size:10px;fill:#a8a59c">${ev.name} · age ${ev.modalAge}</text>`;
+  }
+
+  // Right-edge labels for each outcome — joint probability + outcome name.
+  // Stack them in y-order based on terminal capacity at age 100 to avoid
+  // crossing labels.
+  const labelData = visibleOutcomes
+    .map(({ outcome, pts }) => {
+      const last = pts[pts.length - 1];
+      return {
+        outcome,
+        y: last.y,
+        x: last.x,
+        color: vitalityColor(last.vit),
+        pct: Math.round(outcome.p * 100)
+      };
+    })
+    .sort((a, b) => a.y - b.y); // top-to-bottom
+
+  // Resolve label collisions by enforcing a minimum y-gap.
+  const minGap = 14;
+  for (let i = 1; i < labelData.length; i++) {
+    if (labelData[i].y - labelData[i - 1].y < minGap) {
+      labelData[i].y = labelData[i - 1].y + minGap;
+    }
+  }
+
+  for (const ld of labelData) {
+    const xLabel = ld.x + 6;
+    s += `<text x="${xLabel}" y="${ld.y - 1}" class="event-label" style="font-size:10px;fill:${ld.color};font-weight:500">${ld.pct}%</text>`;
+    s += `<text x="${xLabel + 26}" y="${ld.y - 1}" class="event-label" style="font-size:10px;fill:#a8a59c">${ld.outcome.shortLabel}</text>`;
   }
 
   // Neurodegenerative onset annotation
@@ -748,7 +667,6 @@ function render() {
 ['cond', 'life', 'risk'].forEach(id => {
   document.getElementById(id).addEventListener('input', render);
 });
-document.getElementById('showBranches').addEventListener('change', render);
 
 document.querySelectorAll('.preset').forEach(btn => {
   btn.addEventListener('click', () => {

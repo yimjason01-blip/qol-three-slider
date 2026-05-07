@@ -400,29 +400,54 @@
   </ol>
   <p><b>What stays in mutual exclusivity:</b> the levers' primary mechanisms remain distinct. Conditioning sets curve altitude and slope. Lifestyle Optimization drives line color (vitality) and a small slope multiplier. Inherited Risk is the dominant input to event onset. The R_eff combination is one specific channel for cross-effect (event onset), not a global muddying of all mechanisms. The cross-talk panel still discloses the second-order links the model does not represent (events drop conditioning in reality; lifestyle inputs feed conditioning over years).</p>
 
-  <h3>Decision 2 · Probability-anchored divergent timelines</h3>
-  <p><b>Choice:</b> Events do not render as deterministic step-downs at fixed ages. Instead, each event has a published lifetime probability for the patient's R_eff profile, and at the modal event age the trajectory <em>splits</em> into two branches: a "no-event" branch and a "with-event" branch. Each branch carries its probability as a label. The dominant branch (higher probability) renders with full visual weight; the other renders at reduced opacity. Branches reconverge into a weighted-average trajectory after a recovery window (~5 years for cardiac, ~24 months for cancer). The next forking event creates a new local split on whichever branch is dominant.</p>
-  <p><b>Why this replaces deterministic events:</b> deterministic step-downs teach inevitability. A patient at R_eff = 0.55 saw the cancer drop and learned "cancer will happen." That over-claims and teaches fatalism. Probability-anchored forks teach branching — same risk profile produces multiple real futures, and the probability is the chart's most important number. The forking treatment also makes the threshold question well-formed for the first time: there is no "render threshold" — there are continuous probabilities that fork at every event window, and the user sees the probability directly rather than inferring it from rendering presence.</p>
-  <p><b>Two events fork in v1:</b> cardiovascular (MI/stroke composite) and cancer treatment. These two events cover the dominant 80/20 of mortality and capacity disruption. Hip fracture and HF onset are deferred to v2, when Inherited Risk fragments into per-domain sliders. The two-fork constraint also keeps the visual surface readable — four forking events would saturate the chart with branches.</p>
-  <p><b>Probability anchoring:</b> v1 lifetime probabilities are pulled from published cohort literature stratified by R_eff equivalent. The R_eff → lifetime probability mapping is a clinical-prior calibration that v2 replaces with cohort-fit functions. v1 anchors:</p>
+  <h3>Decision 2 · Joint-outcome divergent timelines</h3>
+  <p><b>Choice:</b> Two independent forking events (cancer treatment at modal age 65, CV event at modal age 75) generate four joint outcomes. Each outcome is a real future the patient could live, with its own joint probability and its own permanent trajectory. All four render as full-weight lines from their fork point to age 100. No reconvergence. No probability-weighted "expected" curve. The four lines <em>are</em> the model.</p>
+  <p><b>The four joint outcomes:</b></p>
+  <pre style="font-family:JetBrains Mono, ui-monospace, monospace; font-size:12px; padding:0.6em; background:#1c1e22; border-radius:4px;">P(spared both)  = (1 − P_cancer) · (1 − P_cv)
+P(cancer only)  = P_cancer · (1 − P_cv)
+P(CV only)      = (1 − P_cancer) · P_cv
+P(both events)  = P_cancer · P_cv</pre>
+  <p>Joint probabilities always sum to 100%. Outcomes whose probability rounds below 0.5% are dropped from render as noise.</p>
+
+  <p><b>Why this replaces the prior dominant/subordinate-with-reconvergence model:</b> The prior version chose a "dominant" branch per fork (whichever had probability &gt; 50%) and reconverged the subordinate branch back into the dominant trunk after a visibility window. That construction had three problems:</p>
+  <ol>
+    <li><b>It silently discarded probability mass.</b> When cancer was the subordinate branch (P &lt; 50%), the cancer-treated trajectory disappeared from the chart at the reconvergence age. The 20% permanent residual loss specified in Decision 4 existed in the math but vanished from the visual, contradicting the recovery dynamics decision.</li>
+    <li><b>It editorialized which future is canonical.</b> Opacity-weighting branches by probability told the viewer "this future is more likely so look here." For a teaching tool meant to make patients sit with both possibilities equally, that frames the chart against its own purpose.</li>
+    <li><b>It hid the "both events" outcome entirely.</b> With sequential reconvergence, the second fork only branched off whichever first-fork branch was dominant. A patient experiencing both cancer treatment AND a CV event was never rendered. At average risk this is ~12% probability mass — not a corner case.</li>
+  </ol>
+
+  <p><b>Two events fork in v1:</b> cardiovascular (MI/stroke composite) and cancer treatment. These two cover the dominant 80/20 of mortality and capacity disruption, and at four joint outcomes the chart remains readable. Hip fracture, HF onset, and dialysis initiation are deferred to v2, when Inherited Risk fragments into per-domain sliders. Adding more forking events would multiply the outcome count (3 events = 8 outcomes, 4 events = 16) past visual saturation.</p>
+
+  <p><b>Independence assumption:</b> v1 treats cancer and CV as independent. Real cardio-oncology cross-talk (cardiotoxicity raising CV risk in cancer survivors; shared metabolic substrate raising both) is acknowledged as a v2 calibration target. The independence simplification is honest about its limit and matches the teaching frame: the patient learns that both events <em>can</em> happen on the same trajectory, even if the joint probability v1 reports is slightly off from reality.</p>
+
+  <p><b>Probability anchoring:</b> v1 lifetime probabilities are pulled from published cohort literature stratified by R_eff equivalent. v2 replaces the R_eff → lifetime probability mapping with cohort-fit functions. v1 anchors:</p>
   <table>
     <tr><th>Event</th><th>R_eff = 0.30 (Low)</th><th>R_eff = 0.55 (Avg)</th><th>R_eff = 0.80 (High)</th><th>Modal age</th><th>Source</th></tr>
-    <tr><td>CV event (MI/stroke composite)</td><td>~10%</td><td>~30%</td><td>~55%</td><td>~70</td><td>PREVENT (Khan 2024); Pooled Cohort Equations</td></tr>
-    <tr><td>Cancer treatment</td><td>~25%</td><td>~40%</td><td>~55%</td><td>~67</td><td>SEER cumulative incidence by age and site; treatment-burden assumption ~70% of incidence requires capacity-affecting treatment</td></tr>
+    <tr><td>CV event (MI/stroke composite)</td><td>~10%</td><td>~30%</td><td>~55%</td><td>75</td><td>PREVENT (Khan 2024); Pooled Cohort Equations</td></tr>
+    <tr><td>Cancer treatment</td><td>~25%</td><td>~40%</td><td>~55%</td><td>65</td><td>SEER cumulative incidence by age and site; treatment-burden assumption ~70% of incidence requires capacity-affecting treatment</td></tr>
   </table>
-  <p>Probabilities interpolate continuously between the three R_eff anchor points. At any R_eff value, the v1 model produces a defensible lifetime probability number for each forking event.</p>
-  <p><b>Branch rendering rules:</b></p>
+  <p>Probabilities interpolate continuously between the three R_eff anchor points.</p>
+
+  <p><b>Branch trajectory math:</b> Each joint outcome's capacity at age <em>A</em> equals the base capacity at <em>A</em> multiplied by the product of event factors for events that fired in that outcome. Each event factor follows the acute-drop-with-asymptotic-recovery curve in Decision 4: drops to <code>1 − drop</code> at the modal age, recovers exponentially toward <code>1 − residual</code> with time constant τ. The residual penalty persists for the rest of the trajectory. A branch that took cancer treatment never returns to the spared branch's altitude. A branch that took both events sits below all three other branches permanently.</p>
+
+  <p><b>Vitality per branch:</b> Each outcome carries its own vitality render. The "both" branch's color late in life reflects the cumulative event burden on felt experience, not the hypothetical "no events" trajectory. Different branches can therefore display different colors at the same age — the spared branch reads vital while the both-events branch reads depleted.</p>
+
+  <p><b>Render rules:</b></p>
   <ol>
-    <li><b>Dominant branch:</b> the branch with higher probability mass at the fork. Renders at full opacity and weight.</li>
-    <li><b>Subordinate branch:</b> renders at ~50% opacity, same color logic, slightly thinner.</li>
-    <li><b>Probability labels:</b> each branch carries a small numeric label at the fork point ("32% MI", "68% no MI"). Labels rounded to nearest 5%.</li>
-    <li><b>Reconvergence:</b> after the recovery window for the with-event branch (cardiac ~5 years post-event; cancer ~24 months post-treatment), the two branches reconverge into a single weighted-average trajectory. The reconverged trajectory is mathematically: (P_event × with_event_curve) + (P_no_event × no_event_curve). This is the "expected" trajectory, and it becomes the single line that the next forking event splits from.</li>
-    <li><b>Next fork:</b> the cancer fork happens before the CV fork chronologically (modal age 67 vs 70). The CV fork happens on whichever cancer branch is dominant at age 70. v1 always puts the CV fork on the dominant cancer branch — v2 may render forks on both cancer branches if visual budget allows.</li>
+    <li><b>All four lines render at full visual weight.</b> No opacity weighting by probability. The labels carry the probability information.</li>
+    <li><b>Each line is colored by its own per-segment vitality.</b> Same vitality formula as Decision in the Vitality color render section, applied per-branch.</li>
+    <li><b>Right-edge labels:</b> joint probability and outcome name (spared / cancer only / CV only / both), stacked in y-order to avoid crossings, color-matched to each line's terminal vitality.</li>
+    <li><b>Fork markers:</b> small dots on the spared trajectory at each event's modal age, with a faint vertical guide line. Event name labels above the chart.</li>
+    <li><b>Outcomes with rounded probability &lt; 0.5% are dropped from render.</b> At low Inherited Risk + high Conditioning, the "both" outcome can be near 1-2% — small enough to be visually marginal but kept in the render so the teaching that "both can happen on any profile" stays honest.</li>
   </ol>
-  <p><b>Stacking semantics carry over from prior version:</b> within the with-event branch, capacity drops multiplicatively per the recovery parameters in Decision 4. After reconvergence, the weighted-average trajectory inherits the multiplicative effect proportional to event probability.</p>
-  <p><b>What deterministic events bought that this gives up:</b> simplicity of interpretation. A patient could point at a step-down and say "that's my MI." With forks, the patient has to read probability labels. The trade is worth it: the probability-anchored model teaches the actual structure of risk (branches with weights), not a fictional deterministic future.</p>
-  <p><b>v1 toggle:</b> implementation ships with both renderings available. Default is the deterministic view (single line, with the event drop on the modal age) so the chart reads simply on first contact. A "show probability branches" toggle reveals the divergent rendering. v2 makes the divergence default once user testing confirms the branched view is interpretable without orientation.</p>
-  <p><b>Caption on the chart:</b> "Branches show real probability mass for these slider settings. Two patients with the same sliders may end up on either branch."</p>
+
+  <p><b>What this construction is honest about:</b> the four lines on the chart represent four mutually exclusive futures with their joint probabilities. The chart does not claim any patient will live on any specific line. The teaching: "Your slider settings produce these four possible trajectories with these probabilities. The probability you experience each one shifts as your sliders move."</p>
+
+  <p><b>What this construction admits:</b> visual compression at the low-capacity end of the y-axis. When all four branches sit between 5-15 mL/kg/min in late life (e.g. high-risk sedentary profile), the lines bunch. That is the truth — at that capacity range, event differentials are real but small in absolute mL/kg/min terms. Y-axis is linear by Y-axis decision; the compression is a feature, not a bug.</p>
+
+  <p><b>Stacking semantics:</b> within a multi-event branch (the "both" outcome), event factors compound multiplicatively per Decision 4. A 25% CV drop on top of a 20% permanent cancer residual leaves capacity at <code>0.80 × 0.75 = 0.60</code> of the no-event baseline at the time of the CV event, recovering toward <code>0.80 × 0.9375 = 0.75</code> after CV recovery (since CV's residual is 6.25%). Multiplicative stacking preserves the teaching that Conditioning still buys altitude even on the worst joint outcome — Elite/HighR's both-events branch lands meaningfully higher than Decon/HighR's both-events branch, because the same fractional drops apply to a higher starting capacity.</p>
+
+  <p><b>Caption on the chart:</b> "Two events fork the trajectory: cancer treatment (~age 65) and CV event (~age 75). Four real futures render: spared both, cancer only, CV only, both. Joint probabilities sum to 100%."</p>
 
   <h3>Decision 3 · Event scope, by Meridian risk domain</h3>
   <p><b>Choice:</b> All five Meridian risk domains appear, with domain-specific representation honest to each domain's mechanism.</p>
