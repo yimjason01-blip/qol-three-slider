@@ -88,6 +88,107 @@
     <dd>The dashed reference curve and preset. The median U.S. adult's position on each axis, computed from public-health surveillance data.</dd>
   </div>
 
+  <p class="meta" style="margin-top:1.5em"><b>Note on the Functional Capacity defined term above.</b> The 4-domain equal-weighted composite (PROMIS PF, MoCA, PROMIS Ability to Participate, Lawton+Katz) is superseded by the y-axis decision recorded in the next section. The composite was the prior assumption. It does not survive scrutiny, for reasons given below. The defined term will be rewritten in the next spec uprev. Sections §4 and §5 still reference the old composite and will be updated in the same uprev.</p>
+
+  <h2>Y-axis: choice and rationale (decision log)</h2>
+
+  <div class="brief"><b>IN BRIEF</b>
+  The curve's y-axis is VO₂max in mL/kg/min, percentile-normed for age and sex against the FRIEND registry. This was selected after explicit comparison of nine candidate scales. It is the only single coherent measurement that has resolution at both the upper end of the curve (differentiating elite-fit from recreationally-fit from sedentary healthy adults aged 30 to 70) and the lower end (frailty, ADL dependence, late-life decline), while also having published lifespan trajectory data and physician recognition. The cost of this choice is that cognitive decline is not represented on this axis. That cost is accepted and disclosed.</div>
+
+  <h3>Why this decision matters</h3>
+  <p>The y-axis is the most propagating decision in the tool. Every band, every lever calibration, every empirical trajectory template, and every claim the tool makes about felt experience depends on what the y-axis measures. Choosing it casually, or as a composite assembled from convenience, weakens every downstream claim. The prior version of this spec defined the y-axis as a 4-domain equal-weighted composite of PROMIS PF, cognition, social participation, and independence. That composite is the failure mode this section corrects.</p>
+
+  <h3>Why the prior 4-domain composite fails</h3>
+  <ol>
+    <li><b>Frankenstein construction.</b> The four instruments measure incommensurable things on incommensurable scales. Equal weighting is arbitrary and not derived from any underlying model of capacity.</li>
+    <li><b>Severe ceiling effect at the top.</b> PROMIS PF v1.2/v2.0 ceilings around T-score 60 to 65 even with the CAT (Hung 2014, Schalet 2016). Lawton IADL and Katz ADL ceiling at maximum independence. Healthy adults aged 30 to 60 all pile near the top of the composite, erasing exactly the granularity the user cares about.</li>
+    <li><b>No published lifespan trajectory.</b> No cohort has measured this specific composite from young-adult peak through old-age decline. Any trajectory built on it would be an interpolation across instruments, not an empirical curve.</li>
+    <li><b>Not physician-legible as a single number.</b> A clinician cannot translate "your composite is 67" into a clinical assessment, because there is no clinic where this composite is measured.</li>
+  </ol>
+
+  <h3>Constraints the y-axis must satisfy</h3>
+  <ol>
+    <li><b>Single coherent measurement</b>, not a composite of unrelated instruments.</li>
+    <li><b>Top-end resolution.</b> Must distinguish elite-fit from recreationally-fit from sedentary healthy adults aged 30 to 70.</li>
+    <li><b>Bottom-end resolution.</b> Must map cleanly to frailty, ADL dependence, and care-need thresholds.</li>
+    <li><b>Lifespan trajectory data.</b> Published longitudinal data from age 20 to 90+, ideally from a single cohort.</li>
+    <li><b>Physician-legible.</b> A clinician should recognize the number and the bands without explanation.</li>
+    <li><b>Honest about what it does not measure.</b> The scale should not pretend to capture dimensions it cannot.</li>
+  </ol>
+
+  <h3>Candidates considered</h3>
+  <table>
+    <tr><th>Candidate</th><th>Top-end resolution</th><th>Bottom-end resolution</th><th>Lifespan trajectory</th><th>Physician-legible</th><th>Single coherent measure</th></tr>
+    <tr><td><b>VO₂max</b> (FRIEND-normed)</td><td>excellent</td><td>good (&lt;15 = ADL threshold)</td><td>BLSA 20 to 90+</td><td>AHA vital sign</td><td>yes</td></tr>
+    <tr><td>WHO Intrinsic Capacity</td><td>fails (ceilings ~age 50)</td><td>excellent</td><td>partial (60+)</td><td>geriatrics, growing</td><td>composite but coherent</td></tr>
+    <tr><td>Gait speed (usual pace)</td><td>fails (ceilings ~1.6 m/s)</td><td>excellent</td><td>yes</td><td>yes</td><td>yes</td></tr>
+    <tr><td>PROMIS Physical Function</td><td>fails (severe ceiling)</td><td>good</td><td>partial</td><td>moderate</td><td>self-report instrument</td></tr>
+    <tr><td>Biological age clocks (PhenoAge, GrimAge, DunedinPACE)</td><td>moderate</td><td>weak for ADL</td><td>yes</td><td>research-only</td><td>not capability, biomarker state</td></tr>
+    <tr><td>Six-minute walk distance</td><td>fails (ceilings ~600m)</td><td>excellent</td><td>partial</td><td>yes</td><td>effort-dependent</td></tr>
+    <tr><td>Frailty Index (Rockwood/Mitnitski)</td><td>fails (~0 in healthy adults)</td><td>gold standard</td><td>yes</td><td>yes</td><td>composite</td></tr>
+    <tr><td>Healthy Aging Index (Newman)</td><td>limited</td><td>good</td><td>CHS only</td><td>research-only</td><td>composite</td></tr>
+    <tr><td>4-domain composite (prior spec)</td><td>fails</td><td>partial</td><td>none</td><td>no</td><td>no, Frankenstein</td></tr>
+  </table>
+
+  <h3>The irreducible tradeoff in the field</h3>
+  <p>The literature has no instrument that satisfies all six constraints. Top-end granularity and bottom-end clinical meaning are inversely correlated across every validated scale. Anything calibrated to detect ADL loss (Intrinsic Capacity, SPPB, 6MWD, PROMIS PF, Healthy Aging Index, Frailty Index) ceilings before age 50 in healthy adults. Anything that resolves elite fitness (VO₂max, power output, masters-athlete percentiles) maps imperfectly onto disability cutoffs. This gap is the field's gap, not this tool's. The choice is which side of the tradeoff to honor.</p>
+
+  <h3>Why VO₂max wins</h3>
+  <ol>
+    <li><b>Top-end resolution.</b> Elite endurance 70 to 85 mL/kg/min, recreationally fit 40 to 50, sedentary 25 to 35, pre-frail 20, ADL-threshold 15, bedbound &lt;10. Continuous, no ceiling effect across the range that matters.</li>
+    <li><b>Bottom-end resolution.</b> VO₂max &lt;17.5 (men) and &lt;15.5 (women) maps to functional dependence (Paterson and Warburton 2010). The same number that distinguishes recreational riders from competitive ones distinguishes "lives alone safely" from "needs daily help."</li>
+    <li><b>Lifespan trajectory data.</b> Fleg et al. (BLSA, <em>Circulation</em> 2005) published longitudinal VO₂max trajectories from age 20 to 90+ with accelerating decline (~3 to 6%/decade in 20s, &gt;20%/decade after 70). Kaminsky et al. (<em>Mayo Clin Proc</em> 2015, 2022) published the FRIEND registry percentile norms.</li>
+    <li><b>Physician recognition.</b> AHA 2016 statement (Ross et al., <em>Circulation</em>) designated cardiorespiratory fitness as a clinical vital sign. Mandsager 2018 (<em>JAMA Netw Open</em>) showed CRF predicts all-cause mortality more strongly than smoking, hypertension, or diabetes. Used in cardio rehab, surgical risk stratification, and longevity medicine practice.</li>
+    <li><b>Single coherent measurement.</b> Not a composite. One physiological quantity, measurable directly via CPET, estimable via submaximal protocols.</li>
+    <li><b>Lever responsiveness is well-characterized.</b> Training raises VO₂max ~15 to 25%. Sedentary lifestyle accelerates decline ~2x. Smoking, untreated disease, and chronic inflammation drop it. The levers in this tool can be calibrated against published intervention literature.</li>
+  </ol>
+
+  <h3>What this choice explicitly does not measure</h3>
+  <p>Cognitive decline is not represented on this axis. A person with preserved cardiorespiratory fitness and progressive dementia will appear "fine" on this curve. Sensory loss (vision, hearing) is similarly not captured. Specific neuromuscular power (which declines faster than VO₂max in late life, Reid and Fielding 2012) is approximated but not directly measured.</p>
+  <p>The tool will disclose this on the visible surface. The framing: "This shows the cardiorespiratory and physical capability curve. Cognitive trajectory is a separate axis the tool does not render." A composite that pretended to capture cognition would have been the worse choice, because it would have been the Frankenstein this section rejects.</p>
+
+  <h3>Bands</h3>
+  <p>Bands are capability-verb statements anchored to VO₂max ranges. Numbers appear as small left-axis ticks. Bands are the semantic ground in the chart background. The boundaries are continuous gradients, not hard cuts, because VO₂max is continuous.</p>
+  <table>
+    <tr><th>VO₂max (mL/kg/min)</th><th>Capability statement</th></tr>
+    <tr><td>55+</td><td>Sustains hard endurance effort for hours. Full athletic margin.</td></tr>
+    <tr><td>40 to 55</td><td>Hard recreation, recovers next day. Meaningful athletic capability.</td></tr>
+    <tr><td>30 to 40</td><td>Active daily life. Recreation accessible, hills and stairs unremarkable.</td></tr>
+    <tr><td>22 to 30</td><td>Daily life unconstrained. Recreation possible but not effortless.</td></tr>
+    <tr><td>18 to 22</td><td>Daily tasks preserved. Every effort costs. Recreational capacity gone.</td></tr>
+    <tr><td>&lt;18</td><td>Requires help with daily tasks.</td></tr>
+  </table>
+
+  <h3>Visual treatment of the axis</h3>
+  <ol>
+    <li>VO₂max linear on the y-axis. The cliff bands at the bottom will look narrow because the cliff is short and steep. That visual narrowness is the truth.</li>
+    <li>Single axis, not two-sided. Numbers as ticks, bands as zones. Two-sided axes split attention.</li>
+    <li>Bands as gradient zones in the background, not stacked colored bars with sharp lines. The viewer should feel the transition, not see a step.</li>
+    <li>Band names render as floating text inside each zone. Capability-verb language, not sport-codes.</li>
+  </ol>
+
+  <h3>Open questions deferred to implementation</h3>
+  <ol>
+    <li>Whether to also display sex-specific bands or absolute VO₂max only. Absolute is simpler and clinically standard; percentile-normed is more honest about relative position. Likely answer: absolute on the axis, percentile in the readout.</li>
+    <li>Whether the cognitive-decline disclaimer lives as a permanent caption, a footnote, or a one-time onboarding card. Argues for caption, since the disclosure must travel with the chart.</li>
+    <li>How to handle the very-old tail (90+) where measurement protocols become unreliable. Likely answer: render dashed beyond age 90 to signal increasing uncertainty.</li>
+    <li>Whether avg American reference uses FRIEND 50th percentile by age, NHANES estimated VO₂max, or BLSA cohort means. Likely answer: FRIEND, because it is the most current and largest U.S. reference dataset.</li>
+  </ol>
+
+  <h3>Citations</h3>
+  <ul>
+    <li>Ross R et al. <em>Circulation</em> 2016;134:e653 (AHA statement: cardiorespiratory fitness as clinical vital sign)</li>
+    <li>Kaminsky LA et al. <em>Mayo Clin Proc</em> 2015, 2022 (FRIEND registry VO₂max norms)</li>
+    <li>Fleg JL et al. <em>Circulation</em> 2005;112:674 (BLSA VO₂max longitudinal trajectories)</li>
+    <li>Mandsager K et al. <em>JAMA Netw Open</em> 2018 (CRF and all-cause mortality)</li>
+    <li>Paterson DH and Warburton DER. <em>Int J Behav Nutr Phys Act</em> 2010 (VO₂max thresholds for independent living)</li>
+    <li>Reid KF and Fielding RA. <em>Exerc Sport Sci Rev</em> 2012 (neuromuscular power vs VO₂max in aging)</li>
+    <li>Hung M et al. 2014 and Schalet BD et al. 2016 (PROMIS PF ceiling effects)</li>
+    <li>Beard JR et al. <em>BMJ Open</em> 2019;9:e026119 (WHO Intrinsic Capacity latent score)</li>
+    <li>Studenski S et al. <em>JAMA</em> 2011;305:50 (gait speed and survival)</li>
+    <li>Mitnitski AB and Rockwood K. <em>Mech Ageing Dev</em> 2002 (Frailty Index of accumulated deficits)</li>
+  </ul>
+
   <h2>1 · Risk · residualized</h2>
 
   <div class="brief"><b>IN BRIEF</b>
