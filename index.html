@@ -297,8 +297,11 @@ function effectiveRisk(condSlider, lifeSlider, riskSlider) {
 //   R_eff = 0.30 → CV ~10%, Cancer ~25%
 //   R_eff = 0.55 → CV ~30%, Cancer ~40%
 //   R_eff = 0.80 → CV ~55%, Cancer ~55%
-function probabilityAt(R, anchors) {
-  // anchors: [[R0,p0],[R1,p1],[R2,p2]] sorted by R
+
+// Generic 3-anchor linear interpolator over R_eff. Used for both lifetime
+// probability (pAnchors) and modal age (ageAnchors).
+function interpolateAnchors(R, anchors) {
+  // anchors: [[R0,v0],[R1,v1],[R2,v2]] sorted by R
   if (R <= anchors[0][0]) return anchors[0][1];
   if (R >= anchors[2][0]) return anchors[2][1];
   for (let i = 0; i < 2; i++) {
@@ -345,8 +348,8 @@ const FORK_EVENTS = [
 function activeForks(R) {
   return FORK_EVENTS.map(ev => ({
     ...ev,
-    pEvent: probabilityAt(R, ev.pAnchors),
-    modalAge: probabilityAt(R, ev.ageAnchors)  // same interpolation function works for any 3-anchor curve
+    pEvent: interpolateAnchors(R, ev.pAnchors),
+    modalAge: interpolateAnchors(R, ev.ageAnchors)
   }));
 }
 
@@ -397,26 +400,23 @@ function jointOutcomes(forks) {
   ];
 }
 
+// ---- Tunable constants surfaced in spec ----
+// Floor on rendered capacity. Below this VO2max the curve is biologically
+// past the bedbound/agonal range; we floor to keep the rendered line from
+// collapsing onto the x-axis at extreme corners. Not in clinical use.
+const CAPACITY_FLOOR_VO2 = 3;
+// Vitality drop scalar: maps a capacity drop fraction (e.g. 0.25 cancer drop)
+// to an acute vitality drop on the 0–1 vitality scale. Chosen so a 25% capacity
+// drop produces a visible but not catastrophic vitality dent. See spec Vitality DL.
+const VIT_DROP_SCALAR = 0.6;
+
 // Capacity for a specific joint outcome at age.
 function capacityForOutcome(condSlider, lifeSlider, age, outcomeEvents) {
   let factor = 1.0;
   for (const ev of outcomeEvents) {
     factor *= eventFactorAt(ev, age);
   }
-  return Math.max(baseCapacity(condSlider, lifeSlider, age) * factor, 3);
-}
-
-// Vitality for a specific joint outcome at age. Each branch experiences only
-// the events that fired in that branch. Pass recoveryFrac through so vitality
-// burden carries the same permanent residual as capacity (per spec Vitality DL).
-function vitalityForOutcome(condSlider, lifeSlider, age, outcomeEvents) {
-  const vEvents = outcomeEvents.map(ev => ({
-    age: ev.modalAge,
-    drop: ev.drop,
-    tau: ev.tau,
-    recoveryFrac: ev.recoveryFrac
-  }));
-  return vitalityAt(condSlider, lifeSlider, age, vEvents);
+  return Math.max(baseCapacity(condSlider, lifeSlider, age) * factor, CAPACITY_FLOOR_VO2);
 }
 
 // ---- Vitality render mix ----
@@ -433,9 +433,11 @@ function vitalityForOutcome(condSlider, lifeSlider, age, outcomeEvents) {
 // vitality_event_burden mirrors the capacity event factor: acute drop
 // recovers exponentially toward a PERMANENT RESIDUAL. Residual fractions
 // match the capacity model so the curve position and the line color stay
-// in physiological agreement.
+// in physiological agreement. Acute drop is scaled by VIT_DROP_SCALAR
+// from the capacity drop fraction (see spec Vitality DL).
 //
-// Returns 0 to 1.
+// Takes the same FORK objects produced by activeForks() — uses .modalAge,
+// .drop, .tau, .recoveryFrac directly. Returns 0 to 1.
 function vitalityAt(condSlider, lifeSlider, age, events) {
   const lifeNorm = lifeSlider / 100;
   const condNorm = condSlider / 100;
@@ -449,19 +451,13 @@ function vitalityAt(condSlider, lifeSlider, age, events) {
     const curveT = ageT * ageT * 0.5 + ageT * 0.5;
     vit = vit - (vit - vit100) * curveT;
   }
-  // Per-event vitality burden: acute drop → asymptotic recovery to permanent residual.
-  // Mirrors capacity model. The 0.6 scalar maps the capacity drop fraction
-  // (e.g. 0.25 cancer drop) to a vitality drop fraction on the 0-1 vitality
-  // scale; chosen so a 25% capacity drop produces a visible but not catastrophic
-  // vitality dent. Same recoveryFrac as capacity → permanent residual.
+  // Per-event vitality burden: acute drop → asymptotic recovery to permanent
+  // residual. Mirrors the capacity model (same tau, same recoveryFrac); the
+  // acute drop magnitude is VIT_DROP_SCALAR × capacity drop fraction.
   for (const ev of events) {
-    if (age < ev.age) continue;
-    const yearsSince = age - ev.age;
-    const acuteVitDrop = ev.drop * 0.6;
-    if (ev.tau == null || ev.recoveryFrac == null) {
-      vit -= acuteVitDrop;
-      continue;
-    }
+    if (age < ev.modalAge) continue;
+    const yearsSince = age - ev.modalAge;
+    const acuteVitDrop = ev.drop * VIT_DROP_SCALAR;
     const tauYears = ev.tau / 12;
     const residualVit = acuteVitDrop * (1 - ev.recoveryFrac);
     const dropAtAge = residualVit + (acuteVitDrop - residualVit) * Math.exp(-yearsSince / tauYears);
@@ -640,7 +636,7 @@ function render() {
         a,
         x: xAge(a),
         y: yV(capacityForOutcome(cond, life, a, o.events)),
-        vit: vitalityForOutcome(cond, life, a, o.events)
+        vit: vitalityAt(cond, life, a, o.events)
       });
     }
     return { outcome: o, pts };

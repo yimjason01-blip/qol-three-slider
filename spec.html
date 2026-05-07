@@ -309,7 +309,7 @@
                         − age_decay(age, Lifestyle, Conditioning)
                         − vitality_event_burden(age, branch_events)</pre>
   <p>The 0.65 / 0.35 weight is a clinical-prior placeholder, not a calibrated parameter. The direction of the asymmetry (Lifestyle Optimization &gt; Conditioning) is supported by the literature: PROs that anchor felt vitality respond more strongly to sleep, mood, and connection inputs than to fitness inputs. v2 calibration replaces the 0.65 / 0.35 weights with regression coefficients fit against the vitality composite outcome in UK Biobank cross-sectional and HRS longitudinal data.</p>
-  <p>The <code>vitality_event_burden</code> term mirrors the capacity model from Modeling Decision 4: each event applies an acute vitality drop that recovers exponentially toward a permanent residual penalty. Cancer treatment leaves a vitality residual proportional to its capacity residual (per Jones 2012, cancer survivors carry chronic fatigue and PRO decrements that match the VO₂max drop direction). CV event leaves a smaller residual (cardiac rehab cohorts recover most felt-vitality outcomes within 12 months, but post-MI depression and chronic anxiety persist). The residual fractions are the same as the capacity residuals: 80% of acute vitality drop persists for cancer, 25% persists for CV.</p>
+  <p>The <code>vitality_event_burden</code> term mirrors the capacity model from Modeling Decision 4: each event applies an acute vitality drop that recovers exponentially toward a permanent residual penalty. The acute vitality drop is scaled to ~60% of the event's capacity drop fraction (so a 25% capacity drop produces a visible but not catastrophic vitality dent on the 0–1 scale); the recovery time constant and recovery fraction match the capacity model exactly. Cancer treatment leaves a vitality residual proportional to its capacity residual (per Jones 2012, cancer survivors carry chronic fatigue and PRO decrements that match the VO₂max drop direction). CV event leaves a smaller residual (cardiac rehab cohorts recover most felt-vitality outcomes within 12 months, but post-MI depression and chronic anxiety persist). The residual fractions are the same as the capacity residuals: 80% of acute vitality drop persists for cancer, 25% persists for CV.</p>
   <p>Because vitality is computed per branch, the spared branch shows clean late-life color while the both-events branch shows the cumulative event color burden — the two viewers see different stories at the same age, which is the whole point of rendering branches as separate trajectories. This is what Modeling Decision 2 promises ("the 'both' branch's color late in life reflects the cumulative event burden"); the per-branch vitality formula is what delivers it.</p>
 
   <h3>Visual treatment</h3>
@@ -485,7 +485,7 @@ P(both events)  = P_cancer · P_cv</pre>
     <tr><td>Stroke</td><td>30%</td><td>18 months</td><td>50%</td><td>Stroke recovery cohorts</td></tr>
     <tr><td>HF onset</td><td>15% (then progressive)</td><td>n/a (no recovery)</td><td>0%</td><td>HF natural history</td></tr>
     <tr><td>Hip fracture</td><td>20%</td><td>12 months</td><td>60%</td><td>Hip fracture recovery</td></tr>
-    <tr><td>Cancer treatment</td><td>25%</td><td>24 months</td><td>50%</td><td>Cancer survivorship literature</td></tr>
+    <tr><td>Cancer treatment</td><td>25%</td><td>24 months</td><td>20%</td><td>Cancer survivorship literature (Jones 2012)</td></tr>
     <tr><td>Dialysis initiation</td><td>30%</td><td>n/a (no recovery)</td><td>0%</td><td>USRDS, dialysis CRF studies</td></tr>
   </table>
   <p>Values shown are clinical-prior estimates for v1. v2 calibration tunes them against published cohort data.</p>
@@ -564,7 +564,7 @@ P(both events)  = P_cancer · P_cv</pre>
   <p>Selects which two templates to interpolate between, and the weight. Elite slider position = pure Elite template. Deconditioned position = pure Deconditioned template. Anywhere in between = weighted blend. This is the dominant lever and produces the largest visible curve change.</p>
 
   <h4>Lifestyle Optimization (slope effect)</h4>
-  <p>Applies a multiplier on the rate of decline within whatever blended template Conditioning selected. Highly Optimized = decline rate × 0.9 (10% slower). Maintained = no change. Neglected = decline rate × 1.1 (10% faster). The ±10% bound matches the defensible range stated in the lever architecture section. Lifestyle does <em>not</em> shift the starting altitude — that is Conditioning's job.</p>
+  <p>Implemented as a small age-axis compression: at Highly Optimized, the curve uses an effective decline-age 10% lower than chronological age past 30; at Neglected, 10% higher. This is mathematically equivalent to a ±10% slope multiplier at first order against the linearly-interpolated templates and is simpler to express in code. The ±10% bound matches the defensible range stated in the lever architecture section. Lifestyle does <em>not</em> shift the starting altitude — that is Conditioning's job.</p>
 
   <h4>Lifestyle Optimization (vitality render)</h4>
   <p>Drives the line color via the render mix formula in the Vitality decision log. This is Lifestyle Optimization's primary mechanism and visible signature.</p>
