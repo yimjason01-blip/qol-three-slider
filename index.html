@@ -137,7 +137,7 @@
   <p class="sub">A teaching tool for internalizing patterns. The y-axis is <b>VO₂max</b>, the best single measure of physical capability across age. Three levers shape the curve: <b>Conditioning</b> (the dominant lever — protects against events too), <b>Lifestyle Optimization</b> (drives line color, small slope and event effect), and <b>Inherited Risk</b> (genetic and structural propensity for events). All three levers combine to determine when events render. Not a personalized prediction. <a href="./spec.html">Decision logs</a>.</p>
 
   <div class="chart-wrap">
-    <svg id="chart" viewBox="0 0 920 520" preserveAspectRatio="xMidYMid meet"></svg>
+    <svg id="chart" viewBox="0 0 1010 520" preserveAspectRatio="xMidYMid meet"></svg>
     <div class="legend" id="legend" aria-label="Trajectory toggles"></div>
     <div class="caption-row">
       <div class="caption" id="caption">Two events fork the trajectory: cancer treatment and CV event. Higher inherited risk pulls both events earlier and makes them more likely. Four real futures render: spared both, cancer only, CV only, both. Joint probabilities sum to 100%.</div>
@@ -513,8 +513,8 @@ const BANDS = [
 // ---- Rendering ----
 const AGE_MIN = 30, AGE_MAX = 100;
 const VO2_MIN = 0, VO2_MAX = 65;
-const PAD = { l: 230, r: 30, t: 18, b: 50 };
-const W = 920, H = 520;
+const PAD = { l: 230, r: 120, t: 18, b: 50 };
+const W = 1010, H = 520;
 const CW = W - PAD.l - PAD.r;
 const CH = H - PAD.t - PAD.b;
 
@@ -541,9 +541,9 @@ function lifeLabel(l) {
 }
 function riskLabel(r) {
   if (r <= 15) return 'Very low';
-  if (r <= 33) return 'Low';
-  if (r <= 50) return 'Below average';
-  if (r <= 66) return 'Average';
+  if (r <= 35) return 'Low';
+  if (r < 50) return 'Below average';
+  if (r <= 65) return 'Average';
   if (r <= 85) return 'High';
   return 'Very high';
 }
