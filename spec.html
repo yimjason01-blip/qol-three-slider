@@ -63,7 +63,7 @@
   <div class="brief"><b>IN BRIEF</b>
   This spec defines a teaching tool that maps physical capability across the lifespan against age, with three pedagogically independent levers (Conditioning, Lifestyle Optimization, Residual Risk) shaping the curve. The y-axis is VO₂max. The line's color encodes felt vitality. The spec is a chain of decision logs documenting why each construct was chosen, what it explicitly does not represent, and what is still open. It is a working spec for an implementable v1, not a validated clinical instrument.</div>
 
-  <p>The architecture is built bottom-up through six decision logs in sequence: <a href="#scope">Scope and audience</a> → <a href="#yaxis">Y-axis</a> → <a href="#levers">Lever architecture</a> → <a href="#vitality">Vitality color render</a> → <a href="#modeling">Modeling decisions</a> → <a href="#construction">Curve construction</a>. Each one names what it supersedes from prior framings and what propagates into the next. A reader can follow the breadcrumbs from "who is this for" to "exactly how the curve is built" without losing the chain of reasoning.</p>
+  <p>The architecture is built bottom-up through seven decision logs in sequence: <a href="#scope">Scope and audience</a> → <a href="#yaxis">Y-axis</a> → <a href="#levers">Lever architecture</a> → <a href="#vitality">Vitality color render</a> → <a href="#implspec">Implementation specifications</a> → <a href="#modeling">Modeling decisions</a> → <a href="#construction">Curve construction</a>. Each one names what it supersedes from prior framings and what propagates into the next. A reader can follow the breadcrumbs from "who is this for" to "exactly how the curve is built" without losing the chain of reasoning.</p>
 
   <h2 id="scope">Scope and audience</h2>
 
@@ -235,7 +235,7 @@
   <h4>Conditioning · state slider</h4>
   <p><b>Range:</b> Elite → Well-conditioned → Average → Deconditioned.</p>
   <p><b>What it represents:</b> The user's current physical conditioning state, with the implicit assumption that the slider position reflects sustained behavior. Setting the slider to Elite means the person lives in a way that produces and maintains elite conditioning. Setting it to Deconditioned means sustained low activity.</p>
-  <p><b>Mechanism on the curve:</b> Sets baseline VO₂max anchor and decline slope. This is the dominant lever. Elite-conditioned adults sit ~25 mL/kg/min above sedentary peers at age 50 and decline ~50% slower (BLSA, masters athletes literature).</p>
+  <p><b>Mechanism on the curve:</b> Sets baseline VO₂max anchor and decline slope. This is the dominant lever. At age 50, Elite-conditioned adults sit roughly 15 to 20 mL/kg/min above Average peers and 25 to 30 mL/kg/min above Deconditioned peers. Trained adults decline roughly 30 to 50% slower per decade through midlife than untrained peers, with the gap narrowing in late life as terminal compression dominates (Hawkins and Wiswell 2003, Pollock 1987, BLSA top quintile vs cohort means).</p>
   <p><b>Why a state, not a behavior:</b> Training is the input; conditioning is the result. Only the result drives the curve. A separate training slider would double-count.</p>
   <p><b>Why this is not the same as the y-axis:</b> The slider is set once, by the user, as a self-assessment. The y-axis is the rendered VO₂max trajectory at every age. The slider says "this is who I am"; the curve says "this is how that trajectory unfolds."</p>
 
@@ -307,8 +307,8 @@
                 + 0.35 · Conditioning_contribution
                 − age_decay(age, Lifestyle, Conditioning)
                 − event_acute_drop(age, Risk)</pre>
-  <p>The 0.65 / 0.35 weight reflects that Lifestyle Optimization is the dominant input but Conditioning contributes meaningfully. The age decay term ensures vitality fades across a lifetime even at peak inputs. The event acute drop term ensures events visibly tank vitality at the moment of impact and during recovery.</p>
-  <p>v2 calibration replaces the 0.65 / 0.35 weights with regression coefficients fit against the vitality composite outcome in UK Biobank cross-sectional and HRS longitudinal data. v1 weights are clinical-prior estimates.</p>
+  <p>The 0.65 / 0.35 weight is a clinical-prior placeholder, not a calibrated parameter. The direction of the asymmetry (Lifestyle Optimization &gt; Conditioning) is supported by the literature: PROs that anchor felt vitality respond more strongly to sleep, mood, and connection inputs than to fitness inputs. The specific 0.65 / 0.35 ratio is a starting point selected for v1 that produces visually plausible render behavior. v2 calibration replaces it with regression coefficients fit against the vitality composite outcome in UK Biobank cross-sectional and HRS longitudinal data. The age decay term ensures vitality fades across a lifetime even at peak inputs. The event acute drop term ensures events visibly tank vitality at the moment of impact and during recovery.</p>
+  <p>v2 calibration replaces the 0.65 / 0.35 weights with regression coefficients fit against the vitality composite outcome in UK Biobank cross-sectional and HRS longitudinal data. v1 weights are clinical-prior estimates, not measured.</p>
 
   <h3>Visual treatment</h3>
   <ol>
@@ -342,6 +342,35 @@
     <li>Steptoe A et al. <em>Lancet</em> 2015 (subjective wellbeing and aging trajectories)</li>
   </ul>
 
+  <h2 id="implspec">Implementation specifications</h2>
+
+  <div class="brief"><b>IN BRIEF</b>
+  Implementation-level specifications that the prior decision logs imply but do not state precisely. Slider granularity, vitality baseline at the youngest rendered age, and the disambiguation between Lifestyle Optimization (a lever the user moves) and metabolic syndrome (a state inside Residual Risk). These are not new decisions; they are precise statements of what the prior decision logs commit to so that implementation has no judgment calls left.</div>
+
+  <h3>Slider granularity</h3>
+  <p>All three sliders are continuous on a 0 to 100 internal scale. The named labels (Elite, Well-conditioned, Average, Deconditioned for Conditioning; Highly Optimized, Maintained, Neglected for Lifestyle Optimization; Low, Average, High for Residual Risk) are visual markers along the slider track, not stepped positions. The slider snaps visually to the nearest named marker only on release for accessibility, but the underlying value is continuous.</p>
+  <ul>
+    <li><b>Conditioning:</b> 0 = Deconditioned (15th percentile FRIEND), 33 = Average (50th percentile), 66 = Well-conditioned (~80th percentile), 100 = Elite (95th percentile). Maps to the v1 reference trajectory templates from the Curve Construction section.</li>
+    <li><b>Lifestyle Optimization:</b> 0 = Neglected, 50 = Maintained, 100 = Highly Optimized. Slope multiplier interpolates linearly: 0 → 1.10× decline rate, 50 → 1.00×, 100 → 0.90× (the ±10% bound).</li>
+    <li><b>Residual Risk:</b> 0 to 33 = Low Risk stratum, 34 to 66 = Average Risk stratum, 67 to 100 = High Risk stratum. See Modeling Decision 2a for within-stratum interpolation behavior.</li>
+  </ul>
+
+  <h3>Vitality baseline at the youngest rendered age</h3>
+  <p>The chart renders from age 30 to age 100. At age 30, vitality at peak inputs (Conditioning = Elite, Lifestyle Optimization = Highly Optimized) is 95 on the 0 to 100 scale, not 100. The 5-point gap below the ceiling represents the irreducible variability in felt experience even at peak inputs (energy fluctuates day to day, life stress exists, etc.). At age 30 with worst inputs (Deconditioned, Neglected), vitality is ~45. The age-decay term in the render mix attenuates from this baseline downward.</p>
+  <p><b>Why not 100 at peak inputs:</b> a render that hits the ceiling at peak inputs implies the tool is claiming "this is the best a 30-year-old can feel." It cannot defensibly make that claim. A 5-point ceiling gap is honest and visually invisible.</p>
+
+  <h3>Lifestyle Optimization (lever) vs metabolic syndrome (state)</h3>
+  <p>Two related but distinct constructs that could be confused without explicit disambiguation:</p>
+  <ul>
+    <li><b>Lifestyle Optimization is a lever the user moves.</b> It includes "hormone and metabolic optimization" as a behavior — sleep, nutrition, stress management, lab-driven hormone tuning, metabolic health support. It is what the person <em>does</em>.</li>
+    <li><b>Metabolic syndrome is a state inside Residual Risk.</b> It is the clinical syndrome (elevated waist circumference, BP, fasting glucose, triglycerides, low HDL) that elevates event probability across cardiovascular, kidney, and cancer domains. It is what is <em>true of the person's body</em>.</li>
+  </ul>
+  <p><b>The relationship between them:</b> Lifestyle Optimization (the lever) is one of the determinants of whether metabolic syndrome (the state) develops. Sustained Highly Optimized lifestyle reduces metabolic syndrome probability; sustained Neglected lifestyle increases it. Genetics, age, and prior disease also contribute. Once metabolic syndrome is present, it lives in Residual Risk's profile and elevates event frequency. The lever cannot directly remove the state from Residual Risk during a single rendering; the user models a metabolic-syndrome-present body by moving Residual Risk up, and models the upstream behavior that drives or prevents that state by moving Lifestyle Optimization. This split matches reality: behavior produces state over years, and the tool is rendering one moment in time.</p>
+  <p><b>What the cross-talk panel discloses:</b> "Lifestyle Optimization affects whether metabolic syndrome and other risk states develop over time. The tool models the lever and the state separately. Move Lifestyle Optimization to set behavior; move Residual Risk to set the state." This is one of the entries in the cross-talk panel from Modeling Decision 1.</p>
+
+  <h3>Cross-talk panel placement</h3>
+  <p>The panel is a permanently visible expandable element below the chart, not a one-time onboarding card. The default state shows a single line of text: "Three things this tool simplifies. Open." Clicking expands the four items from Modeling Decision 1 plus the metabolic syndrome entry above. This placement ensures the disclosure travels with the chart without dominating the visual surface.</p>
+
   <h2 id="modeling">Modeling decisions: choice and rationale (decision log)</h2>
 
   <div class="brief"><b>IN BRIEF</b>
@@ -360,22 +389,34 @@
     <li>Lifestyle Optimization (sleep, nutrition, stress) affects cardiovascular and metabolic event risk in reality. The tool does not model this; it teaches the levers separately.</li>
     <li>Cardiovascular events drop Conditioning in reality. The tool does not adjust Conditioning slider position when events fire; it shows the event step-down on the curve and lets Conditioning remain at its set position.</li>
     <li>Lifestyle Optimization inputs (sleep, stress) affect training capacity over years and therefore Conditioning. The tool treats them as orthogonal at the rendering moment.</li>
+    <li>Lifestyle Optimization affects whether metabolic syndrome and other risk states develop over time. The tool models the lever (behavior) and the state (Residual Risk) separately. Move Lifestyle Optimization to set behavior; move Residual Risk to set the state.</li>
   </ul>
 
   <h3>Decision 2 · Deterministic events at modal ages</h3>
-  <p><b>Choice:</b> Events are deterministic. For a given Residual Risk profile, the tool draws events at their modal ages. The curve is reproducible across renders.</p>
+  <p><b>Choice:</b> Events are deterministic. For a given Residual Risk profile, the tool renders only the events that fire on the representative trajectory at that risk level, and each rendered event appears at its modal age. The curve is reproducible across renders.</p>
   <p><b>Reasoning:</b> A teaching tool that re-rolls events on every slider change is unusable. The viewer cannot tell if a curve change is due to slider movement or stochastic resampling. Deterministic events with a clear "this is one representative path" caption gives the viewer a stable anchor while preserving honesty about variance.</p>
+  <p><b>Important framing for the table below:</b> the modal-age values say "if this event fires, when." They do not say "everyone at this Risk level has this event." Whether an event renders at all on the representative trajectory depends on whether the lifetime probability for that event at that Risk stratum is above the rendering threshold. For Low Risk profiles, most events do not render because their lifetime probability is too low to belong on a representative curve. For High Risk profiles, more events render because their lifetime probability crosses the threshold.</p>
   <p><b>Modal-age table (illustrative, calibrated in implementation):</b></p>
   <table>
     <tr><th>Event</th><th>Low Residual Risk</th><th>Average Residual Risk</th><th>High Residual Risk</th></tr>
-    <tr><td>First MI</td><td>not rendered</td><td>age 78</td><td>age 67</td></tr>
-    <tr><td>Stroke</td><td>not rendered</td><td>age 82</td><td>age 73</td></tr>
-    <tr><td>Heart failure onset</td><td>not rendered</td><td>age 84</td><td>age 75</td></tr>
-    <tr><td>Hip fracture / major fall</td><td>age 88</td><td>age 84</td><td>age 79</td></tr>
-    <tr><td>Cancer treatment burden</td><td>not rendered</td><td>age 72</td><td>age 65</td></tr>
-    <tr><td>Dialysis initiation (CKD)</td><td>not rendered</td><td>not rendered</td><td>age 76</td></tr>
+    <tr><td>First MI</td><td>not rendered</td><td>renders at age 78</td><td>renders at age 67</td></tr>
+    <tr><td>Stroke</td><td>not rendered</td><td>not rendered</td><td>renders at age 73</td></tr>
+    <tr><td>Heart failure onset</td><td>not rendered</td><td>not rendered</td><td>renders at age 75</td></tr>
+    <tr><td>Hip fracture / major fall</td><td>not rendered</td><td>renders at age 84</td><td>renders at age 79</td></tr>
+    <tr><td>Cancer treatment burden</td><td>not rendered</td><td>renders at age 72</td><td>renders at age 65</td></tr>
+    <tr><td>Dialysis initiation (CKD)</td><td>not rendered</td><td>not rendered</td><td>renders at age 76</td></tr>
   </table>
-  <p>Modal ages are calibrated against PREVENT, FRAX, SEER, and USRDS by Residual Risk stratum. Caption on the chart: "One representative trajectory for this risk profile. Real outcomes vary."</p>
+  <p>Modal ages are calibrated against PREVENT, FRAX, SEER, and USRDS by Residual Risk stratum. Caption on the chart: "One representative trajectory for this risk profile. Real outcomes vary, and many people at this risk level will not experience all of these events."</p>
+  <p><b>Why this changed from a prior version:</b> an earlier draft of this table had Hip fracture rendering for Low Risk at age 88, and First MI rendering for Average Risk at age 78. Those entries implied events are inevitable across all risk strata, which over-claims and teaches a fatalistic pattern the tool should not teach. The current table renders an event only when its lifetime probability for that stratum is high enough to belong on a representative curve. Lifetime probability calibration: MI lifetime risk in Average Risk is ~30% — high enough to render. Stroke in Average Risk is ~15% — below the threshold for rendering on the representative trajectory, but renders for High Risk at ~30%. The exact threshold is calibration-time; this section locks the principle.</p>
+
+  <h3>Decision 2a · Risk slider stratification</h3>
+  <p><b>Choice:</b> The Residual Risk slider is continuous (0 to 100). Slider positions map to risk strata as follows:</p>
+  <ul>
+    <li>0 to 33: Low Risk stratum</li>
+    <li>34 to 66: Average Risk stratum</li>
+    <li>67 to 100: High Risk stratum</li>
+  </ul>
+  <p>Within each stratum, modal ages interpolate linearly. Moving the slider from 67 to 100 moves the First MI modal age from age 73 (stratum boundary) to age 67 (stratum max) linearly. This produces smooth visual response to slider movement while preserving the three-stratum framing for readability. Events appear and disappear at stratum boundaries; they do not fade in. This is honest: the lifetime probability of an event reaching the rendering threshold is a discrete crossing, not a smooth fade.</p>
 
   <h3>Decision 3 · Event scope, by Meridian risk domain</h3>
   <p><b>Choice:</b> All five Meridian risk domains appear, with domain-specific representation honest to each domain's mechanism.</p>
