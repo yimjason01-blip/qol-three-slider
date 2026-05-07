@@ -420,13 +420,15 @@ P(both events)  = P_cancer · P_cv</pre>
 
   <p><b>Independence assumption:</b> v1 treats cancer and CV as independent. Real cardio-oncology cross-talk (cardiotoxicity raising CV risk in cancer survivors; shared metabolic substrate raising both) is acknowledged as a v2 calibration target. The independence simplification is honest about its limit and matches the teaching frame: the patient learns that both events <em>can</em> happen on the same trajectory, even if the joint probability v1 reports is slightly off from reality.</p>
 
-  <p><b>Probability anchoring:</b> v1 lifetime probabilities are pulled from published cohort literature stratified by R_eff equivalent. v2 replaces the R_eff → lifetime probability mapping with cohort-fit functions. v1 anchors:</p>
+  <p><b>Probability and modal age both shift with R_eff:</b> Higher inherited risk does two things — raises lifetime probability AND pulls modal age earlier. Both effects compound. v1 lifetime probabilities and modal ages are pulled from published cohort literature stratified by R_eff equivalent. v2 replaces the R_eff → (probability, age) mapping with cohort-fit functions. v1 anchors:</p>
   <table>
-    <tr><th>Event</th><th>R_eff = 0.30 (Low)</th><th>R_eff = 0.55 (Avg)</th><th>R_eff = 0.80 (High)</th><th>Modal age</th><th>Source</th></tr>
-    <tr><td>CV event (MI/stroke composite)</td><td>~10%</td><td>~30%</td><td>~55%</td><td>75</td><td>PREVENT (Khan 2024); Pooled Cohort Equations</td></tr>
-    <tr><td>Cancer treatment</td><td>~25%</td><td>~40%</td><td>~55%</td><td>65</td><td>SEER cumulative incidence by age and site; treatment-burden assumption ~70% of incidence requires capacity-affecting treatment</td></tr>
+    <tr><th>Event</th><th>R_eff = 0.30 (Low)</th><th>R_eff = 0.55 (Avg)</th><th>R_eff = 0.80 (High)</th><th>Source</th></tr>
+    <tr><td>CV event probability</td><td>~10%</td><td>~30%</td><td>~55%</td><td>PREVENT (Khan 2024); Pooled Cohort Equations</td></tr>
+    <tr><td>CV event modal age</td><td>82</td><td>75</td><td>67</td><td>PREVENT age-stratified incidence; FH literature (MI ~10-20yr earlier in high-risk)</td></tr>
+    <tr><td>Cancer treatment probability</td><td>~25%</td><td>~40%</td><td>~55%</td><td>SEER cumulative incidence by age and site; treatment-burden assumption ~70% of incidence requires capacity-affecting treatment</td></tr>
+    <tr><td>Cancer treatment modal age</td><td>70</td><td>65</td><td>58</td><td>SEER stratified incidence; hereditary syndrome literature (BRCA, Lynch ~10-20yr earlier)</td></tr>
   </table>
-  <p>Probabilities interpolate continuously between the three R_eff anchor points.</p>
+  <p>Both probabilities and modal ages interpolate continuously between the three R_eff anchor points. The teaching: at high risk, events are not just more likely — they happen sooner. The two effects together compress healthy years from both ends of the curve.</p>
 
   <p><b>Branch trajectory math:</b> Each joint outcome's capacity at age <em>A</em> equals the base capacity at <em>A</em> multiplied by the product of event factors for events that fired in that outcome. Each event factor follows the acute-drop-with-asymptotic-recovery curve in Decision 4: drops to <code>1 − drop</code> at the modal age, recovers exponentially toward <code>1 − residual</code> with time constant τ. The residual penalty persists for the rest of the trajectory. A branch that took cancer treatment never returns to the spared branch's altitude. A branch that took both events sits below all three other branches permanently.</p>
 

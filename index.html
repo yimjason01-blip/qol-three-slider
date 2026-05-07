@@ -113,7 +113,7 @@
   <div class="chart-wrap">
     <svg id="chart" viewBox="0 0 920 520" preserveAspectRatio="xMidYMid meet"></svg>
     <div class="caption-row">
-      <div class="caption" id="caption">Two events fork the trajectory: cancer treatment (~age 65) and CV event (~age 75). Four real futures render: spared both, cancer only, CV only, both. Joint probabilities sum to 100%.</div>
+      <div class="caption" id="caption">Two events fork the trajectory: cancer treatment and CV event. Higher inherited risk pulls both events earlier and makes them more likely. Four real futures render: spared both, cancer only, CV only, both. Joint probabilities sum to 100%.</div>
     </div>
   </div>
 
@@ -288,8 +288,12 @@ const FORK_EVENTS = [
     id: 'cancer',
     name: 'Cancer treatment',
     shortName: 'cancer',
-    modalAge: 65,
-    anchors: [[0.30, 0.25], [0.55, 0.40], [0.80, 0.55]],
+    // Probability anchors: [R_eff, lifetime probability]
+    pAnchors: [[0.30, 0.25], [0.55, 0.40], [0.80, 0.55]],
+    // Modal-age anchors: [R_eff, age]. Higher R_eff pulls modal age earlier.
+    // Low R_eff 70 → Avg 65 → High 58. Anchored to SEER stratified incidence
+    // and hereditary syndrome literature (BRCA, Lynch ~10-20yr earlier).
+    ageAnchors: [[0.30, 70], [0.55, 65], [0.80, 58]],
     drop: 0.25,
     tau: 24,            // months to plateau
     recoveryFrac: 0.20  // 20% of acute drop recovers → 20% permanent residual loss. Jones 2012 cancer-survivor VO₂max literature.
@@ -298,19 +302,24 @@ const FORK_EVENTS = [
     id: 'cv',
     name: 'CV event',
     shortName: 'CV',
-    modalAge: 75,
-    anchors: [[0.30, 0.10], [0.55, 0.30], [0.80, 0.55]],
+    pAnchors: [[0.30, 0.10], [0.55, 0.30], [0.80, 0.55]],
+    // Low R_eff 82 → Avg 75 → High 67. Anchored to PREVENT age-stratified
+    // incidence and FH literature (MI ~10-20yr earlier in high-risk profiles).
+    ageAnchors: [[0.30, 82], [0.55, 75], [0.80, 67]],
     drop: 0.25,
     tau: 6,
     recoveryFrac: 0.75  // 75% recovers → 6.25% permanent residual loss. Cardiac rehab literature.
   }
 ];
 
-// For a given R_eff, return the events with their lifetime probabilities.
+// For a given R_eff, return the events with their lifetime probabilities AND
+// their R_eff-shifted modal ages. Two effects of higher inherited risk:
+// (1) higher lifetime probability, (2) earlier modal age. Both compound.
 function activeForks(R) {
   return FORK_EVENTS.map(ev => ({
     ...ev,
-    pEvent: probabilityAt(R, ev.anchors)
+    pEvent: probabilityAt(R, ev.pAnchors),
+    modalAge: probabilityAt(R, ev.ageAnchors)  // same interpolation function works for any 3-anchor curve
   }));
 }
 
@@ -600,7 +609,7 @@ function render() {
       s += `<circle cx="${x}" cy="${sample.y}" r="3" class="event-marker"/>`;
     }
     // Event label above the chart
-    s += `<text x="${x}" y="${PAD.t - 4}" text-anchor="middle" class="event-label" style="font-size:10px;fill:#a8a59c">${ev.name} · age ${ev.modalAge}</text>`;
+    s += `<text x="${x}" y="${PAD.t - 4}" text-anchor="middle" class="event-label" style="font-size:10px;fill:#a8a59c">${ev.name} · age ${Math.round(ev.modalAge)}</text>`;
   }
 
   // Right-edge labels for each outcome — joint probability + outcome name.
