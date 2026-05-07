@@ -541,17 +541,40 @@ function render() {
 
   let s = '';
 
-  // Background bands (subtle background tint)
+  // Background bands — graduated tint conveys the "zone of life" semantically
+  // without competing with the curve's red→amber→green vitality colors.
+  // Top bands (athletic margin): cool blue-gray, very subtle.
+  // Middle bands (independent daily life): neutral gray.
+  // Bottom bands (cliff + dependence): warm desaturated tint, heavier alpha.
+  // Each band gets a thin separator line so boundaries read clearly.
+  // Six bands, six clear steps. Cool→warm temperature gradient avoids
+  // sharing hues with the curve's red→amber→green vitality ramp.
+  // Each band is a meaningful step in alpha and hue from its neighbors.
+  const BAND_TINTS = [
+    'rgba(70,200,235,0.18)',   // 55+   Sustains hard endurance — bright cyan-blue
+    'rgba(110,150,200,0.22)',  // 40-55 Hard recreation — deeper royal blue
+    'rgba(150,160,180,0.13)',  // 30-40 Active daily life — cool gray
+    'rgba(195,170,150,0.16)',  // 22-30 Daily life unconstrained — warm beige
+    'rgba(220,140,100,0.24)',  // 18-22 Daily tasks preserved — terracotta
+    'rgba(195,75,95,0.32)'     // <18   Requires help — deep magenta-red
+  ];
   for (let i = 0; i < BANDS.length; i++) {
     const b = BANDS[i];
     const y0 = yV(b.hi), y1 = yV(b.lo);
-    // Alternating very subtle fills for readability
-    const fill = i % 2 === 0 ? 'rgba(255,255,255,0.012)' : 'rgba(255,255,255,0.022)';
+    const fill = BAND_TINTS[i] || 'rgba(255,255,255,0.02)';
     s += `<rect x="${PAD.l}" y="${y0}" width="${CW}" height="${y1 - y0}" fill="${fill}" class="band-fill"/>`;
-    // Two-line label in left margin, positioned to clear the y-axis tick numbers
+    // Separator line at the top of each band (except the first)
+    if (i > 0) {
+      s += `<line x1="${PAD.l}" y1="${y0}" x2="${PAD.l + CW}" y2="${y0}" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>`;
+    }
+    // Two-line label in left margin
     const yMid = (y0 + y1) / 2;
-    s += `<text x="${PAD.l - 38}" y="${yMid - 1}" text-anchor="end" class="band-label" style="fill:#a8a59c">${b.name}</text>`;
-    s += `<text x="${PAD.l - 38}" y="${yMid + 11}" text-anchor="end" class="band-label" style="fill:#6e6c66;font-size:9px">${b.sub}</text>`;
+    // Cliff/dependence bands get brighter labels so the zone reads as meaningful
+    const isAlertZone = i >= 4;
+    const labelColor = isAlertZone ? '#d4b8a8' : '#bcb9b0';
+    const subColor = isAlertZone ? '#a89888' : '#8a8780';
+    s += `<text x="${PAD.l - 38}" y="${yMid - 1}" text-anchor="end" class="band-label" style="fill:${labelColor}">${b.name}</text>`;
+    s += `<text x="${PAD.l - 38}" y="${yMid + 11}" text-anchor="end" class="band-label" style="fill:${subColor};font-size:9px">${b.sub}</text>`;
   }
 
   // Y-axis ticks (VO2max numbers)
