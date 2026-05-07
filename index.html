@@ -3,425 +3,586 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Functional Capacity: risk, reserve, lifestyle</title>
+<title>Functional Capacity Teaching Tool</title>
 <style>
   :root {
     --bg:#0c0d10; --panel:#15171c; --panel-2:#181a20; --border:#23262d;
-    --ink:#eceae3; --dim:#8f8c84; --subdim:#5e5c56;
+    --ink:#eceae3; --dim:#a8a59c; --subdim:#6e6c66;
     --gold:#d4a574;
-    --risk:#e08a6f; --reserve:#9ec5fe; --life:#86efac;
+    --cond:#9ec5fe; --life:#86efac; --risk:#e08a6f;
+    --vit-low:#c84a3e; --vit-mid:#c79a4f; --vit-high:#5fb56a;
   }
   * { box-sizing: border-box; }
   html, body { margin:0; padding:0; background:var(--bg); color:var(--ink);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-  .wrap { max-width: 1280px; margin: 0 auto; padding: 48px 32px 80px; }
-  h1 { font-size: 32px; font-weight: 600; letter-spacing:-0.5px; margin: 0 0 8px; }
-  .sub { color: var(--dim); font-size: 15px; margin: 0; line-height:1.6; max-width: 880px; }
-  .sub b { color: var(--ink); font-weight: 600; }
-  .stage { background: var(--panel); border:1px solid var(--border); border-radius: 12px;
-    padding: 28px 32px 22px; margin-top: 28px; }
-  .panel-label { color: var(--gold); font-size: 12px; font-weight: 600;
-    letter-spacing: 2px; margin: 0 0 6px; }
-  .panel-meta { color: var(--dim); font-size: 12px; }
-  .head-row { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 6px; }
-  svg { display:block; width:100%; height:auto; }
-  .controls { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-top: 24px; }
-  .ctl { background: var(--panel); border:1px solid var(--border); border-radius: 10px;
-    padding: 18px 20px 20px; }
-  .ctl-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 6px; }
-  .ctl-name { font-size: 11px; font-weight:700; letter-spacing:1.8px; }
-  .ctl-name.risk { color: var(--risk); }
-  .ctl-name.reserve { color: var(--reserve); }
+    font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.55; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 40px 28px 80px; }
+  a { color: var(--gold); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .topnav { font-size: 12px; color: var(--dim); margin-bottom: 18px; letter-spacing: 1px; }
+  h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.4px; margin: 0 0 6px; }
+  .sub { color: var(--dim); font-size: 13px; margin: 0 0 28px; max-width: 720px; }
+  .sub b { color: var(--ink); font-weight: 500; }
+
+  .chart-wrap { background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 14px 8px; }
+  svg { display: block; width: 100%; height: auto; }
+  .caption { color: var(--dim); font-size: 12px; padding: 10px 14px 4px;
+    text-align: center; font-style: italic; }
+
+  .controls { display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px; margin-top: 18px; }
+  @media (max-width: 800px) { .controls { grid-template-columns: 1fr; } }
+  .ctl { background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; }
+  .ctl-head { display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 6px; }
+  .ctl-name { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    font-weight: 600; }
+  .ctl-name.cond { color: var(--cond); }
   .ctl-name.life { color: var(--life); }
-  .ctl-val  { font-size: 22px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
-  .ctl-tag { font-size: 11px; color: var(--dim); margin: 0 0 12px; line-height: 1.5; min-height: 32px; }
-  .ctl-tag em { color: var(--ink); font-style: normal; font-weight: 500; }
+  .ctl-name.risk { color: var(--risk); }
+  .ctl-val { color: var(--gold); font-variant-numeric: tabular-nums;
+    font-size: 13px; font-weight: 500; }
+  .ctl-tag { color: var(--dim); font-size: 12px; margin: 8px 0 0;
+    min-height: 28px; }
   input[type=range] { width: 100%; -webkit-appearance: none; appearance: none;
-    height: 4px; background: #2a2d33; border-radius: 2px; outline: none; margin-bottom: 14px; }
-  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px;
-    border-radius: 50%; background: var(--ink); cursor: pointer; border: 2px solid var(--bg); }
-  .ctl-scale { margin: 0 -2px 14px; position: relative; height: 28px; font-size: 10px; color: var(--subdim); }
-  .ctl-scale .tick { position: absolute; transform: translateX(-50%); text-align: center; line-height: 1.3; }
-  .ctl-scale .tick b { color: var(--dim); font-weight: 500; display:block; font-size: 10px; }
-  .ctl-scale .tick.avg b { color: var(--ink); }
-  .ctl-scale .tick.avg::after { content:""; position:absolute; left:50%; top:-12px; transform:translateX(-50%);
-    width: 1px; height: 8px; background: var(--ink); opacity:0.6; }
-  .inputs { font-size: 11px; color: var(--subdim); line-height: 1.6; }
-  .inputs b { color: var(--dim); font-weight: 500; }
+    height: 4px; background: var(--border); border-radius: 4px; outline: none;
+    margin: 8px 0 4px; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none;
+    width: 14px; height: 14px; border-radius: 50%; background: var(--gold);
+    cursor: pointer; border: 2px solid var(--bg); }
+  input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%;
+    background: var(--gold); cursor: pointer; border: 2px solid var(--bg); }
+  .ctl-marks { display: flex; justify-content: space-between;
+    color: var(--subdim); font-size: 10px; letter-spacing: 0.5px;
+    text-transform: uppercase; margin-top: 2px; }
 
-  .presets { display:flex; flex-wrap:wrap; gap: 8px; margin-top: 18px; }
-  .preset { background: var(--panel-2); border:1px solid var(--border); color: var(--ink);
-    border-radius: 6px; padding: 8px 14px; font-size: 12px; cursor: pointer; transition: border-color .12s; }
-  .preset:hover { border-color: #3a3d44; }
-  .preset.reset { color: var(--dim); }
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0 0; }
+  .preset { background: transparent; color: var(--dim);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 12px; font-size: 12px; cursor: pointer;
+    font-family: inherit; letter-spacing: 0.3px; }
+  .preset:hover { color: var(--ink); border-color: var(--gold); }
 
-  .legend-row { display:flex; gap: 32px; align-items:center; margin-top: 14px;
-    padding-top: 14px; border-top: 1px solid var(--border); flex-wrap: wrap; }
-  .legend-item { display:flex; align-items:center; gap: 10px; font-size: 11px; color: var(--dim); }
-  .legend-item b { color: var(--ink); font-weight: 500; }
-  .legend-grad { width: 220px; height: 6px; border-radius: 3px;
-    background: linear-gradient(to right,
-      rgb(220, 70, 60) 0%,
-      rgb(80, 200, 110) 100%); }
-  .legend-dash { width: 28px; height: 0; border-top: 2px dashed #5e5c56; }
-  .note { color: var(--subdim); font-size: 11px; margin-top: 22px; line-height: 1.65; max-width: 880px; }
-  .note b { color: var(--dim); font-weight: 500; }
+  details.crosstalk { background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 16px; margin-top: 22px; }
+  details.crosstalk summary { cursor: pointer; color: var(--dim);
+    font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+    list-style: none; }
+  details.crosstalk summary::-webkit-details-marker { display: none; }
+  details.crosstalk summary::after { content: " ▸"; color: var(--subdim); }
+  details.crosstalk[open] summary::after { content: " ▾"; }
+  details.crosstalk ul { margin: 12px 0 4px; padding-left: 20px; }
+  details.crosstalk li { color: var(--ink); font-size: 13px; margin-bottom: 8px; }
 
-  .bands-hint { color: var(--subdim); font-size: 11px; margin: 14px 0 0; letter-spacing: 0.04em; }
+  .footer-links { margin-top: 28px; color: var(--subdim); font-size: 12px;
+    display: flex; justify-content: space-between; }
 
-  .modal { position: fixed; inset: 0; z-index: 1000; display:flex; align-items:center; justify-content:center; }
-  .modal[hidden] { display: none; }
-  .modal-backdrop { position:absolute; inset:0; background: rgba(0,0,0,0.65); backdrop-filter: blur(3px); }
-  .modal-card { position:relative; background: var(--panel); border:1px solid var(--border); border-radius: 12px;
-    padding: 24px 28px 22px; max-width: 520px; width: calc(100% - 32px); box-shadow: 0 18px 60px rgba(0,0,0,0.5); }
-  .modal-close { position:absolute; top: 10px; right: 14px; background:transparent; border:0; color: var(--dim);
-    font-size: 24px; cursor: pointer; line-height: 1; padding: 4px 8px; }
-  .modal-close:hover { color: var(--ink); }
-  .modal-h { display:flex; flex-wrap:wrap; gap: 8px 12px; align-items:baseline; margin-bottom: 12px; padding-right: 24px; }
-  .modal-r { color: var(--ink); font: 12px/1.2 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.04em; font-weight: 600; }
-  .modal-n { color: var(--ink); font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
-  .modal-f { color: var(--subdim); font: 11px/1.2 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.03em; margin-left:auto; }
-  .modal-body { color: var(--ink); font-size: 14px; line-height: 1.6; margin: 0 0 16px; }
-  .modal-foot { color: var(--subdim); font-size: 11px; margin: 0; padding-top: 12px; border-top: 1px solid var(--border); }
+  /* SVG element styles */
+  .ax-tick { stroke: #2a2d34; }
+  .ax-label { fill: var(--dim); font-size: 10px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .band-fill { opacity: 1; }
+  .band-label { fill: var(--subdim); font-size: 10px; letter-spacing: 0.4px;
+    font-family: 'Inter', sans-serif; }
+  .ref-curve { fill: none; stroke: #4a4d54; stroke-width: 1.2;
+    stroke-dasharray: 5 4; opacity: 0.7; }
+  .ref-label { fill: #5e5c56; font-size: 10px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .event-marker { fill: var(--risk); opacity: 0.85; }
+  .event-label { fill: var(--ink); font-size: 10px;
+    font-family: 'Inter', sans-serif; font-weight: 500; }
+  .event-line { stroke: var(--risk); stroke-width: 1; opacity: 0.4;
+    stroke-dasharray: 2 2; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Functional Capacity · risk, reserve, lifestyle</h1>
-  <p class="sub">A teaching tool, not a forecast. Slide the three axes to see how they shape a lifetime functional capacity curve. <b>Risk and reserve shape the geometry.</b> <b>Reserve and lifestyle render the line.</b> The three axes are constructed to be statistically independent: no input appears in two columns.</p>
+  <div class="topnav">↗ <a href="./spec.html">spec</a></div>
 
-  <div class="stage">
-    <div class="head-row">
-      <div>
-        <div class="panel-label">FUNCTIONAL CAPACITY OVER A LIFETIME</div>
-        <div class="panel-meta">Geometry = f(risk, reserve). Render = g(reserve, lifestyle).</div>
-      </div>
-      <div class="panel-meta">first-step scaffold · not calibrated · visual logic test</div>
-    </div>
-    <svg id="chart" viewBox="0 0 1200 540" preserveAspectRatio="xMidYMid meet"></svg>
-    <div class="legend-row">
-      <div class="legend-item">
-        <span>LINE</span>
-        <span class="legend-grad"></span>
-        <span>depleted → vital = <b>vitality</b> (reserve + lifestyle, fades with age)</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dash"></span>
-        <b>avg American</b>
-      </div>
-    </div>
-  </div>
+  <h1>Functional Capacity Across the Lifespan</h1>
+  <p class="sub">A teaching tool for internalizing patterns. The y-axis is <b>VO₂max</b>, the best single measure of physical capability across age. Three levers shape the curve: <b>Conditioning</b> (the dominant one), <b>Lifestyle Optimization</b> (mostly visible as line color), and <b>Residual Risk</b> (introduces events). Not a personalized prediction. <a href="./spec.html">Decision logs</a>.</p>
 
-  <p class="bands-hint">Tap a band label on the chart for the real-world meaning.</p>
-
-  <div id="bandModal" class="modal" hidden>
-    <div class="modal-backdrop" data-close="1"></div>
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="bandModalTitle">
-      <button class="modal-close" data-close="1" aria-label="Close">×</button>
-      <div class="modal-h">
-        <span class="modal-r" id="bandModalRange"></span>
-        <span class="modal-n" id="bandModalTitle"></span>
-        <span class="modal-f" id="bandModalFrailty"></span>
-      </div>
-      <p class="modal-body" id="bandModalBody"></p>
-      <p class="modal-foot">Anchored to Katz ADL, Lawton IADL, Fried frailty phenotype, Rockwood frailty index.</p>
-    </div>
+  <div class="chart-wrap">
+    <svg id="chart" viewBox="0 0 920 520" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="caption" id="caption">One representative trajectory for these slider settings. Real outcomes vary, and many people at this risk level will not experience all of these events.</div>
   </div>
 
   <div class="controls">
     <div class="ctl">
-      <div class="ctl-head"><span class="ctl-name risk">RISK · 30-year multi-domain</span><span class="ctl-val" id="riskVal">50</span></div>
-      <p class="ctl-tag">Probability of any major event in 30 years across <em>five domains</em>: CVD, T2DM, CKD, cancer, dementia.</p>
-      <input type="range" id="risk" min="0" max="100" value="50"/>
-      <div class="ctl-scale">
-        <span class="tick" style="left:0%"><b>0</b>optimal</span>
-        <span class="tick" style="left:25%"><b>25</b>low</span>
-        <span class="tick" style="left:50%"><b>50</b>moderate</span>
-        <span class="tick avg" style="left:66%"><b>66</b>avg<br/>American</span>
-        <span class="tick" style="left:100%"><b>100</b>high</span>
+      <div class="ctl-head">
+        <span class="ctl-name cond">CONDITIONING</span>
+        <span class="ctl-val" id="condVal">Average</span>
       </div>
-      <div class="inputs">
-        <b>Lipids</b> LDL-C, ApoB, Lp(a) · <b>BP</b> SBP, DBP · <b>Glycemic</b> A1c, fasting insulin · <b>Vascular</b> CAC, carotid IMT, plaque · <b>Inflammation</b> hsCRP · <b>Kidney</b> eGFR, UACR · <b>Genetic</b> ApoE, PRS, FH · <b>Family hx</b> · <b>Screening</b> colon, breast, prostate, lung · <b>Exposures</b> smoking, alcohol burden
-      </div>
+      <input type="range" id="cond" min="0" max="100" step="1" value="33"/>
+      <div class="ctl-marks"><span>Decond</span><span>Avg</span><span>Well</span><span>Elite</span></div>
+      <p class="ctl-tag">State of physical conditioning. Sets curve altitude and decline slope. Dominant lever.</p>
     </div>
-
     <div class="ctl">
-      <div class="ctl-head"><span class="ctl-name reserve">RESERVE · capacity</span><span class="ctl-val" id="reserveVal">50</span></div>
-      <p class="ctl-tag">Functional headroom. Bends the curve up <em>and</em> contributes to the rendered ride.</p>
-      <input type="range" id="reserve" min="0" max="100" value="50"/>
-      <div class="ctl-scale">
-        <span class="tick" style="left:0%"><b>0</b>severe<br/>deconditioning</span>
-        <span class="tick" style="left:25%"><b>25</b>below<br/>average</span>
-        <span class="tick avg" style="left:50%"><b>50</b>avg<br/>American</span>
-        <span class="tick" style="left:75%"><b>75</b>fit</span>
-        <span class="tick" style="left:100%"><b>100</b>elite</span>
+      <div class="ctl-head">
+        <span class="ctl-name life">LIFESTYLE OPTIMIZATION</span>
+        <span class="ctl-val" id="lifeVal">Maintained</span>
       </div>
-      <div class="inputs">
-        <b>Cardiorespiratory</b> VO₂max, recovery HR · <b>Musculoskeletal</b> lean mass, grip, leg strength · <b>Skeletal</b> bone density · <b>Metabolic flex</b> fat-ox capacity, RER · <b>Cognitive</b> processing speed, executive fn, brain volume · <b>Balance</b> SPPB, gait speed · <b>Pulmonary</b> FEV₁ · <b>Hormonal</b> free T, IGF-1, thyroid
-      </div>
+      <input type="range" id="life" min="0" max="100" step="1" value="50"/>
+      <div class="ctl-marks"><span>Neglected</span><span>Maintained</span><span>Optimized</span></div>
+      <p class="ctl-tag">Sleep, nutrition, stress, social, hormone &amp; metabolic optimization. Drives line color; small slope effect.</p>
     </div>
-
     <div class="ctl">
-      <div class="ctl-head"><span class="ctl-name life">LIFESTYLE · felt</span><span class="ctl-val" id="lifeVal">50</span></div>
-      <p class="ctl-tag">Strictly non-physical, non-capacity. Renders the line: does not shape the curve.</p>
-      <input type="range" id="life" min="0" max="100" value="50"/>
-      <div class="ctl-scale">
-        <span class="tick" style="left:0%"><b>0</b>chronic<br/>poor</span>
-        <span class="tick" style="left:25%"><b>25</b>poor</span>
-        <span class="tick" style="left:50%"><b>50</b>moderate</span>
-        <span class="tick avg" style="left:71%"><b>71</b>avg<br/>American</span>
-        <span class="tick" style="left:100%"><b>100</b>optimal</span>
+      <div class="ctl-head">
+        <span class="ctl-name risk">RESIDUAL RISK</span>
+        <span class="ctl-val" id="riskVal">Average</span>
       </div>
-      <div class="inputs">
-        <b>Sleep quality</b> · <b>Mood</b> depression, anxiety · <b>Stress</b> perceived load, allostasis · <b>Connection</b> loneliness, relationships · <b>Purpose</b> meaning, engagement · <b>Drive</b> motivation, energy · <b>Libido</b> · <b>Pain</b> chronic burden · <b>Fatigue</b> subjective
-      </div>
+      <input type="range" id="risk" min="0" max="100" step="1" value="50"/>
+      <div class="ctl-marks"><span>Low</span><span>Avg</span><span>High</span></div>
+      <p class="ctl-tag">Irreducible event-propensity from genetics, prior disease, exposures. Introduces step-downs.</p>
     </div>
   </div>
 
   <div class="presets">
-    <button class="preset" data-r="10"  data-re="90" data-li="85">Strong on every axis</button>
-    <button class="preset" data-r="85"  data-re="20" data-li="25">Weak on every axis</button>
-    <button class="preset" data-r="20"  data-re="85" data-li="25">High reserve, burned out</button>
-    <button class="preset" data-r="80"  data-re="25" data-li="85">Feels great, no margin</button>
-    <button class="preset" data-r="20"  data-re="50" data-li="50">Low risk only</button>
-    <button class="preset" data-r="80"  data-re="50" data-li="50">High risk only</button>
-    <button class="preset" data-r="66"  data-re="50" data-li="71">Avg American 45-59</button>
-    <button class="preset reset" data-r="50" data-re="50" data-li="50">Reset to neutral</button>
+    <button class="preset" data-c="100" data-l="100" data-r="15">Elite athlete, low risk</button>
+    <button class="preset" data-c="33" data-l="50" data-r="50">Average American</button>
+    <button class="preset" data-c="15" data-l="20" data-r="85">Sedentary, high risk</button>
+    <button class="preset" data-c="80" data-l="80" data-r="80">Fit but high inherited risk</button>
+    <button class="preset" data-c="60" data-l="30" data-r="50">Fit body, neglected lifestyle</button>
   </div>
 
-  <p class="note">
-    <b>What the curve teaches.</b> Risk lowers the late-life floor by raising event probability. Reserve raises the floor and shifts the inflection point later, so decline starts later and is gentler. Together they produce the <em>shape</em>: the geometry that determines how the back half of life goes.
-  </p>
-  <p class="note">
-    <b>What the line teaches.</b> Reserve and lifestyle together render brightness, color, and weight. High reserve alone produces a respectable glow because reserve genuinely contributes to felt vitality. Lifestyle adds the rest. The line carries the <em>ride</em>: how alive the system feels as it travels the curve.
-  </p>
-  <p class="note">
-    <b>What you can read off the model.</b> A bright line on a collapsing curve is the person who feels great today on a trajectory that is quietly failing. A muted line on a beautiful curve is the person whose biology is intact but who is not enjoying the journey. Both are real, and the model has to be able to show both honestly. That is the test the three axes pass. It is also the test the original two-axis framing (risk + reserve = quality of life) fails.
-  </p>
-  <p class="note">
-    <b>Render mix is locked:</b> brightness/saturation = 0.5·reserve + 0.5·lifestyle, floor 0.15. Risk does not affect render: only curve geometry. Reserve affects both, by design, because reserve genuinely contributes to felt vitality.
-  </p>
-  <p class="note" style="margin-top:18px">
-    <b>Status:</b> first-step scaffold, not calibrated. The prototype is testing whether the visual logic works: Risk and Reserve shape the capacity curve, Lifestyle contributes to vitality rendering, and the y-axis is expressed as real-world functional capacity bands. The current curve is illustrative only and should be replaced with empirical trajectory templates before any validation claim. See <a href="./spec.html#current-step" style="color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold-dim)">calibration spec</a>.
-  </p>
+  <details class="crosstalk">
+    <summary>Five things this tool simplifies</summary>
+    <ul>
+      <li><b>Conditioning lowers cardiovascular and metabolic event risk in reality.</b> The tool teaches Conditioning and Residual Risk as separate levers and does not bake the protective effect into event probability.</li>
+      <li><b>Lifestyle Optimization (sleep, nutrition, stress) affects cardiovascular and metabolic event risk in reality.</b> The tool does not model this; the levers are taught separately.</li>
+      <li><b>Cardiovascular events drop conditioning in reality.</b> The Conditioning slider stays where you set it; the event step-down is shown on the curve, but the slider position does not move.</li>
+      <li><b>Lifestyle inputs feed conditioning over years.</b> Sleep, stress, hormone optimization affect training capacity and therefore conditioning. The tool treats them as orthogonal at the rendering moment.</li>
+      <li><b>Lifestyle Optimization affects whether metabolic syndrome and other risk states develop over time.</b> The tool models the lever (behavior) and the state (Residual Risk) separately. Move Lifestyle Optimization to set behavior; move Residual Risk to set the state.</li>
+    </ul>
+  </details>
+
+  <div class="footer-links">
+    <span>Cognitive trajectory is a separate axis this tool does not render.</span>
+    <span><a href="./spec.html">spec →</a></span>
+  </div>
 </div>
 
 <script>
-const AGE_MIN = 20, AGE_MAX = 100;
-const W = 1200, H = 540;
-const M = { l: 220, r: 40, t: 40, b: 70 };
-const cx0 = M.l, cx1 = W - M.r;
-const cy_top = M.t, cy_bot = H - M.b;
+// ============================================================================
+// Functional Capacity Teaching Tool — implementation per spec.html
+// ============================================================================
+
+// ---- Reference templates (VO2max by age) ----
+// Three published cohort-anchored shapes per Curve Construction decision log.
+// Values: VO2max in mL/kg/min, by age in years.
+const TEMPLATES = {
+  // Elite: ~95th percentile FRIEND. Masters athletes literature.
+  // ~5%/decade through 60s, ~10%/decade through 70s+. Long high plateau.
+  elite: {
+    30: 56, 40: 53, 50: 50, 60: 47, 65: 45,
+    70: 42, 75: 38, 80: 34, 85: 30, 90: 26, 100: 18
+  },
+  // Average: ~50th percentile FRIEND, BLSA cohort means.
+  // ~7%/decade through 60s, ~15%/decade through 70s+.
+  average: {
+    30: 38, 40: 35, 50: 33, 60: 31, 65: 29,
+    70: 26, 75: 22, 80: 19, 85: 16, 90: 13, 100: 8
+  },
+  // Deconditioned: ~15th percentile FRIEND, NHANES low-fitness, CHS frailty.
+  // Earlier and faster decline.
+  deconditioned: {
+    30: 26, 40: 23, 50: 20, 60: 18, 65: 16,
+    70: 14, 75: 12, 80: 10, 85: 8, 90: 7, 100: 5
+  }
+};
+
+// Linear interpolation within a template (between known age anchors)
+function templateAt(tmpl, age) {
+  const ages = Object.keys(tmpl).map(Number).sort((a,b) => a - b);
+  if (age <= ages[0]) return tmpl[ages[0]];
+  if (age >= ages[ages.length-1]) return tmpl[ages[ages.length-1]];
+  for (let i = 0; i < ages.length - 1; i++) {
+    const a0 = ages[i], a1 = ages[i+1];
+    if (age >= a0 && age <= a1) {
+      const t = (age - a0) / (a1 - a0);
+      return tmpl[a0] * (1 - t) + tmpl[a1] * t;
+    }
+  }
+  return tmpl[ages[ages.length-1]];
+}
+
+// Conditioning slider (0-100) → blended template value at age.
+// Per spec: 0 = Decon, 33 = Avg, 66 = Well-cond, 100 = Elite.
+// 0-33 blends Decon→Avg; 33-100 blends Avg→Elite.
+function conditioningCurve(condSlider, age) {
+  const dec = templateAt(TEMPLATES.deconditioned, age);
+  const avg = templateAt(TEMPLATES.average, age);
+  const eli = templateAt(TEMPLATES.elite, age);
+  if (condSlider <= 33) {
+    const t = condSlider / 33;
+    return dec * (1 - t) + avg * t;
+  } else {
+    const t = (condSlider - 33) / 67;
+    return avg * (1 - t) + eli * t;
+  }
+}
+
+// Lifestyle Optimization slope multiplier: 0→1.10×, 50→1.00×, 100→0.90×
+// Applied as a year-over-year decline-rate adjustment relative to Conditioning baseline.
+// Implementation: shift the *age* used in template lookup by a small amount.
+// At Highly Optimized, the curve effectively ages 10% slower (uses age-(age-30)*0.10 worth of decline).
+function lifestyleAdjustedAge(lifeSlider, age) {
+  // mult: 1.10 (neglected) to 0.90 (optimized). Higher mult = more decline.
+  const mult = 1.10 - (lifeSlider / 100) * 0.20;
+  // Effective "decline-age" past 30
+  return 30 + (age - 30) * mult;
+}
+
+// Capacity at age, before events, given Conditioning and Lifestyle sliders.
+function baseCapacity(condSlider, lifeSlider, age) {
+  const adjAge = lifestyleAdjustedAge(lifeSlider, age);
+  return conditioningCurve(condSlider, adjAge);
+}
+
+// ---- Risk strata ----
+// 0-33 Low, 34-66 Average, 67-100 High. Within strata, linear interpolation
+// of modal event ages.
+function riskStratum(riskSlider) {
+  if (riskSlider <= 33) return 'low';
+  if (riskSlider <= 66) return 'average';
+  return 'high';
+}
+
+// Event definitions per spec Modeling Decision 3 and Decision 4.
+// Stratum: which Risk strata render this event.
+// modalAge[stratum]: when it fires.
+// drop: acute % drop. tau: recovery time constant in months.
+// recoveryFrac: fraction of acute drop recovered at plateau.
+const EVENTS = [
+  { id: 'mi', name: 'MI', modalAge: { average: 78, high: 67 },
+    drop: 0.25, tau: 6, recoveryFrac: 0.75 },
+  { id: 'stroke', name: 'Stroke', modalAge: { high: 73 },
+    drop: 0.30, tau: 18, recoveryFrac: 0.50 },
+  { id: 'hf', name: 'HF onset', modalAge: { high: 75 },
+    drop: 0.15, tau: null, recoveryFrac: 0.0 }, // progressive, no recovery
+  { id: 'hip', name: 'Hip fracture', modalAge: { average: 84, high: 79 },
+    drop: 0.20, tau: 12, recoveryFrac: 0.60 },
+  { id: 'cancer', name: 'Cancer treatment', modalAge: { average: 72, high: 65 },
+    drop: 0.25, tau: 24, recoveryFrac: 0.50 },
+  { id: 'dialysis', name: 'Dialysis', modalAge: { high: 76 },
+    drop: 0.30, tau: null, recoveryFrac: 0.0 },
+];
+
+// Within-stratum interpolation of modal age. At stratum boundary (e.g. risk=67,
+// the start of High), use a slightly later age; at stratum max (100), use the
+// stated modal age. Spec calls this "linear within stratum" — we implement as:
+// at slider min of stratum, age = modal_age + 5; at slider max of stratum, age = modal_age.
+// (This makes the High stratum's events earlier as you push toward 100.)
+function effectiveModalAge(event, riskSlider) {
+  const stratum = riskStratum(riskSlider);
+  if (!event.modalAge[stratum]) return null;
+  const modal = event.modalAge[stratum];
+  let stratumLo, stratumHi;
+  if (stratum === 'low') { stratumLo = 0; stratumHi = 33; }
+  else if (stratum === 'average') { stratumLo = 34; stratumHi = 66; }
+  else { stratumLo = 67; stratumHi = 100; }
+  const t = (riskSlider - stratumLo) / (stratumHi - stratumLo);
+  // At slider=stratumLo, event fires 4 years later; at stratumHi, fires at modal age.
+  return modal + 4 * (1 - t);
+}
+
+// Active events for current Risk slider position.
+function activeEvents(riskSlider) {
+  const out = [];
+  for (const ev of EVENTS) {
+    const age = effectiveModalAge(ev, riskSlider);
+    if (age != null) out.push({ ...ev, age });
+  }
+  return out.sort((a, b) => a.age - b.age);
+}
+
+// Apply event drops + recovery to the base capacity at a given age.
+// For each event that has fired by `age`, accumulate its effect.
+function eventAdjustedCapacity(base, events, age, eventBaseLookup) {
+  let v = base;
+  for (const ev of events) {
+    if (age < ev.age) continue;
+    const yearsSince = age - ev.age;
+    // Capacity at the event moment (use base trajectory at event_age, no recompute through other events for simplicity)
+    const preEventV = eventBaseLookup(ev.age, ev);
+    const D = ev.drop * preEventV;
+    const residual = D * (1 - ev.recoveryFrac);
+    let dropAmount;
+    if (ev.tau == null) {
+      // No recovery: permanent step-down equal to D (since recoveryFrac=0, residual=D)
+      // For HF: progressive — add small extra slope after onset.
+      dropAmount = D;
+      if (ev.id === 'hf') dropAmount += yearsSince * 0.4; // ~0.4 mL/kg/min/yr extra decline
+    } else {
+      const tauYears = ev.tau / 12;
+      dropAmount = residual + (D - residual) * Math.exp(-yearsSince / tauYears);
+    }
+    v -= dropAmount;
+  }
+  return Math.max(v, 2);
+}
+
+// Final capacity render: base + events. Events use base (no-event) capacity at their event age as anchor.
+function capacityAt(condSlider, lifeSlider, riskSlider, age, events) {
+  const base = baseCapacity(condSlider, lifeSlider, age);
+  const eventBaseLookup = (evAge) => baseCapacity(condSlider, lifeSlider, evAge);
+  return eventAdjustedCapacity(base, events, age, eventBaseLookup);
+}
+
+// ---- Vitality render mix ----
+// 0.65·LifestyleOpt + 0.35·Conditioning − age_decay − event_acute_drop
+// Returns 0 to 1.
+function vitalityAt(condSlider, lifeSlider, age, events) {
+  const lifeNorm = lifeSlider / 100;
+  const condNorm = condSlider / 100;
+  let mix = 0.65 * lifeNorm + 0.35 * condNorm;
+  // Scale: at age 30 peak inputs (mix=1) → vitality = 0.95; at age 30 worst inputs (mix=0) → 0.45
+  // Map mix linearly: vitality_at_30 = 0.45 + 0.50 * mix
+  let vit = 0.45 + 0.50 * mix;
+  // Age decay: gentler for high inputs, steeper for low.
+  // At age 100: high-input person = ~0.50, low-input person = ~0.05
+  // decay rate per year past 30: lerp from 0.0064 (high) to 0.0057 (low) — high decay slightly faster from a higher start
+  // Simpler: decay = (vit_at_30 - vit_at_100) / 70
+  const vit100 = 0.05 + 0.45 * mix; // high mix lands at 0.50; low mix lands at 0.05
+  if (age > 30) {
+    const ageT = (age - 30) / 70;
+    // Slight curvature: faster decay in late life
+    const curveT = ageT * ageT * 0.5 + ageT * 0.5;
+    vit = vit - (vit - vit100) * curveT;
+  }
+  // Event acute drops on vitality
+  for (const ev of events) {
+    if (age < ev.age) continue;
+    const yearsSince = age - ev.age;
+    if (ev.tau == null) {
+      vit -= ev.drop * 0.6; // permanent vitality dent
+    } else {
+      const tauYears = ev.tau / 12;
+      vit -= ev.drop * 0.6 * Math.exp(-yearsSince / tauYears);
+    }
+  }
+  return Math.max(0, Math.min(1, vit));
+}
+
+// Vitality color: red→amber→green ramp
+function vitalityColor(v) {
+  // 0 = red, 0.5 = amber, 1 = green
+  // RGB interpolation through three stops
+  const stops = [
+    { v: 0.0, r: 200, g: 74, b: 62 },   // red
+    { v: 0.5, r: 199, g: 154, b: 79 },  // amber
+    { v: 1.0, r: 95, g: 181, b: 106 },  // green
+  ];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const a = stops[i], b = stops[i+1];
+    if (v >= a.v && v <= b.v) {
+      const t = (v - a.v) / (b.v - a.v);
+      const r = Math.round(a.r * (1 - t) + b.r * t);
+      const g = Math.round(a.g * (1 - t) + b.g * t);
+      const bl = Math.round(a.b * (1 - t) + b.b * t);
+      return `rgb(${r},${g},${bl})`;
+    }
+  }
+  return 'rgb(200,200,200)';
+}
+
+// ---- Neurodegenerative onset (dashed segment) ----
+// Per spec: age 79 Avg Risk, age 73 High Risk, none for Low.
+function neurodegenOnset(riskSlider) {
+  const stratum = riskStratum(riskSlider);
+  if (stratum === 'average') return 79;
+  if (stratum === 'high') return 73;
+  return null;
+}
+
+// ---- Capability bands ----
+// Names are shortened for axis labels; full statements are in the spec.
+const BANDS = [
+  { lo: 55, hi: 65, name: 'Sustains hard endurance', sub: 'for hours' },
+  { lo: 40, hi: 55, name: 'Hard recreation', sub: 'recovers next day' },
+  { lo: 30, hi: 40, name: 'Active daily life', sub: 'hills + stairs OK' },
+  { lo: 22, hi: 30, name: 'Daily life unconstrained', sub: 'recreation possible' },
+  { lo: 18, hi: 22, name: 'Daily tasks preserved', sub: 'every effort costs' },
+  { lo: 0,  hi: 18, name: 'Requires help', sub: 'with daily tasks' },
+];
+
+// ---- Rendering ----
+const AGE_MIN = 30, AGE_MAX = 100;
+const VO2_MIN = 0, VO2_MAX = 65;
+const PAD = { l: 230, r: 30, t: 18, b: 50 };
+const W = 920, H = 520;
+const CW = W - PAD.l - PAD.r;
+const CH = H - PAD.t - PAD.b;
+
+function xAge(age) { return PAD.l + ((age - AGE_MIN) / (AGE_MAX - AGE_MIN)) * CW; }
+function yV(v) { return PAD.t + (1 - (v - VO2_MIN) / (VO2_MAX - VO2_MIN)) * CH; }
+
 const svg = document.getElementById('chart');
 
-function xAge(a) { return cx0 + (a-AGE_MIN)/(AGE_MAX-AGE_MIN) * (cx1-cx0); }
-function yQol(v) { return cy_bot - (v-0)/100 * (cy_bot-cy_top); }
-
-function qol(age, risk, reserve) {
-  // v6 calibration: tuned by random search against 15 corner/edge cases anchored to
-  // HRS, NHATS, NECS, BLSA, Gill JAMA 2013 terminal-disability data, Fried CHS frailty.
-  // 14/15 cases land inside published bands; see /spec.html#calibration.
-  const r = reserve/100;
-  const k = risk/100;
-  const floor    = 36 + 18*r - 8*k;          // worst-alive 80yo ~32; best 100yo ~42
-  const ceil     = 96;                       // best 50yo ~94
-  const midpoint = 66 + 20*r - 8*k;          // when sigmoid hits halfway down
-  const slope    = 0.09 - 0.01*r + 0.03*k;   // gentler decline w/ reserve, steeper w/ risk
-  const base = floor + (ceil - floor) / (1 + Math.exp(slope*(age - midpoint)));
-  // Terminal compression (Gill 2010): even no-disability-at-80 cohorts had a final
-  // disability window. Reserve buys the YEARS in the high bands, not exemption
-  // from the bottom ones. Softplus hinge centered on 85: same asymptotic
-  // 1.5 pts/year decline as a hard hinge, but transitions in smoothly over
-  // ~6 years so the curve has no visible kink.
-  const terminal = (1.5 / 0.6) * Math.log(1 + Math.exp(0.6 * (age - 85)));
-  return Math.max(15, base - terminal);
+function condLabel(c) {
+  if (c <= 8) return 'Deconditioned';
+  if (c <= 28) return 'Below average';
+  if (c <= 38) return 'Average';
+  if (c <= 60) return 'Above average';
+  if (c <= 75) return 'Well-conditioned';
+  if (c <= 92) return 'Highly conditioned';
+  return 'Elite';
 }
-
-function curvePath(risk, reserve) {
-  const pts = [];
-  for (let a = AGE_MIN; a <= AGE_MAX; a += 0.5) {
-    pts.push(`${xAge(a).toFixed(1)},${yQol(qol(a, risk, reserve)).toFixed(1)}`);
-  }
-  return pts.join(' ');
+function lifeLabel(l) {
+  if (l <= 15) return 'Neglected';
+  if (l <= 40) return 'Below average';
+  if (l <= 60) return 'Maintained';
+  if (l <= 85) return 'Optimized';
+  return 'Highly optimized';
 }
-
-function renderMix(reserve, life) {
-  const m = 0.5*(reserve/100) + 0.5*(life/100);
-  return Math.max(0.15, Math.min(1, m));
+function riskLabel(r) {
+  if (r <= 15) return 'Very low';
+  if (r <= 33) return 'Low';
+  if (r <= 50) return 'Below average';
+  if (r <= 66) return 'Average';
+  if (r <= 85) return 'High';
+  return 'Very high';
 }
-
-// Direct red-to-green color ramp for vitality:
-//   mix 0.0 = saturated red (depleted)
-//   mix 1.0 = saturated green (vital)
-const STOP_LO  = [220, 70,  60];   // red (depleted)
-const STOP_HI  = [80,  200, 110];  // green (vital)
-
-function rampColor(t) {
-  // direct red-to-green linear interpolation, no amber midpoint
-  const r = Math.round(STOP_LO[0] + (STOP_HI[0] - STOP_LO[0]) * t);
-  const g = Math.round(STOP_LO[1] + (STOP_HI[1] - STOP_LO[1]) * t);
-  const b = Math.round(STOP_LO[2] + (STOP_HI[2] - STOP_LO[2]) * t);
-  return `rgb(${r},${g},${b})`;
-}
-
-function lineStyle(mix) {
-  // Color is now the primary signal; width and glow are secondary reinforcement.
-  const width = 2.0 + 2.0 * mix;
-  const color = rampColor(mix);
-  const glowOp = 0.0 + 0.45 * Math.max(0, mix - 0.3);
-  const glowWidth = width + 5 + 6 * mix;
-  return { width, color, glowOp, glowWidth };
-}
-
-// Age-driven vitality decay. Preserves relative differences:
-// high reserve still fades less than low. Curve holds near-flat through 30s,
-// drifts through middle age, fades visibly past 70.
-function ageDecay(age, reserve) {
-  const r = reserve / 100;
-  // Even at peak reserve, vitality fades meaningfully across a lifetime.
-  // Decay starts gently in 30s, accelerates through 50s-70s.
-  const k = 0.055 - 0.020*r;          // decay slope (slower with reserve, but still real)
-  const center = 50 + 12*r;            // half-decay shifts later with reserve
-  const floor = 0.20 + 0.18*r;         // floor: low-reserve fades to 20%, high-reserve floors at 38%
-  return floor + (1 - floor) / (1 + Math.exp(k*(age - center)));
-}
-
-function styleAtAge(age, mixBase, reserve) {
-  const decay = ageDecay(age, reserve);
-  const m = Math.max(0.10, mixBase * decay);
-  return lineStyle(m);
-}
-
-// Average American reference. v5 calibration (10-dimension SPAREQ Vitality lifestyle):
-//   Risk     = 66  (composite of CVD + T2DM + CKD + Cancer + Dementia, 30-year horizon, NHANES 45-59)
-//   Reserve  = 50  (3-component composite: VO2max + grip + DSST, NHANES medians, literature anchors)
-//   Lifestyle = 71 (10-dimension composite: NHANES mood + sleep + 8 prevalence-derived dimensions
-//                   covering anxiety, energy/drive, libido, connection, purpose, pain, fatigue,
-//                   cognitive complaint; SPAREQ Vitality dimensions minus physical capacity)
-// Cohort focus: ages 45-59 (Meridian's prevention-curious midlife target).
-// See spec.html and the qol-calibration repo for full methodology.
-const AVG_AMERICAN = { risk: 66, reserve: 50, life: 71 };
 
 function render() {
-  const risk = +document.getElementById('risk').value;
-  const reserve = +document.getElementById('reserve').value;
+  const cond = +document.getElementById('cond').value;
   const life = +document.getElementById('life').value;
+  const risk = +document.getElementById('risk').value;
 
-  document.getElementById('riskVal').textContent = risk;
-  document.getElementById('reserveVal').textContent = reserve;
-  document.getElementById('lifeVal').textContent = life;
+  document.getElementById('condVal').textContent = condLabel(cond);
+  document.getElementById('lifeVal').textContent = lifeLabel(life);
+  document.getElementById('riskVal').textContent = riskLabel(risk);
 
-  const mix = renderMix(reserve, life);
-  const baseSt = lineStyle(mix);
+  const events = activeEvents(risk);
+  const neuroOnset = neurodegenOnset(risk);
 
   let s = '';
 
-  // Functional capacity bands (anchored to ADL/IADL/frailty literature)
-  const bands = [
-    { lo: 90, hi: 100, name: 'Full capacity with reserve',     fill: 'rgba(255,255,255,0.010)' },
-    { lo: 75, hi: 90,  name: 'Independent, reserve narrowing', fill: 'rgba(255,255,255,0.020)' },
-    { lo: 60, hi: 75,  name: 'Vulnerable independence',        fill: 'rgba(255,255,255,0.030)' },
-    { lo: 45, hi: 60,  name: 'Independence threshold',         fill: 'rgba(255,255,255,0.040)' },
-    { lo: 0,  hi: 45,  name: 'Supported or dependent living',  fill: 'rgba(255,255,255,0.050)' },
-  ];
-  for (let i = 0; i < bands.length; i++) {
-    const b = bands[i];
-    const yT = yQol(b.hi), yB = yQol(b.lo);
-    s += `<rect x="${cx0}" y="${yT}" width="${cx1-cx0}" height="${yB-yT}" fill="${b.fill}"/>`;
-    const yMid = (yT + yB) / 2 + 3;
-    s += `<g class="band-label" data-band="${i}" style="cursor:pointer">`;
-    s += `<rect x="0" y="${yT}" width="${cx0-4}" height="${yB-yT}" fill="transparent"/>`;
-    s += `<text x="${cx0-10}" y="${yMid}" fill="#a8a59c" font-size="10" text-anchor="end" font-family="JetBrains Mono, ui-monospace, monospace" letter-spacing="0.04em" style="text-decoration:underline; text-decoration-color:#3a3d44; text-underline-offset:3px;">${b.name.toUpperCase()}</text>`;
-    s += `</g>`;
+  // Background bands (subtle background tint)
+  for (let i = 0; i < BANDS.length; i++) {
+    const b = BANDS[i];
+    const y0 = yV(b.hi), y1 = yV(b.lo);
+    // Alternating very subtle fills for readability
+    const fill = i % 2 === 0 ? 'rgba(255,255,255,0.012)' : 'rgba(255,255,255,0.022)';
+    s += `<rect x="${PAD.l}" y="${y0}" width="${CW}" height="${y1 - y0}" fill="${fill}" class="band-fill"/>`;
+    // Two-line label in left margin, positioned to clear the y-axis tick numbers
+    const yMid = (y0 + y1) / 2;
+    s += `<text x="${PAD.l - 38}" y="${yMid - 1}" text-anchor="end" class="band-label" style="fill:#a8a59c">${b.name}</text>`;
+    s += `<text x="${PAD.l - 38}" y="${yMid + 11}" text-anchor="end" class="band-label" style="fill:#6e6c66;font-size:9px">${b.sub}</text>`;
   }
 
-  // Band boundaries serve as the y-scale; no numeric ticks.
-  for (const v of [45, 60, 75, 90]) {
-    const y = yQol(v);
-    s += `<line x1="${cx0}" y1="${y}" x2="${cx1}" y2="${y}" stroke="#23262d" opacity="0.45"/>`;
+  // Y-axis ticks (VO2max numbers)
+  for (const v of [0, 10, 20, 30, 40, 50, 60]) {
+    const y = yV(v);
+    s += `<line x1="${PAD.l - 4}" y1="${y}" x2="${PAD.l}" y2="${y}" class="ax-tick"/>`;
+    s += `<text x="${PAD.l - 8}" y="${y + 3}" text-anchor="end" class="ax-label">${v}</text>`;
   }
-  for (const a of [20,30,40,50,60,70,80,90,100]) {
+  // Y-axis title
+  s += `<text x="${PAD.l - 8}" y="${PAD.t - 6}" text-anchor="end" class="ax-label" style="font-size:10px">VO₂max</text>`;
+  s += `<text x="${PAD.l - 8}" y="${PAD.t + 8}" text-anchor="end" class="ax-label" style="font-size:9px;fill:#5e5c56">mL/kg/min</text>`;
+
+  // X-axis ticks (ages)
+  for (const a of [30, 40, 50, 60, 70, 80, 90, 100]) {
     const x = xAge(a);
-    s += `<line x1="${x}" y1="${cy_bot}" x2="${x}" y2="${cy_bot+5}" stroke="#5e5c56"/>`;
-    s += `<text x="${x}" y="${cy_bot+22}" fill="#8f8c84" font-size="12" text-anchor="middle">${a}</text>`;
+    s += `<line x1="${x}" y1="${PAD.t + CH}" x2="${x}" y2="${PAD.t + CH + 4}" class="ax-tick"/>`;
+    s += `<text x="${x}" y="${PAD.t + CH + 18}" text-anchor="middle" class="ax-label">${a}</text>`;
   }
-  s += `<text x="${(cx0+cx1)/2}" y="${cy_bot+44}" fill="#5e5c56" font-size="11" text-anchor="middle" letter-spacing="1.5">AGE</text>`;
+  s += `<text x="${PAD.l + CW / 2}" y="${PAD.t + CH + 38}" text-anchor="middle" class="ax-label" style="letter-spacing:2px;font-size:10px">AGE</text>`;
 
-  // Average American reference curve: drawn first so active curve overlays it
-  const avgPath = curvePath(AVG_AMERICAN.risk, AVG_AMERICAN.reserve);
-  s += `<polyline points="${avgPath}" fill="none" stroke="#5e5c56" stroke-width="1.5" stroke-dasharray="6 5" opacity="0.85"/>`;
+  // Avg American reference (Average template, no events, no lifestyle adjustment)
+  let refPts = [];
+  for (let a = AGE_MIN; a <= AGE_MAX; a += 1) {
+    const v = templateAt(TEMPLATES.average, a);
+    refPts.push(`${xAge(a)},${yV(v)}`);
+  }
+  s += `<polyline points="${refPts.join(' ')}" class="ref-curve"/>`;
+  // Reference label
+  s += `<text x="${xAge(95)}" y="${yV(templateAt(TEMPLATES.average, 95)) - 6}" class="ref-label" text-anchor="end">avg American</text>`;
 
-  // Active curve as segmented path, each segment age-faded.
-  // Build sample points then draw segments with per-segment color/width/glow.
+  // Active curve: build sample points
   const samples = [];
   for (let a = AGE_MIN; a <= AGE_MAX; a += 0.5) {
-    samples.push({ a, x: xAge(a), y: yQol(qol(a, risk, reserve)) });
+    const v = capacityAt(cond, life, risk, a, events);
+    const vit = vitalityAt(cond, life, a, events);
+    samples.push({ a, x: xAge(a), y: yV(v), v, vit });
   }
 
-  // Colored line: per-segment red→green ramp by vitality, no area fill underneath
-  for (let i = 0; i < samples.length-1; i++) {
-    const p0 = samples[i], p1 = samples[i+1];
+  // Render curve in segments, colored by vitality.
+  // Use dashed style for ages past neurodegenerative onset (Avg/High Risk),
+  // or past 90 if Low Risk.
+  const dashStart = neuroOnset != null ? neuroOnset : 90;
+  for (let i = 0; i < samples.length - 1; i++) {
+    const p0 = samples[i], p1 = samples[i + 1];
     const aMid = (p0.a + p1.a) / 2;
-    const st = styleAtAge(aMid, mix, reserve);
-    s += `<line x1="${p0.x.toFixed(1)}" y1="${p0.y.toFixed(1)}" x2="${p1.x.toFixed(1)}" y2="${p1.y.toFixed(1)}" stroke="${st.color}" stroke-width="${st.width.toFixed(2)}" stroke-linecap="round"/>`;
+    const vitMid = (p0.vit + p1.vit) / 2;
+    const color = vitalityColor(vitMid);
+    const dashed = aMid >= dashStart;
+    const width = 2.0 + vitMid * 1.4; // slight scaling: more vital = slightly thicker
+    const dashAttr = dashed ? 'stroke-dasharray="4 3"' : '';
+    const opacity = dashed ? 0.55 : 1.0;
+    s += `<line x1="${p0.x}" y1="${p0.y}" x2="${p1.x}" y2="${p1.y}" stroke="${color}" stroke-width="${width.toFixed(2)}" stroke-linecap="round" opacity="${opacity}" ${dashAttr}/>`;
   }
+
+  // Event markers: vertical drop indicator + label
+  for (const ev of events) {
+    const x = xAge(ev.age);
+    // Find capacity right before event (interpolate from samples)
+    const preIdx = samples.findIndex(p => p.a >= ev.age);
+    if (preIdx <= 0) continue;
+    const preV = capacityAt(cond, life, risk, ev.age - 0.01, events.filter(e => e.age < ev.age));
+    const postV = capacityAt(cond, life, risk, ev.age + 0.01, events);
+    const yPre = yV(preV), yPost = yV(postV);
+    s += `<line x1="${x}" y1="${yPre}" x2="${x}" y2="${yPost}" class="event-line"/>`;
+    s += `<circle cx="${x}" cy="${yPre}" r="3" class="event-marker"/>`;
+    // Label: alternate above/below to avoid stacking
+    const labelY = yPre - 8;
+    s += `<text x="${x + 5}" y="${labelY}" class="event-label">${ev.name}</text>`;
+  }
+
+  // Neurodegenerative onset annotation
+  if (neuroOnset != null) {
+    const x = xAge(neuroOnset);
+    s += `<line x1="${x}" y1="${PAD.t + 4}" x2="${x}" y2="${PAD.t + CH}" stroke="#5e5c56" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.5"/>`;
+    // Position label so it doesn't clip the right edge
+    const labelX = x + 4;
+    const labelText = 'neurodegen onset';
+    const labelText2 = 'cognitive trajectory diverges';
+    const rightEdge = PAD.l + CW;
+    if (labelX + 180 > rightEdge) {
+      // Flip to left side of the line
+      s += `<text x="${x - 4}" y="${PAD.t + 14}" class="ref-label" style="fill:#8f8c84" text-anchor="end">${labelText}</text>`;
+      s += `<text x="${x - 4}" y="${PAD.t + 26}" class="ref-label" style="fill:#5e5c56" text-anchor="end">${labelText2}</text>`;
+    } else {
+      s += `<text x="${labelX}" y="${PAD.t + 14}" class="ref-label" style="fill:#8f8c84">${labelText}</text>`;
+      s += `<text x="${labelX}" y="${PAD.t + 26}" class="ref-label" style="fill:#5e5c56">${labelText2}</text>`;
+    }
+  } else {
+    // Past-90 dashed annotation
+    const x = xAge(90);
+    s += `<line x1="${x}" y1="${PAD.t + 4}" x2="${x}" y2="${PAD.t + CH}" stroke="#3a3d44" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.4"/>`;
+    s += `<text x="${x - 4}" y="${PAD.t + 14}" class="ref-label" text-anchor="end">90+ uncertain</text>`;
+  }
+
+  // Chart border
+  s += `<rect x="${PAD.l}" y="${PAD.t}" width="${CW}" height="${CH}" fill="none" stroke="#23262d" stroke-width="1"/>`;
 
   svg.innerHTML = s;
 }
 
-function animateTo(input, target) {
-  const start = +input.value;
-  const t0 = performance.now();
-  const dur = 600;
-  function step(t) {
-    const k = Math.min(1, (t-t0)/dur);
-    const e = 1 - Math.pow(1-k, 3);
-    input.value = start + (target-start)*e;
-    render();
-    if (k < 1) requestAnimationFrame(step);
-    else { input.value = target; render(); }
-  }
-  requestAnimationFrame(step);
-}
+// ---- Wiring ----
+['cond', 'life', 'risk'].forEach(id => {
+  document.getElementById(id).addEventListener('input', render);
+});
 
-['risk','reserve','life'].forEach(id => document.getElementById(id).addEventListener('input', render));
-document.querySelectorAll('.preset').forEach(b => {
-  b.addEventListener('click', () => {
-    animateTo(document.getElementById('risk'),    +b.dataset.r);
-    animateTo(document.getElementById('reserve'), +b.dataset.re);
-    animateTo(document.getElementById('life'),    +b.dataset.li);
+document.querySelectorAll('.preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('cond').value = btn.dataset.c;
+    document.getElementById('life').value = btn.dataset.l;
+    document.getElementById('risk').value = btn.dataset.r;
+    render();
   });
 });
-
-// Band detail modal
-const BAND_DETAILS = [
-  { range: '90 to 100', name: 'Full capacity with reserve', frailty: 'Fried 0/5',
-    body: 'Anything within prior baseline. Full work, full physical activity, full cognitive load. Pneumonia or a broken ankle is recoverable without long-term loss. Most healthy adults under 60.' },
-  { range: '75 to 90', name: 'Independent, reserve narrowing', frailty: 'Fried 1/5',
-    body: 'Fully independent in ADLs and IADLs. Buffer is gone: a hospitalization or fall now causes a step-down that does not fully recover. Mild limitations: slower stairs, longer recovery. Typical 65 to 80 with no major disease.' },
-  { range: '60 to 75', name: 'Vulnerable independence', frailty: 'Fried 2/5',
-    body: 'Still independent but visibly compromised. Heavy housework, complex finances, night driving become hard. Walking distance shorter, balance compensations visible. One bad event tips into the next band. Common 75 to 85.' },
-  { range: '45 to 60', name: 'Independence threshold', frailty: 'Fried 3/5',
-    body: 'The hinge zone. Bathing, dressing, transferring out of low chairs require effort or workarounds. Driving being given up. Cooking simplified. Fall risk material. Independence is brittle: one bad week tips into the bottom band.' },
-  { range: 'below 45', name: 'Supported or dependent living', frailty: 'Fried 4 to 5/5',
-    body: 'At least one ADL requires help: bathing, dressing, toileting, transfers, eating. Caregiver in the home, assisted living, or nursing facility. Mortality risk 2 to 4× same-age peers in higher bands.' },
-];
-const modal = document.getElementById('bandModal');
-function openBand(i) {
-  const d = BAND_DETAILS[i]; if (!d) return;
-  document.getElementById('bandModalRange').textContent = d.range;
-  document.getElementById('bandModalTitle').textContent = d.name;
-  document.getElementById('bandModalFrailty').textContent = d.frailty;
-  document.getElementById('bandModalBody').textContent = d.body;
-  modal.hidden = false;
-}
-function closeBand() { modal.hidden = true; }
-svg.addEventListener('click', (e) => {
-  const g = e.target.closest && e.target.closest('.band-label');
-  if (g) openBand(+g.dataset.band);
-});
-modal.addEventListener('click', (e) => { if (e.target.dataset.close) closeBand(); });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeBand(); });
 
 render();
 </script>
