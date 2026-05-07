@@ -380,43 +380,65 @@ function capacityForOutcome(condSlider, lifeSlider, age, outcomeEvents) {
 }
 
 // Vitality for a specific joint outcome at age. Each branch experiences only
-// the events that fired in that branch.
+// the events that fired in that branch. Pass recoveryFrac through so vitality
+// burden carries the same permanent residual as capacity (per spec Vitality DL).
 function vitalityForOutcome(condSlider, lifeSlider, age, outcomeEvents) {
-  const vEvents = outcomeEvents.map(ev => ({ age: ev.modalAge, drop: ev.drop, tau: ev.tau }));
+  const vEvents = outcomeEvents.map(ev => ({
+    age: ev.modalAge,
+    drop: ev.drop,
+    tau: ev.tau,
+    recoveryFrac: ev.recoveryFrac
+  }));
   return vitalityAt(condSlider, lifeSlider, age, vEvents);
 }
 
 // ---- Vitality render mix ----
-// 0.65·LifestyleOpt + 0.35·Conditioning − age_decay − event_acute_drop
+// Per spec Vitality decision log: vitality is computed PER BRANCH.
+// Each branch carries only the events that fired in that branch, so the
+// spared branch and the both-events branch can show different colors at
+// the same age.
+//
+// v1 form (per spec):
+//   render_mix(age, branch) = 0.65·LifestyleOpt + 0.35·Conditioning
+//                             − age_decay(age, Lifestyle, Conditioning)
+//                             − vitality_event_burden(age, branch_events)
+//
+// vitality_event_burden mirrors the capacity event factor: acute drop
+// recovers exponentially toward a PERMANENT RESIDUAL. Residual fractions
+// match the capacity model so the curve position and the line color stay
+// in physiological agreement.
+//
 // Returns 0 to 1.
 function vitalityAt(condSlider, lifeSlider, age, events) {
   const lifeNorm = lifeSlider / 100;
   const condNorm = condSlider / 100;
-  let mix = 0.65 * lifeNorm + 0.35 * condNorm;
-  // Scale: at age 30 peak inputs (mix=1) → vitality = 0.95; at age 30 worst inputs (mix=0) → 0.45
-  // Map mix linearly: vitality_at_30 = 0.45 + 0.50 * mix
+  const mix = 0.65 * lifeNorm + 0.35 * condNorm;
+  // Baseline: at age 30, peak inputs (mix=1) → 0.95; worst inputs (mix=0) → 0.45
   let vit = 0.45 + 0.50 * mix;
-  // Age decay: gentler for high inputs, steeper for low.
-  // At age 100: high-input person = ~0.50, low-input person = ~0.05
-  // decay rate per year past 30: lerp from 0.0064 (high) to 0.0057 (low) — high decay slightly faster from a higher start
-  // Simpler: decay = (vit_at_30 - vit_at_100) / 70
-  const vit100 = 0.05 + 0.45 * mix; // high mix lands at 0.50; low mix lands at 0.05
+  // Age decay: at age 100, peak inputs land at ~0.50, worst at ~0.05
+  const vit100 = 0.05 + 0.45 * mix;
   if (age > 30) {
     const ageT = (age - 30) / 70;
-    // Slight curvature: faster decay in late life
     const curveT = ageT * ageT * 0.5 + ageT * 0.5;
     vit = vit - (vit - vit100) * curveT;
   }
-  // Event acute drops on vitality
+  // Per-event vitality burden: acute drop → asymptotic recovery to permanent residual.
+  // Mirrors capacity model. The 0.6 scalar maps the capacity drop fraction
+  // (e.g. 0.25 cancer drop) to a vitality drop fraction on the 0-1 vitality
+  // scale; chosen so a 25% capacity drop produces a visible but not catastrophic
+  // vitality dent. Same recoveryFrac as capacity → permanent residual.
   for (const ev of events) {
     if (age < ev.age) continue;
     const yearsSince = age - ev.age;
-    if (ev.tau == null) {
-      vit -= ev.drop * 0.6; // permanent vitality dent
-    } else {
-      const tauYears = ev.tau / 12;
-      vit -= ev.drop * 0.6 * Math.exp(-yearsSince / tauYears);
+    const acuteVitDrop = ev.drop * 0.6;
+    if (ev.tau == null || ev.recoveryFrac == null) {
+      vit -= acuteVitDrop;
+      continue;
     }
+    const tauYears = ev.tau / 12;
+    const residualVit = acuteVitDrop * (1 - ev.recoveryFrac);
+    const dropAtAge = residualVit + (acuteVitDrop - residualVit) * Math.exp(-yearsSince / tauYears);
+    vit -= dropAtAge;
   }
   return Math.max(0, Math.min(1, vit));
 }
