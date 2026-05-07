@@ -513,7 +513,7 @@ const BANDS = [
 // ---- Rendering ----
 const AGE_MIN = 30, AGE_MAX = 100;
 const VO2_MIN = 0, VO2_MAX = 65;
-const PAD = { l: 230, r: 120, t: 18, b: 50 };
+const PAD = { l: 230, r: 120, t: 34, b: 50 };
 const W = 1010, H = 520;
 const CW = W - PAD.l - PAD.r;
 const CH = H - PAD.t - PAD.b;
@@ -669,7 +669,9 @@ function render() {
 
   // Fork markers — vertical guide at each event age, with a small dot on the
   // pre-fork trunk indicating where the trajectory splits.
-  for (const ev of forks) {
+  // Event name labels alternate between two y-rows so they never collide
+  // when high R_eff pulls modal ages close together.
+  forks.forEach((ev, idx) => {
     const x = xAge(ev.modalAge);
     // Faint vertical guide
     s += `<line x1="${x}" y1="${PAD.t + 4}" x2="${x}" y2="${PAD.t + CH}" stroke="#3a3d44" stroke-width="0.6" stroke-dasharray="2 3" opacity="0.45"/>`;
@@ -679,9 +681,10 @@ function render() {
     if (sample) {
       s += `<circle cx="${x}" cy="${sample.y}" r="3" class="event-marker"/>`;
     }
-    // Event label above the chart
-    s += `<text x="${x}" y="${PAD.t - 4}" text-anchor="middle" class="event-label" style="font-size:10px;fill:#a8a59c">${ev.name} · age ${Math.round(ev.modalAge)}</text>`;
-  }
+    // Event label above the chart, alternating rows to prevent collision
+    const labelY = PAD.t - 4 - (idx % 2 === 0 ? 0 : 12);
+    s += `<text x="${x}" y="${labelY}" text-anchor="middle" class="event-label" style="font-size:10px;fill:#a8a59c">${ev.name} · age ${Math.round(ev.modalAge)}</text>`;
+  });
 
   // Right-edge labels for each outcome — joint probability + outcome name.
   // Stack them in y-order based on terminal capacity at age 100 to avoid
@@ -725,10 +728,10 @@ function render() {
     if (labelX + 180 > rightEdge) {
       // Flip to left side of the line
       s += `<text x="${x - 4}" y="${PAD.t + 14}" class="ref-label" style="fill:#8f8c84" text-anchor="end">${labelText}</text>`;
-      s += `<text x="${x - 4}" y="${PAD.t + 26}" class="ref-label" style="fill:#5e5c56" text-anchor="end">${labelText2}</text>`;
+      s += `<text x="${x - 4}" y="${PAD.t + 28}" class="ref-label" style="fill:#5e5c56" text-anchor="end">${labelText2}</text>`;
     } else {
       s += `<text x="${labelX}" y="${PAD.t + 14}" class="ref-label" style="fill:#8f8c84">${labelText}</text>`;
-      s += `<text x="${labelX}" y="${PAD.t + 26}" class="ref-label" style="fill:#5e5c56">${labelText2}</text>`;
+      s += `<text x="${labelX}" y="${PAD.t + 28}" class="ref-label" style="fill:#5e5c56">${labelText2}</text>`;
     }
   } else {
     // Past-90 dashed annotation
