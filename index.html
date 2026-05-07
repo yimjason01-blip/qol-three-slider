@@ -240,14 +240,16 @@ function baseCapacity(condSlider, lifeSlider, age) {
 
 // ---- Effective risk score ----
 // Single continuous score 0 to 1 combining all three levers. Replaces the
-// stratified Risk lookup. Conditioning protects (literature-anchored CRF →
-// mortality gradient, Mandsager 2018). Lifestyle has small honest effect.
-// Risk slider represents total event propensity, not residual.
+// stratified Risk lookup. Inherited Risk is the heaviest input — fitness
+// protects but cannot fully override severe genetic/structural loading
+// (familial hypercholesterolemia, BRCA, etc.). Conditioning provides
+// meaningful but bounded protection per Mandsager 2018. Lifestyle has
+// small honest effect.
 function effectiveRisk(condSlider, lifeSlider, riskSlider) {
   const r = riskSlider / 100;
   const decon = 1 - condSlider / 100;
   const neg = 1 - lifeSlider / 100;
-  return 0.4 * r + 0.5 * decon + 0.1 * neg;
+  return 0.55 * r + 0.35 * decon + 0.10 * neg;
 }
 
 // Each event: render threshold on R_eff, modal age at threshold, modal age at

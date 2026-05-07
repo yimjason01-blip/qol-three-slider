@@ -382,10 +382,16 @@
   <h3>Decision 1 · Levers combine into a single effective risk score</h3>
   <p><b>Choice:</b> Conditioning, Lifestyle Optimization, and Inherited Risk combine into a single continuous score <code>R_eff</code> that drives event onset. Each lever has a primary visible mechanism on the curve plus contributes to R_eff. The earlier "mutual exclusivity by construction" decision is reverted on this specific link, because the most-evidenced relationship in the entire model — VO₂max → cardiovascular event risk — is too central to hide in a disclosure panel.</p>
   <p><b>Formula:</b></p>
-  <pre style="font-family:JetBrains Mono, ui-monospace, monospace; font-size:12px; padding:0.6em; background:#1c1e22; border-radius:4px;">R_eff = 0.4 · (Inherited_Risk / 100)
-      + 0.5 · (1 − Conditioning / 100)
-      + 0.1 · (1 − Lifestyle_Optimization / 100)</pre>
-  <p>R_eff is bounded 0 to 1. Weights are clinical-prior placeholders, not calibrated. Direction and rough magnitude are anchored to Mandsager 2018 (CRF predicts all-cause mortality more strongly than smoking, hypertension, or diabetes — supports Conditioning's heaviest weight) and the broader CRF/lifestyle/genetic-risk literature.</p>
+  <pre style="font-family:JetBrains Mono, ui-monospace, monospace; font-size:12px; padding:0.6em; background:#1c1e22; border-radius:4px;">R_eff = 0.55 · (Inherited_Risk / 100)
+      + 0.35 · (1 − Conditioning / 100)
+      + 0.10 · (1 − Lifestyle_Optimization / 100)</pre>
+  <p>R_eff is bounded 0 to 1. Weights are clinical-prior placeholders, not calibrated. Inherited Risk is weighted heaviest because severe genetic and structural loading (familial hypercholesterolemia, BRCA carriers, prior MI, severe CAC, etc.) cannot be overridden by fitness alone. Conditioning is the second-heaviest input, anchored to the CRF/mortality gradient (Mandsager 2018; Ross 2016 AHA statement). Lifestyle Optimization has a small honest contribution — sleep, stress, and metabolic optimization affect event probability but with smaller measured effect sizes than CRF. Sanity checks:</p>
+  <ul>
+    <li><b>Avg/Avg/Avg (33/50/50):</b> R_eff = 0.56. Above MI (0.45) and Cancer (0.50) thresholds, below Hip (0.55) and HF (0.70). The avg American gets an MI and a cancer-treatment event in late life. Matches the spec table.</li>
+    <li><b>Elite/Optimized/Max-Inherited (100/100/100):</b> R_eff = 0.55. Still above MI and Cancer thresholds. The lesson: maximum fitness and optimization meaningfully delay events but cannot fully override severe inherited risk. Some events still render, just later.</li>
+    <li><b>Elite/Maintained/Avg (100/50/50):</b> R_eff = 0.32. Below all event thresholds. Clean curve. The lesson stays: getting fit at average risk pulls events off your trajectory.</li>
+    <li><b>Decon/Neglected/Min-Inherited (0/0/0):</b> R_eff = 0.45, just at the MI threshold and below all others. No events render on the representative trajectory. The teaching: bad behavior alone, with zero genetic or structural loading, does not on its own put a representative person at lifetime risk levels that surface as deterministic events. The curve is still low (capacity is poor) but the person ages on the deconditioned trajectory rather than experiencing modeled events. Defensible: lifetime MACE risk for this profile is around 10-15%, below the rendering threshold for a representative path.</li>
+  </ul>
   <p><b>What this overrides:</b> the prior "mutual exclusivity by construction" decision. That decision said each lever has exactly one mechanism on the curve and physiological cross-talk goes in a disclosure panel. Reverted only for the Conditioning → event-risk link, because:</p>
   <ol>
     <li><b>The link is first-order, not cross-talk.</b> Mandsager 2018 and the AHA CRF-as-vital-sign statement (Ross 2016) make this one of the strongest predictive relationships in the literature. Putting it in a disclosure panel under-represents the evidence base.</li>
