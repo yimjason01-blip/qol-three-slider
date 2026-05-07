@@ -101,7 +101,7 @@
   <div class="topnav">↗ <a href="./spec.html">spec</a></div>
 
   <h1>Functional Capacity Across the Lifespan</h1>
-  <p class="sub">A teaching tool for internalizing patterns. The y-axis is <b>VO₂max</b>, the best single measure of physical capability across age. Three levers shape the curve: <b>Conditioning</b> (the dominant one), <b>Lifestyle Optimization</b> (mostly visible as line color), and <b>Residual Risk</b> (introduces events). Not a personalized prediction. <a href="./spec.html">Decision logs</a>.</p>
+  <p class="sub">A teaching tool for internalizing patterns. The y-axis is <b>VO₂max</b>, the best single measure of physical capability across age. Three levers shape the curve: <b>Conditioning</b> (the dominant lever — protects against events too), <b>Lifestyle Optimization</b> (drives line color, small slope and event effect), and <b>Inherited Risk</b> (genetic and structural propensity for events). All three levers combine to determine when events render. Not a personalized prediction. <a href="./spec.html">Decision logs</a>.</p>
 
   <div class="chart-wrap">
     <svg id="chart" viewBox="0 0 920 520" preserveAspectRatio="xMidYMid meet"></svg>
@@ -129,12 +129,12 @@
     </div>
     <div class="ctl">
       <div class="ctl-head">
-        <span class="ctl-name risk">RESIDUAL RISK</span>
+        <span class="ctl-name risk">INHERITED RISK</span>
         <span class="ctl-val" id="riskVal">Average</span>
       </div>
       <input type="range" id="risk" min="0" max="100" step="1" value="50"/>
       <div class="ctl-marks"><span>Low</span><span>Avg</span><span>High</span></div>
-      <p class="ctl-tag">Irreducible event-propensity from genetics, prior disease, exposures. Introduces step-downs.</p>
+      <p class="ctl-tag">Genetics, family history, prior disease, environmental exposures. Combined with conditioning and lifestyle to determine event onset.</p>
     </div>
   </div>
 
@@ -142,18 +142,16 @@
     <button class="preset" data-c="100" data-l="100" data-r="15">Elite athlete, low risk</button>
     <button class="preset" data-c="33" data-l="50" data-r="50">Average American</button>
     <button class="preset" data-c="15" data-l="20" data-r="85">Sedentary, high risk</button>
-    <button class="preset" data-c="80" data-l="80" data-r="80">Fit but high inherited risk</button>
-    <button class="preset" data-c="60" data-l="30" data-r="50">Fit body, neglected lifestyle</button>
+    <button class="preset" data-c="70" data-l="60" data-r="95">Fit but high inherited risk</button>
+    <button class="preset" data-c="60" data-l="20" data-r="50">Fit body, neglected lifestyle</button>
   </div>
 
   <details class="crosstalk">
-    <summary>Five things this tool simplifies</summary>
+    <summary>Three things this tool simplifies</summary>
     <ul>
-      <li><b>Conditioning lowers cardiovascular and metabolic event risk in reality.</b> The tool teaches Conditioning and Residual Risk as separate levers and does not bake the protective effect into event probability.</li>
-      <li><b>Lifestyle Optimization (sleep, nutrition, stress) affects cardiovascular and metabolic event risk in reality.</b> The tool does not model this; the levers are taught separately.</li>
-      <li><b>Cardiovascular events drop conditioning in reality.</b> The Conditioning slider stays where you set it; the event step-down is shown on the curve, but the slider position does not move.</li>
-      <li><b>Lifestyle inputs feed conditioning over years.</b> Sleep, stress, hormone optimization affect training capacity and therefore conditioning. The tool treats them as orthogonal at the rendering moment.</li>
-      <li><b>Lifestyle Optimization affects whether metabolic syndrome and other risk states develop over time.</b> The tool models the lever (behavior) and the state (Residual Risk) separately. Move Lifestyle Optimization to set behavior; move Residual Risk to set the state.</li>
+      <li><b>Cardiovascular events drop conditioning in reality.</b> The Conditioning slider stays where you set it; the event step-down is shown on the curve, but the slider position does not move when an event hits.</li>
+      <li><b>Lifestyle inputs feed conditioning over years.</b> Sleep, stress, hormone optimization affect training capacity and therefore conditioning. The tool treats them as orthogonal at the rendering moment — what you set is what renders.</li>
+      <li><b>Inherited Risk is a single dial, but real risk profiles are domain-specific.</b> A person can have high cardiovascular risk and low cancer risk. The slider here represents aggregate propensity for the events shown.</li>
     </ul>
   </details>
 
@@ -240,69 +238,48 @@ function baseCapacity(condSlider, lifeSlider, age) {
   return conditioningCurve(condSlider, adjAge);
 }
 
-// ---- Risk strata ----
-// 0-33 Low, 34-66 Average, 67-100 High. Within strata, linear interpolation
-// of modal event ages.
-function riskStratum(riskSlider) {
-  if (riskSlider <= 33) return 'low';
-  if (riskSlider <= 66) return 'average';
-  return 'high';
+// ---- Effective risk score ----
+// Single continuous score 0 to 1 combining all three levers. Replaces the
+// stratified Risk lookup. Conditioning protects (literature-anchored CRF →
+// mortality gradient, Mandsager 2018). Lifestyle has small honest effect.
+// Risk slider represents total event propensity, not residual.
+function effectiveRisk(condSlider, lifeSlider, riskSlider) {
+  const r = riskSlider / 100;
+  const decon = 1 - condSlider / 100;
+  const neg = 1 - lifeSlider / 100;
+  return 0.4 * r + 0.5 * decon + 0.1 * neg;
 }
 
-// Event definitions per spec Modeling Decision 3 and Decision 4.
-// Stratum: which Risk strata render this event.
-// modalAge[stratum]: when it fires.
-// drop: acute % drop. tau: recovery time constant in months.
-// recoveryFrac: fraction of acute drop recovered at plateau.
-const EVENTS = [
-  { id: 'mi', name: 'MI', modalAge: { average: 78, high: 67 },
-    drop: 0.25, tau: 6, recoveryFrac: 0.75 },
-  { id: 'stroke', name: 'Stroke', modalAge: { high: 73 },
-    drop: 0.30, tau: 18, recoveryFrac: 0.50 },
-  { id: 'hf', name: 'HF onset', modalAge: { high: 75 },
-    drop: 0.15, tau: null, recoveryFrac: 0.0 }, // progressive, no recovery
-  { id: 'hip', name: 'Hip fracture', modalAge: { average: 84, high: 79 },
-    drop: 0.20, tau: 12, recoveryFrac: 0.60 },
-  { id: 'cancer', name: 'Cancer treatment', modalAge: { average: 72, high: 65 },
-    drop: 0.25, tau: 24, recoveryFrac: 0.50 },
-  { id: 'dialysis', name: 'Dialysis', modalAge: { high: 76 },
-    drop: 0.30, tau: null, recoveryFrac: 0.0 },
+// Each event: render threshold on R_eff, modal age at threshold, modal age at
+// R_eff = 1 (max). Modal age interpolates linearly between these as R_eff
+// rises above threshold. Below threshold, event does not render — too low a
+// lifetime probability to belong on a representative trajectory.
+//
+// Calibration anchored to the prior spec's modal-age table. Avg-everything
+// (cond=33, life=50, risk=50) gives R_eff = 0.4*0.5 + 0.5*0.67 + 0.1*0.5 ≈
+// 0.585. Avg-American MI should fire near age 76 at this R_eff: with
+// MI threshold 0.45 and span 0.45-1.0 from age 80 down to 65, R_eff=0.585
+// gives age 80 - (0.135/0.55)*15 ≈ 76. Matches spec table within tolerance.
+const EVENT_MODEL = [
+  { id: 'mi',     name: 'MI',                threshold: 0.45, ageAtThresh: 80, ageAtMax: 65,
+    drop: 0.25, tau: 6,    recoveryFrac: 0.75 },
+  { id: 'cancer', name: 'Cancer treatment',  threshold: 0.50, ageAtThresh: 75, ageAtMax: 63,
+    drop: 0.25, tau: 24,   recoveryFrac: 0.50 },
+  { id: 'hip',    name: 'Hip fracture',      threshold: 0.55, ageAtThresh: 87, ageAtMax: 76,
+    drop: 0.20, tau: 12,   recoveryFrac: 0.60 },
+  { id: 'hf',     name: 'HF onset',          threshold: 0.70, ageAtThresh: 82, ageAtMax: 73,
+    drop: 0.15, tau: null, recoveryFrac: 0.0 },
 ];
 
-// Within-stratum interpolation of modal age. At stratum boundary (e.g. risk=67,
-// the start of High), use a slightly later age; at stratum max (100), use the
-// stated modal age. Spec calls this "linear within stratum" — we implement as:
-// at slider min of stratum, age = modal_age + 5; at slider max of stratum, age = modal_age.
-// (This makes the High stratum's events earlier as you push toward 100.)
-function effectiveModalAge(event, riskSlider) {
-  const stratum = riskStratum(riskSlider);
-  if (!event.modalAge[stratum]) return null;
-  const modal = event.modalAge[stratum];
-  let stratumLo, stratumHi;
-  if (stratum === 'low') { stratumLo = 0; stratumHi = 33; }
-  else if (stratum === 'average') { stratumLo = 34; stratumHi = 66; }
-  else { stratumLo = 67; stratumHi = 100; }
-  const t = (riskSlider - stratumLo) / (stratumHi - stratumLo);
-  // At slider=stratumLo, event fires 4 years later; at stratumHi, fires at modal age.
-  return modal + 4 * (1 - t);
-}
-
-// Active events for current Risk slider position.
-// Per spec: at each Risk stratum, only events whose lifetime probability crosses
-// the rendering threshold appear. Even at High Risk we cap at 3 events on the
-// representative trajectory — six-event cascades overstate co-occurrence and
-// teach fatalism that the tool's "directionally honest, not patient-fidelity"
-// precision target rejects. The 3 most-defensible High-Risk events are: cancer
-// treatment (lifetime ~40%), MI (~50% if high CV risk), and HF onset (~30%).
-// Stroke, dialysis, hip fracture remain in the event scope but are reserved for
-// scenarios where the spec's per-domain risk fragmentation arrives in v2.
-function activeEvents(riskSlider) {
-  const HIGH_RISK_PRIORITY = ['cancer', 'mi', 'hf'];
+function activeEvents(condSlider, lifeSlider, riskSlider) {
+  const R = effectiveRisk(condSlider, lifeSlider, riskSlider);
   const out = [];
-  for (const ev of EVENTS) {
-    const age = effectiveModalAge(ev, riskSlider);
-    if (age == null) continue;
-    if (riskStratum(riskSlider) === 'high' && !HIGH_RISK_PRIORITY.includes(ev.id)) continue;
+  for (const ev of EVENT_MODEL) {
+    if (R < ev.threshold) continue;
+    const span = 1 - ev.threshold;
+    const t = (R - ev.threshold) / span;
+    const age = ev.ageAtThresh + t * (ev.ageAtMax - ev.ageAtThresh);
+    if (age > 100 || age < 30) continue;
     out.push({ ...ev, age });
   }
   return out.sort((a, b) => a.age - b.age);
@@ -399,12 +376,14 @@ function vitalityColor(v) {
 }
 
 // ---- Neurodegenerative onset (dashed segment) ----
-// Per spec: age 79 Avg Risk, age 73 High Risk, none for Low.
-function neurodegenOnset(riskSlider) {
-  const stratum = riskStratum(riskSlider);
-  if (stratum === 'average') return 79;
-  if (stratum === 'high') return 73;
-  return null;
+// Now driven by R_eff like other events. Threshold on R_eff above which
+// onset begins; age slides earlier with rising R_eff.
+function neurodegenOnset(condSlider, lifeSlider, riskSlider) {
+  const R = effectiveRisk(condSlider, lifeSlider, riskSlider);
+  const threshold = 0.50, ageAtThresh = 84, ageAtMax = 73;
+  if (R < threshold) return null;
+  const t = (R - threshold) / (1 - threshold);
+  return ageAtThresh + t * (ageAtMax - ageAtThresh);
 }
 
 // ---- Capability bands ----
@@ -465,8 +444,8 @@ function render() {
   document.getElementById('lifeVal').textContent = lifeLabel(life);
   document.getElementById('riskVal').textContent = riskLabel(risk);
 
-  const events = activeEvents(risk);
-  const neuroOnset = neurodegenOnset(risk);
+  const events = activeEvents(cond, life, risk);
+  const neuroOnset = neurodegenOnset(cond, life, risk);
 
   let s = '';
 

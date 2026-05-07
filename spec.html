@@ -61,7 +61,7 @@
   <h2>Purpose</h2>
 
   <div class="brief"><b>IN BRIEF</b>
-  This spec defines a teaching tool that maps physical capability across the lifespan against age, with three pedagogically independent levers (Conditioning, Lifestyle Optimization, Residual Risk) shaping the curve. The y-axis is VO₂max. The line's color encodes felt vitality. The spec is a chain of decision logs documenting why each construct was chosen, what it explicitly does not represent, and what is still open. It is a working spec for an implementable v1, not a validated clinical instrument.</div>
+  This spec defines a teaching tool that maps physical capability across the lifespan against age, with three pedagogically independent levers (Conditioning, Lifestyle Optimization, Inherited Risk) shaping the curve. The y-axis is VO₂max. The line's color encodes felt vitality. The spec is a chain of decision logs documenting why each construct was chosen, what it explicitly does not represent, and what is still open. It is a working spec for an implementable v1, not a validated clinical instrument.</div>
 
   <p>The architecture is built bottom-up through seven decision logs in sequence: <a href="#scope">Scope and audience</a> → <a href="#yaxis">Y-axis</a> → <a href="#levers">Lever architecture</a> → <a href="#vitality">Vitality color render</a> → <a href="#implspec">Implementation specifications</a> → <a href="#modeling">Modeling decisions</a> → <a href="#construction">Curve construction</a>. Each one names what it supersedes from prior framings and what propagates into the next. A reader can follow the breadcrumbs from "who is this for" to "exactly how the curve is built" without losing the chain of reasoning.</p>
 
@@ -71,7 +71,7 @@
   This is a teaching tool for two audiences: patients exploring on their own, and providers using the artifact in clinic as a conversation surface with a patient. It is not a personalized clinical prediction tool. The goal is for both audiences to internalize patterns — how Conditioning shapes the curve, why Lifestyle Optimization shows up mostly as vitality color, what events do to the trajectory — not to predict any individual person's path. Precision target: directionally honest, not patient-fidelity. This shapes every downstream decision.</div>
 
   <h3>Two audiences, one artifact</h3>
-  <p><b>Patient self-explore.</b> Patient moves sliders, watches the curve change, internalizes which lever does what. Walks away with an intuition for "Conditioning is the dominant lever; Lifestyle Optimization shapes how the years feel; Residual Risk introduces the events." No calibrated number is delivered to the patient. The teaching is the takeaway.</p>
+  <p><b>Patient self-explore.</b> Patient moves sliders, watches the curve change, internalizes which lever does what. Walks away with an intuition for "Conditioning is the dominant lever; Lifestyle Optimization shapes how the years feel; Inherited Risk introduces the events." No calibrated number is delivered to the patient. The teaching is the takeaway.</p>
   <p><b>Provider conversation tool.</b> Provider sits with a patient, sets sliders based on a real assessment of that patient's state, uses the curve as a visual aid in care discussion. The provider is not asking the tool "what will happen to this patient." The provider is asking "how do I show this patient what their levers do." Same teaching frame, different room.</p>
 
   <h3>What this is not</h3>
@@ -84,7 +84,7 @@
   <h3>What "directionally honest" means as a precision target</h3>
   <p>The curve must satisfy three things:</p>
   <ol>
-    <li><b>Slider movements produce the right qualitative response.</b> Moving Conditioning from Average to Elite raises the curve and slows decline. Moving Lifestyle Optimization from Maintained to Highly Optimized brightens the line color and slightly buffers slope. Moving Residual Risk introduces or removes events. The viewer can see what each lever does.</li>
+    <li><b>Slider movements produce the right qualitative response.</b> Moving Conditioning from Average to Elite raises the curve and slows decline. Moving Lifestyle Optimization from Maintained to Highly Optimized brightens the line color and slightly buffers slope. Moving Inherited Risk introduces or removes events. The viewer can see what each lever does.</li>
     <li><b>Magnitudes are within published literature ranges.</b> Elite vs sedentary VO₂max gap, MI acute drop, recovery trajectories — all within the bounds of what cohort studies and clinical literature actually show.</li>
     <li><b>The curve does not over-claim.</b> No event happens with certainty. No specific number gets delivered as if it were measured. The "this is one representative path" caption travels with the chart.</li>
   </ol>
@@ -104,8 +104,8 @@
     <dd>Lever 1. The user's current physical conditioning state, ranged Elite → Well-conditioned → Average → Deconditioned. Implies sustained behavior. Sets curve altitude and decline slope. Dominant lever.</dd>
     <dt>Lifestyle Optimization</dt>
     <dd>Lever 2. Non-training inputs that support vitality: sleep, nutrition, stress and recovery, social connection, substance exposure, hormone and metabolic optimization, medical adherence. Two mechanisms: small slope effect on the capacity curve, large effect on the vitality color render.</dd>
-    <dt>Residual Risk</dt>
-    <dd>Lever 3. Irreducible event-propensity bucket: age, sex, family history, prior disease, imaging findings, inherited variants, environmental exposures, treatment history, stochastic baseline. Single aggregate slider. Drives event step-downs on the curve.</dd>
+    <dt>Inherited Risk</dt>
+    <dd>Lever 3. Event-propensity bucket: age, sex, family history, prior disease, imaging findings, inherited variants, environmental exposures, treatment history. Single aggregate slider. Combines with Conditioning and Lifestyle Optimization into a single effective risk score (R_eff) that drives event onset. Renamed from "Inherited Risk" — see Modeling Decision 1.</dd>
     <dt>Vitality</dt>
     <dd>Felt experience of being alive at a given physical capacity. Continuous 0 to 100 index. v1 anchored to SF-36 Vitality. Encoded as line color along the curve. Distinct from Functional capacity (curve position).</dd>
     <dt>Render mix</dt>
@@ -218,7 +218,7 @@
   <h2 id="levers">Lever architecture: choice and rationale (decision log)</h2>
 
   <div class="brief"><b>IN BRIEF</b>
-  The three levers that shape the curve are <b>Conditioning</b>, <b>Lifestyle Optimization</b>, and <b>Residual Risk</b>. Conditioning is a state slider (elite to deconditioned) whose position implies sustained behavior; it sets curve altitude and decline slope. Lifestyle Optimization covers non-training inputs that support vitality (sleep, nutrition, stress and recovery, social connection, substance exposure, hormone and metabolic optimization, medical adherence) and has two mechanisms: a small effect on decline slope, and a large effect on the vitality color render of the line. Residual Risk is the irreducible event-propensity bucket (genetics, prior disease, environmental exposure) and introduces step-downs from discrete events. The architecture replaces the prior Risk / Reserve / Lifestyle naming, which had unresolved overlap with the new VO₂max y-axis.</div>
+  The three levers that shape the curve are <b>Conditioning</b>, <b>Lifestyle Optimization</b>, and <b>Inherited Risk</b>. Conditioning is a state slider (elite to deconditioned) whose position implies sustained behavior; it sets curve altitude and decline slope. Lifestyle Optimization covers non-training inputs that support vitality (sleep, nutrition, stress and recovery, social connection, substance exposure, hormone and metabolic optimization, medical adherence) and has two mechanisms: a small effect on decline slope, and a large effect on the vitality color render of the line. Inherited Risk is the event-propensity bucket (genetics, prior disease, environmental exposure) that combines with Conditioning and Lifestyle Optimization into a single effective risk score driving event onset. The architecture replaces the prior Risk / Reserve / Lifestyle naming, which had unresolved overlap with the new VO₂max y-axis.</div>
 
   <h3>Why this decision matters</h3>
   <p>The y-axis decision propagates directly into how levers are defined. Once the y-axis is VO₂max, the prior <em>Reserve</em> lever (an 8-component capacity composite that included cardiorespiratory fitness) collapses into the y-axis itself: the lever and the chart axis would be measuring the same construct. The prior <em>Risk</em> definition (residualized against capacity) becomes circular: residualizing against the chart itself. The prior <em>Lifestyle</em> definition included training behavior, which is now redundant with Conditioning. The lever set must be redrawn so each slider has a distinct mechanism and no double-counting.</p>
@@ -251,24 +251,24 @@
   </ol>
   <p><b>Why this lever still matters even though its slope effect is small:</b> Vitality is a first-class outcome the tool exists to teach. A patient at VO₂max 35 can feel vital or depleted based on this lever, and that difference matters more in lived experience than a 5% slope change. Lifestyle Optimization is also the lever a Deconditioned person can move first, before they can credibly move Conditioning.</p>
 
-  <h4>Residual Risk · irreducible event propensity</h4>
+  <h4>Inherited Risk · event-propensity bucket</h4>
   <p><b>Range:</b> Low → Average → High.</p>
-  <p><b>What it represents:</b> Event-propensity factors not captured by Conditioning or Lifestyle. Includes age, sex, family history, prior disease, imaging findings (CAC, plaque, BMD, liver fat), inherited variants, environmental exposures, medication and treatment history, stochastic baseline.</p>
-  <p><b>Mechanism on the curve:</b> Introduces discrete step-downs from events (MI, stroke, heart failure, hip fracture, treatment cardiotoxicity). Higher Residual Risk means earlier and more severe events. The event drops are visible in the curve as a different visual signature than Conditioning's smooth slope or Lifestyle's slope modulation.</p>
-  <p><b>Why "Residual":</b> Conditioning and Lifestyle already capture much of what drives event risk in the population. Residual Risk is what is left after those two are accounted for: the part of risk you cannot move with behavior.</p>
+  <p><b>What it represents:</b> Event-propensity factors not directly captured by Conditioning or Lifestyle Optimization in the slider's mechanical effect on the curve. Includes age, sex, family history, prior disease, imaging findings (CAC, plaque, BMD, liver fat), inherited variants, environmental exposures, and structural disease burden. Renamed from "Inherited Risk" — see decision log entry below.</p>
+  <p><b>Mechanism on the curve:</b> Combined with Conditioning and Lifestyle Optimization into a single effective risk score (R_eff), which determines whether and when events render on the trajectory. Events appear and slide earlier as R_eff rises. Inherited Risk is the dominant input to R_eff at high-risk profiles, but Conditioning is a meaningful protective input — fitness raises the effective risk threshold a person must cross before events render. See Modeling Decisions for the formula and event-onset model.</p>
+  <p><b>Why "Inherited Risk" replaces "Inherited Risk":</b> the prior name required users to mentally subtract fitness's protective effect before setting the slider — a meta-calculation that fails the teaching tool's "what the slider says is what the lever does" usability bar. The new name reflects what the lever literally represents: structural and inherited propensity for events. Conditioning's protective effect is now visible in the slider behavior (move Conditioning up, events shift later or disappear) rather than required to be performed by the user upstream.</p>
 
   <h3>Lever weight: not equal</h3>
-  <p>Conditioning is the dominant lever. It sets both baseline and slope. Lifestyle modulates slope at the margins. Residual Risk introduces events but does not change the underlying trajectory shape between events. The viewer will see Conditioning move the curve more than the other two. This is correct and reflects the literature. The tool should not frame the three levers as equal; it should frame them as three distinct mechanisms with different magnitudes.</p>
+  <p>Conditioning is the dominant lever. It sets both baseline and slope, and is the heaviest input to the effective risk score driving event onset (Mandsager 2018). Lifestyle Optimization modulates slope at the margins and contributes a small amount to event onset. Inherited Risk is the dominant input to event onset at high-risk profiles. The viewer will see Conditioning move the curve more than the other two. This is correct and reflects the literature.</p>
 
   <h3>Independence: pedagogical, not physiological</h3>
-  <p>In nature the levers are correlated. Conditioning lowers Risk. Lifestyle (sleep, stress) affects training capacity which affects Conditioning. An MI drops Conditioning. We declare independence <em>by construction</em> for the teaching tool: each slider modifies exactly one mechanism on the curve, and we disclose the cross-talk explicitly in a "what this tool simplifies" panel. The independence claim is pedagogical, not physiological. The tool teaches the structure of the levers; it does not pretend they are orthogonal in life.</p>
+  <p>In nature the levers are correlated. The R_eff combination in Modeling Decision 1 represents the most evidenced cross-effect (Conditioning lowers cardiovascular event risk). Other cross-talk — Lifestyle inputs feeding Conditioning over years; events dropping Conditioning in reality — remains in the disclosure panel rather than being modeled. The tool aims for the lightest model that honors the strongest links and is honest about the rest.</p>
 
   <h3>What this architecture gives the viewer</h3>
-  <p>Three sliders, three visually distinct effects on the curve. Conditioning shifts altitude and tilts the slope. Lifestyle bends the slope subtly. Residual Risk drops step-downs onto the trajectory. A patient sees what each lever does on its own; a provider sees how to weight a care plan across the three. This is the teaching payload the tool exists to deliver.</p>
+  <p>Three sliders, three visually distinct effects on the curve. Conditioning shifts altitude, tilts the slope, and protects against events. Lifestyle Optimization bends the slope subtly and drives the line color (vitality). Inherited Risk drops step-downs onto the trajectory when its combined effective risk crosses each event threshold. A patient sees what each lever does on its own; a provider sees how to weight a care plan across the three. This is the teaching payload the tool exists to deliver.</p>
 
   <h3>Open questions deferred to modeling decisions</h3>
   <ol>
-    <li>Stochastic events vs deterministic representative trajectory. (Likely: deterministic, modal-age events for the given Residual Risk profile.)</li>
+    <li>Stochastic events vs deterministic representative trajectory. (Likely: deterministic, modal-age events for the given Inherited Risk profile.)</li>
     <li>Event scope. (Likely: MI, stroke, HF, hip fracture, treatment cardiotoxicity. Skip dementia, off-axis by spec.)</li>
     <li>Recovery dynamics parameterization. (Likely: per-event acute drop magnitude and asymptotic recovery fraction; fixed time constant per event class.)</li>
     <li>Whether Conditioning and Lifestyle independence holds at the time-scale of the teaching tool, given that Lifestyle inputs feed Conditioning over years. (Likely: declared orthogonal by construction; cross-talk disclosed.)</li>
@@ -299,7 +299,7 @@
     <li><b>Conditioning</b> — meaningful contribution. Cardiovascular fitness genuinely supports felt energy and recovery. A Highly Optimized but Deconditioned person will not feel as vital as a Highly Optimized and Well-conditioned person, because the body itself contributes to felt aliveness. The render mix should reflect this.</li>
     <li><b>Age</b> — vitality fades with age regardless of the other two inputs, because lived experience does. Even at peak optimization and elite conditioning, vitality at age 85 is lower than at age 35. The age decay is gentle for high-optimization, high-conditioning profiles and steeper for low ones.</li>
   </ol>
-  <p>Residual Risk does not directly drive vitality between events. Residual Risk drives event step-downs in the capacity curve; events themselves cause acute vitality drops via pain, recovery burden, and psychological impact. The vitality render handles this by dropping color saturation and brightness around event windows, recovering as the curve recovers.</p>
+  <p>Inherited Risk does not directly drive vitality between events. Events themselves (when R_eff crosses each event threshold) cause acute vitality drops via pain, recovery burden, and psychological impact. The vitality render handles this by dropping color saturation and brightness around event windows, recovering as the curve recovers.</p>
 
   <h3>Render mix, v1 form</h3>
   <p>The render mix is a 0 to 1 quantity that drives line color, brightness, saturation, and weight. v1 form:</p>
@@ -345,14 +345,14 @@
   <h2 id="implspec">Implementation specifications</h2>
 
   <div class="brief"><b>IN BRIEF</b>
-  Implementation-level specifications that the prior decision logs imply but do not state precisely. Slider granularity, vitality baseline at the youngest rendered age, and the disambiguation between Lifestyle Optimization (a lever the user moves) and metabolic syndrome (a state inside Residual Risk). These are not new decisions; they are precise statements of what the prior decision logs commit to so that implementation has no judgment calls left.</div>
+  Implementation-level specifications that the prior decision logs imply but do not state precisely. Slider granularity, vitality baseline at the youngest rendered age, and the disambiguation between Lifestyle Optimization (a lever the user moves) and metabolic syndrome (a state inside Inherited Risk). These are not new decisions; they are precise statements of what the prior decision logs commit to so that implementation has no judgment calls left.</div>
 
   <h3>Slider granularity</h3>
-  <p>All three sliders are continuous on a 0 to 100 internal scale. The named labels (Elite, Well-conditioned, Average, Deconditioned for Conditioning; Highly Optimized, Maintained, Neglected for Lifestyle Optimization; Low, Average, High for Residual Risk) are visual markers along the slider track, not stepped positions. The slider snaps visually to the nearest named marker only on release for accessibility, but the underlying value is continuous.</p>
+  <p>All three sliders are continuous on a 0 to 100 internal scale. The named labels (Elite, Well-conditioned, Average, Deconditioned for Conditioning; Highly Optimized, Maintained, Neglected for Lifestyle Optimization; Low, Average, High for Inherited Risk) are visual markers along the slider track, not stepped positions. The slider snaps visually to the nearest named marker only on release for accessibility, but the underlying value is continuous.</p>
   <ul>
     <li><b>Conditioning:</b> 0 = Deconditioned (15th percentile FRIEND), 33 = Average (50th percentile), 66 = Well-conditioned (~80th percentile), 100 = Elite (95th percentile). Maps to the v1 reference trajectory templates from the Curve Construction section.</li>
     <li><b>Lifestyle Optimization:</b> 0 = Neglected, 50 = Maintained, 100 = Highly Optimized. Slope multiplier interpolates linearly: 0 → 1.10× decline rate, 50 → 1.00×, 100 → 0.90× (the ±10% bound).</li>
-    <li><b>Residual Risk:</b> 0 to 33 = Low Risk stratum, 34 to 66 = Average Risk stratum, 67 to 100 = High Risk stratum. See Modeling Decision 2a for within-stratum interpolation behavior.</li>
+    <li><b>Inherited Risk:</b> 0 to 100 continuous. The slider value combines with Conditioning and Lifestyle Optimization into the effective risk score (R_eff) per Modeling Decision 1; events fire when R_eff crosses each event threshold per Modeling Decision 2.</li>
   </ul>
 
   <h3>Vitality baseline at the youngest rendered age</h3>
@@ -363,62 +363,51 @@
   <p>Two related but distinct constructs that could be confused without explicit disambiguation:</p>
   <ul>
     <li><b>Lifestyle Optimization is a lever the user moves.</b> It includes "hormone and metabolic optimization" as a behavior — sleep, nutrition, stress management, lab-driven hormone tuning, metabolic health support. It is what the person <em>does</em>.</li>
-    <li><b>Metabolic syndrome is a state inside Residual Risk.</b> It is the clinical syndrome (elevated waist circumference, BP, fasting glucose, triglycerides, low HDL) that elevates event probability across cardiovascular, kidney, and cancer domains. It is what is <em>true of the person's body</em>.</li>
+    <li><b>Metabolic syndrome is a state inside Inherited Risk.</b> It is the clinical syndrome (elevated waist circumference, BP, fasting glucose, triglycerides, low HDL) that elevates event probability across cardiovascular, kidney, and cancer domains. It is what is <em>true of the person's body</em>.</li>
   </ul>
-  <p><b>The relationship between them:</b> Lifestyle Optimization (the lever) is one of the determinants of whether metabolic syndrome (the state) develops. Sustained Highly Optimized lifestyle reduces metabolic syndrome probability; sustained Neglected lifestyle increases it. Genetics, age, and prior disease also contribute. Once metabolic syndrome is present, it lives in Residual Risk's profile and elevates event frequency. The lever cannot directly remove the state from Residual Risk during a single rendering; the user models a metabolic-syndrome-present body by moving Residual Risk up, and models the upstream behavior that drives or prevents that state by moving Lifestyle Optimization. This split matches reality: behavior produces state over years, and the tool is rendering one moment in time.</p>
-  <p><b>What the cross-talk panel discloses:</b> "Lifestyle Optimization affects whether metabolic syndrome and other risk states develop over time. The tool models the lever and the state separately. Move Lifestyle Optimization to set behavior; move Residual Risk to set the state." This is one of the entries in the cross-talk panel from Modeling Decision 1.</p>
+  <p><b>The relationship between them:</b> Lifestyle Optimization (the lever) is one of the determinants of whether metabolic syndrome (the state) develops. Sustained Highly Optimized lifestyle reduces metabolic syndrome probability; sustained Neglected lifestyle increases it. Genetics, age, and prior disease also contribute. Once metabolic syndrome is present, it elevates event frequency through Inherited Risk's contribution to R_eff. The user models a metabolic-syndrome-present body by moving Inherited Risk up, and models the upstream behavior that drives or prevents that state by moving Lifestyle Optimization. This split matches reality: behavior produces state over years, and the tool is rendering one moment in time.</p>
+  <p><b>What the cross-talk panel discloses:</b> "Lifestyle Optimization affects whether metabolic syndrome and other risk states develop over time. The tool models the lever and the state separately. Move Lifestyle Optimization to set behavior; move Inherited Risk to set the state." This is one of the entries in the cross-talk panel from Modeling Decision 1.</p>
 
   <h3>Cross-talk panel placement</h3>
-  <p>The panel is a permanently visible expandable element below the chart, not a one-time onboarding card. The default state shows a single line of text: "Three things this tool simplifies. Open." Clicking expands the four items from Modeling Decision 1 plus the metabolic syndrome entry above. This placement ensures the disclosure travels with the chart without dominating the visual surface.</p>
+  <p>The panel is a permanently visible expandable element below the chart, not a one-time onboarding card. The default state shows a single line: "Three things this tool simplifies. Open." Clicking expands the second-order links the model does not directly represent (events drop conditioning in reality; lifestyle inputs feed conditioning over years; Inherited Risk is a single dial but real risk profiles are domain-specific). This placement ensures the disclosure travels with the chart without dominating the visual surface.</p>
 
   <h2 id="modeling">Modeling decisions: choice and rationale (decision log)</h2>
 
   <div class="brief"><b>IN BRIEF</b>
-  Levers are mutually exclusive on the curve by construction; physiological cross-talk is disclosed in a panel rather than modeled. Events are deterministic and fire at modal ages for the given Residual Risk profile. Event scope covers all five Meridian risk domains (cardiovascular, CKD, metabolic, cancer, neurodegenerative) with domain-specific representation: cardiovascular as discrete events, CKD as slope modifier with dialysis step-down, metabolic syndrome as risk-multiplier (not events), cancer as treatment-burden events, neurodegenerative as a dashed-curve visual signature signaling the tool's limit. Residual Risk remains a single aggregate slider; per-domain risk profiles are simplified into a single dial for the teaching frame.</div>
+  Levers are mutually exclusive on the curve by construction; physiological cross-talk is disclosed in a panel rather than modeled. Events are deterministic and fire at modal ages for the given Inherited Risk profile. Event scope covers all five Meridian risk domains (cardiovascular, CKD, metabolic, cancer, neurodegenerative) with domain-specific representation: cardiovascular as discrete events, CKD as slope modifier with dialysis step-down, metabolic syndrome as risk-multiplier (not events), cancer as treatment-burden events, neurodegenerative as a dashed-curve visual signature signaling the tool's limit. Inherited Risk remains a single aggregate slider; per-domain risk profiles are simplified into a single dial for the teaching frame.</div>
 
   <h3>Why this decision matters</h3>
   <p>The y-axis and lever architecture sections fixed <em>what</em> the tool measures and <em>which</em> levers shape it. This section fixes <em>how</em> the levers map to the curve mechanically and <em>which events</em> appear. These are the last decisions before code. Each one propagates: the orthogonality choice changes how cross-talk is communicated; the event scope changes the curve's visual signature; the event-firing model changes whether the curve is reproducible across renders. Locking these here means implementation does not invent answers under deadline.</p>
 
-  <h3>Decision 1 · Mutual exclusivity by construction</h3>
-  <p><b>Choice:</b> Each lever has exactly one mechanism on the curve. Physiological cross-talk is disclosed in a panel, not modeled.</p>
-  <p><b>Reasoning:</b> The teaching payload of the tool is the structure of the levers. A patient or provider should be able to move one slider and see one effect. Modeling cross-talk muddies the signal: moving Conditioning would change the curve through three pathways (capacity, vitality, event probability) and the viewer cannot decompose what they are seeing. The pedagogical orthogonality principle from the lever architecture section applies here: levers are pedagogically independent, not physiologically independent. The cross-talk disclosure panel preserves honesty without sacrificing teaching clarity.</p>
-  <p><b>What this overrides:</b> The earlier recommendation to model the indirect Conditioning → Risk path. Under mutual exclusivity, Conditioning's protective effect on cardiovascular events is disclosed in the cross-talk panel rather than baked into event probability. The viewer learns the protective relationship from the disclosure, not from the slider behavior.</p>
-  <p><b>Cross-talk disclosure panel content:</b></p>
-  <ul>
-    <li>Conditioning lowers cardiovascular and metabolic event risk in reality. The tool does not model this; it teaches Conditioning and Residual Risk as separate levers.</li>
-    <li>Lifestyle Optimization (sleep, nutrition, stress) affects cardiovascular and metabolic event risk in reality. The tool does not model this; it teaches the levers separately.</li>
-    <li>Cardiovascular events drop Conditioning in reality. The tool does not adjust Conditioning slider position when events fire; it shows the event step-down on the curve and lets Conditioning remain at its set position.</li>
-    <li>Lifestyle Optimization inputs (sleep, stress) affect training capacity over years and therefore Conditioning. The tool treats them as orthogonal at the rendering moment.</li>
-    <li>Lifestyle Optimization affects whether metabolic syndrome and other risk states develop over time. The tool models the lever (behavior) and the state (Residual Risk) separately. Move Lifestyle Optimization to set behavior; move Residual Risk to set the state.</li>
-  </ul>
+  <h3>Decision 1 · Levers combine into a single effective risk score</h3>
+  <p><b>Choice:</b> Conditioning, Lifestyle Optimization, and Inherited Risk combine into a single continuous score <code>R_eff</code> that drives event onset. Each lever has a primary visible mechanism on the curve plus contributes to R_eff. The earlier "mutual exclusivity by construction" decision is reverted on this specific link, because the most-evidenced relationship in the entire model — VO₂max → cardiovascular event risk — is too central to hide in a disclosure panel.</p>
+  <p><b>Formula:</b></p>
+  <pre style="font-family:JetBrains Mono, ui-monospace, monospace; font-size:12px; padding:0.6em; background:#1c1e22; border-radius:4px;">R_eff = 0.4 · (Inherited_Risk / 100)
+      + 0.5 · (1 − Conditioning / 100)
+      + 0.1 · (1 − Lifestyle_Optimization / 100)</pre>
+  <p>R_eff is bounded 0 to 1. Weights are clinical-prior placeholders, not calibrated. Direction and rough magnitude are anchored to Mandsager 2018 (CRF predicts all-cause mortality more strongly than smoking, hypertension, or diabetes — supports Conditioning's heaviest weight) and the broader CRF/lifestyle/genetic-risk literature.</p>
+  <p><b>What this overrides:</b> the prior "mutual exclusivity by construction" decision. That decision said each lever has exactly one mechanism on the curve and physiological cross-talk goes in a disclosure panel. Reverted only for the Conditioning → event-risk link, because:</p>
+  <ol>
+    <li><b>The link is first-order, not cross-talk.</b> Mandsager 2018 and the AHA CRF-as-vital-sign statement (Ross 2016) make this one of the strongest predictive relationships in the literature. Putting it in a disclosure panel under-represents the evidence base.</li>
+    <li><b>The "Inherited Risk" construct that the prior decision required is non-obvious.</b> A teaching tool whose slider requires the user to perform a meta-calculation before setting it ("subtract fitness's protective effect") fails the usability test. Either the slider is what its name says, or the tool is broken.</li>
+    <li><b>Without this link, the tool teaches that fitness does not protect against events.</b> Patients and providers will reject this and rightly so.</li>
+  </ol>
+  <p><b>What stays in mutual exclusivity:</b> the levers' primary mechanisms remain distinct. Conditioning sets curve altitude and slope. Lifestyle Optimization drives line color (vitality) and a small slope multiplier. Inherited Risk is the dominant input to event onset. The R_eff combination is one specific channel for cross-effect (event onset), not a global muddying of all mechanisms. The cross-talk panel still discloses the second-order links the model does not represent (events drop conditioning in reality; lifestyle inputs feed conditioning over years).</p>
 
-  <h3>Decision 2 · Deterministic events at modal ages</h3>
-  <p><b>Choice:</b> Events are deterministic. For a given Residual Risk profile, the tool renders only the events that fire on the representative trajectory at that risk level, and each rendered event appears at its modal age. The curve is reproducible across renders.</p>
-  <p><b>Reasoning:</b> A teaching tool that re-rolls events on every slider change is unusable. The viewer cannot tell if a curve change is due to slider movement or stochastic resampling. Deterministic events with a clear "this is one representative path" caption gives the viewer a stable anchor while preserving honesty about variance.</p>
-  <p><b>Important framing for the table below:</b> the modal-age values say "if this event fires, when." They do not say "everyone at this Risk level has this event." Whether an event renders at all on the representative trajectory depends on whether the lifetime probability for that event at that Risk stratum is above the rendering threshold. For Low Risk profiles, most events do not render because their lifetime probability is too low to belong on a representative curve. For High Risk profiles, more events render because their lifetime probability crosses the threshold.</p>
-
-  <p><b>v1 implementation cap on High Risk:</b> the v1 tool renders at most three events on a single trajectory at High Risk: cancer treatment, MI, and HF onset (the three with the highest lifetime probability gradient between Low and High Risk strata). Stroke, dialysis, and hip fracture remain in the event scope but are reserved for v2 once Risk fragments into per-domain sliders, since rendering all six at once on a single trajectory overstates co-occurrence and teaches a fatalism that the "directionally honest, not patient-fidelity" precision target rejects. The v1 cap is a conservative simplification, not a clinical claim about which events matter.</p>
-  <p><b>Modal-age table (illustrative, calibrated in implementation):</b></p>
+  <h3>Decision 2 · Continuous event onset by R_eff threshold</h3>
+  <p><b>Choice:</b> Each event has a single render threshold on R_eff and two age anchors. Below the threshold, the event does not render. Above the threshold, the event renders at a modal age that interpolates linearly from <code>ageAtThresh</code> (just barely renders, in late life) to <code>ageAtMax</code> (renders earliest, when R_eff = 1). Events are deterministic — same slider state always produces the same curve.</p>
+  <p><b>What this overrides:</b> the prior stratified Risk slider model (Low/Average/High strata with hardcoded per-event entries per stratum). The stratified model produced cliffs at slider boundaries (slider 33 → no events, slider 34 → three events appear simultaneously) that taught discontinuous biology that does not exist. The continuous-threshold model resolves the cliff by definition.</p>
+  <p><b>v1 thresholds and anchors (clinical-prior placeholders):</b></p>
   <table>
-    <tr><th>Event</th><th>Low Residual Risk</th><th>Average Residual Risk</th><th>High Residual Risk</th></tr>
-    <tr><td>First MI</td><td>not rendered</td><td>renders at age 78</td><td>renders at age 67</td></tr>
-    <tr><td>Stroke</td><td>not rendered</td><td>not rendered</td><td>renders at age 73</td></tr>
-    <tr><td>Heart failure onset</td><td>not rendered</td><td>not rendered</td><td>renders at age 75</td></tr>
-    <tr><td>Hip fracture / major fall</td><td>not rendered</td><td>renders at age 84</td><td>renders at age 79</td></tr>
-    <tr><td>Cancer treatment burden</td><td>not rendered</td><td>renders at age 72</td><td>renders at age 65</td></tr>
-    <tr><td>Dialysis initiation (CKD)</td><td>not rendered</td><td>not rendered</td><td>renders at age 76</td></tr>
+    <tr><th>Event</th><th>Threshold (R_eff)</th><th>Age at threshold</th><th>Age at R_eff = 1</th><th>Drop</th><th>Recovery τ</th><th>Asymptotic recovery</th></tr>
+    <tr><td>MI</td><td>0.45</td><td>80</td><td>65</td><td>25%</td><td>6 mo</td><td>75%</td></tr>
+    <tr><td>Cancer treatment</td><td>0.50</td><td>75</td><td>63</td><td>25%</td><td>24 mo</td><td>50%</td></tr>
+    <tr><td>Hip fracture</td><td>0.55</td><td>87</td><td>76</td><td>20%</td><td>12 mo</td><td>60%</td></tr>
+    <tr><td>HF onset</td><td>0.70</td><td>82</td><td>73</td><td>15%</td><td>—</td><td>0%</td></tr>
   </table>
-  <p>Modal ages are calibrated against PREVENT, FRAX, SEER, and USRDS by Residual Risk stratum. Caption on the chart: "One representative trajectory for this risk profile. Real outcomes vary, and many people at this risk level will not experience all of these events."</p>
-  <p><b>Why this changed from a prior version:</b> an earlier draft of this table had Hip fracture rendering for Low Risk at age 88, and First MI rendering for Average Risk at age 78. Those entries implied events are inevitable across all risk strata, which over-claims and teaches a fatalistic pattern the tool should not teach. The current table renders an event only when its lifetime probability for that stratum is high enough to belong on a representative curve. Lifetime probability calibration: MI lifetime risk in Average Risk is ~30% — high enough to render. Stroke in Average Risk is ~15% — below the threshold for rendering on the representative trajectory, but renders for High Risk at ~30%. The exact threshold is calibration-time; this section locks the principle.</p>
-
-  <h3>Decision 2a · Risk slider stratification</h3>
-  <p><b>Choice:</b> The Residual Risk slider is continuous (0 to 100). Slider positions map to risk strata as follows:</p>
-  <ul>
-    <li>0 to 33: Low Risk stratum</li>
-    <li>34 to 66: Average Risk stratum</li>
-    <li>67 to 100: High Risk stratum</li>
-  </ul>
-  <p>Within each stratum, modal ages interpolate linearly. Moving the slider from 67 to 100 moves the First MI modal age from age 73 (stratum boundary) to age 67 (stratum max) linearly. This produces smooth visual response to slider movement while preserving the three-stratum framing for readability. Events appear and disappear at stratum boundaries; they do not fade in. This is honest: the lifetime probability of an event reaching the rendering threshold is a discrete crossing, not a smooth fade.</p>
+  <p>Event scope reduced from six (MI, stroke, HF, hip fracture, cancer treatment, dialysis) to four for v1. Stroke and dialysis remain in the spec but are not rendered in v1 because adding them on a representative trajectory at high R_eff produces a cascade that overstates real co-occurrence and competes for visual space without adding teaching value at this resolution. They are reserved for v2 once Inherited Risk fragments into per-domain sliders.</p>
+  <p><b>Stacking semantics:</b> events compound multiplicatively, not additively. Each event's acute drop is a fraction of capacity at the time the event fires, not an absolute mL/kg/min subtraction against the no-event baseline. A 25% MI drop after a prior 25% cancer-treatment drop leaves capacity at 0.75 × 0.75 = 0.5625 of the original — not at original − 50%. This preserves the teaching payload that Conditioning still buys altitude even when events hit: an Elite-conditioned profile lands meaningfully higher than a Deconditioned profile in late life because the same fractional drops apply to a higher starting capacity.</p>
+  <p><b>Caption on the chart:</b> "One representative trajectory for these slider settings. Real outcomes vary, and many people at this risk level will not experience all of these events."</p>
 
   <h3>Decision 3 · Event scope, by Meridian risk domain</h3>
   <p><b>Choice:</b> All five Meridian risk domains appear, with domain-specific representation honest to each domain's mechanism.</p>
@@ -427,10 +416,10 @@
   <p>MI, stroke, heart failure onset. Strong calibration: cardiac rehab literature provides VO₂max pre/post curves. MI: ~20–30% acute drop, partial recovery over 6–12 months. Stroke: highly variable (10–40% drop), partial recovery over 12–24 months. Heart failure: progressive decline interleaved with acute decompensations. The cardiovascular domain is the cleanest fit for the discrete-event-on-curve model.</p>
 
   <h4>Chronic kidney disease · slope modifier with dialysis step-down</h4>
-  <p>CKD does not fit the discrete-event model. eGFR descent through stages is gradual, not a moment. CKD also lowers VO₂max independently through uremic myopathy, anemia, and fluid status. Representation: a slope modifier proportional to CKD stage that progressively reduces VO₂max trajectory, with a step-down event at dialysis initiation (~30% acute drop on top of accumulated slope effect). For Average Residual Risk profiles CKD progresses to stage 3–4 in late life without dialysis; for High profiles dialysis fires at modal age 76. Disclosure: the curve segment showing CKD effect is annotated as "CKD-driven slope" so the viewer can distinguish it from age-driven decline.</p>
+  <p>CKD does not fit the discrete-event model. eGFR descent through stages is gradual, not a moment. CKD also lowers VO₂max independently through uremic myopathy, anemia, and fluid status. Representation: a slope modifier proportional to CKD stage that progressively reduces VO₂max trajectory, with a step-down event at dialysis initiation (~30% acute drop on top of accumulated slope effect). For Average Inherited Risk profiles CKD progresses to stage 3–4 in late life without dialysis; for High profiles dialysis fires at modal age 76. Disclosure: the curve segment showing CKD effect is annotated as "CKD-driven slope" so the viewer can distinguish it from age-driven decline.</p>
 
   <h4>Metabolic syndrome · risk-multiplier, not events</h4>
-  <p>Metabolic syndrome is a state, not a thing that happens. It elevates cardiovascular event probability, accelerates kidney decline, and increases cancer incidence. Modeling metabolic syndrome as discrete events would misrepresent its mechanism. Instead, it is folded into Residual Risk as a multiplier: higher metabolic burden raises event frequency across CV, kidney, and cancer domains. The viewer does not see "metabolic events" on the curve. The viewer sees CV, kidney, and cancer events firing earlier and more often when Residual Risk is higher because metabolic burden contributes to that aggregate.</p>
+  <p>Metabolic syndrome is a state, not a thing that happens. It elevates cardiovascular event probability, accelerates kidney decline, and increases cancer incidence. Modeling metabolic syndrome as discrete events would misrepresent its mechanism. Instead, it is folded into Inherited Risk as a multiplier: higher metabolic burden raises event frequency across CV, kidney, and cancer domains. The viewer does not see "metabolic events" on the curve. The viewer sees CV, kidney, and cancer events firing earlier and more often when Inherited Risk is higher because metabolic burden contributes to that aggregate.</p>
   <p><b>Why not give metabolic its own visual signature:</b> the temptation is to render metabolic syndrome as a smooth slope penalty so the viewer can see "metabolic burden" on the curve. This was rejected because metabolic syndrome's effect on VO₂max is largely indirect (through cardiac, kidney, and treatment-burden pathways already represented). A direct slope penalty would double-count those pathways.</p>
 
   <h4>Cancer · treatment-burden events</h4>
@@ -465,13 +454,13 @@
   <p><b>Choice:</b> Declared orthogonal by construction. Cross-talk disclosed in the panel covered by Decision 1.</p>
   <p><b>Reasoning:</b> Already covered above. The two levers are physiologically coupled (sleep affects training capacity, training affects sleep quality, hormone optimization affects both, etc.). The teaching tool benefits from independence. The disclosure handles the honesty cost.</p>
 
-  <h3>Architectural decision · Single Residual Risk slider</h3>
-  <p><b>Choice:</b> Residual Risk remains a single aggregate slider. Per-domain risks (CV, kidney, cancer, neurodegenerative) are not exposed as separate sliders.</p>
-  <p><b>Reasoning:</b> Fragmenting the slider into four or five domain-specific sliders is more physiologically honest — a real person can have high CV risk and low cancer risk — but it breaks the three-lever architecture and turns the tool into a personalized risk calculator. The tool's purpose is teaching, not personalized prediction. The single slider sets aggregate residual risk; under the hood each domain's events fire at the modal ages tabulated in Decision 2. Disclosure: "Real risk profiles are domain-specific. The slider represents aggregate residual risk for teaching purposes."</p>
+  <h3>Architectural decision · Single Inherited Risk slider</h3>
+  <p><b>Choice:</b> Inherited Risk remains a single aggregate slider. Per-domain risks (CV, kidney, cancer, neurodegenerative) are not exposed as separate sliders.</p>
+  <p><b>Reasoning:</b> Fragmenting the slider into four or five domain-specific sliders is more physiologically honest — a real person can have high CV risk and low cancer risk — but it breaks the three-lever architecture and turns the tool into a personalized risk calculator. The tool's purpose is teaching, not personalized prediction. The single slider value combines with Conditioning and Lifestyle Optimization to produce R_eff; each event renders when R_eff crosses its threshold per Decision 2. Disclosure: "Real risk profiles are domain-specific. The slider represents aggregate inherited risk for teaching purposes."</p>
   <p><b>What this is not:</b> a claim that a real person's CV and cancer risks are correlated at this level. They are not, in many cases. The simplification is acknowledged as a teaching simplification, not a clinical claim.</p>
 
   <h3>What is now locked, and what is still open</h3>
-  <p><b>Locked:</b> y-axis (VO₂max FRIEND-normed), lever architecture (Conditioning, Lifestyle Optimization, Residual Risk), vitality color render, mutual exclusivity, deterministic events, event scope across five domains, recovery parameterization, single Residual Risk slider.</p>
+  <p><b>Locked:</b> y-axis (VO₂max FRIEND-normed), lever architecture (Conditioning, Lifestyle Optimization, Inherited Risk), vitality color render, R_eff combination model, continuous event-onset thresholds, deterministic events, event scope across five domains, multiplicative event stacking, recovery parameterization, single Inherited Risk slider.</p>
   <p><b>Still open (deferred to implementation):</b> precise modal-age calibration values, recovery parameter tuning, sex-specific trajectories, very-old tail uncertainty rendering, cross-talk panel UI placement and copy, color ramp accessibility audit, empirical reference trajectory library construction.</p>
 
   <h3>Citations</h3>
@@ -490,7 +479,7 @@
   <h2 id="construction">Curve construction: choice and rationale (decision log)</h2>
 
   <div class="brief"><b>IN BRIEF</b>
-  The curve is built by interpolating between a small library of empirical reference trajectories, not by computing from a universal formula. Conditioning selects which trajectory family the curve belongs to (elite, average, deconditioned). Age decay within each family follows published cohort shapes (BLSA, masters athletes, NHANES, HRS). Lifestyle Optimization applies a small slope multiplier on top. Residual Risk overlays events at modal ages with calibrated drop and recovery dynamics. The curve is reproducible: same slider positions always produce the same curve. This construction matches the "directionally honest, not patient-fidelity" precision target locked in Scope and Audience.</div>
+  The curve is built by interpolating between a small library of empirical reference trajectories, not by computing from a universal formula. Conditioning selects which trajectory family the curve belongs to (elite, average, deconditioned). Age decay within each family follows published cohort shapes (BLSA, masters athletes, NHANES, HRS). Lifestyle Optimization applies a small slope multiplier on top. Inherited Risk overlays events at modal ages with calibrated drop and recovery dynamics. The curve is reproducible: same slider positions always produce the same curve. This construction matches the "directionally honest, not patient-fidelity" precision target locked in Scope and Audience.</div>
 
   <h3>Why this decision matters</h3>
   <p>Curve construction is what turns three slider positions into a rendered trajectory. The choice between formula-based, template-based, and hybrid construction propagates everywhere: it determines what calibration data is needed, how the curve responds to slider changes, whether two viewers see the same curve for the same inputs, and how honest the tool can claim to be. Choosing wrong here means either over-promising precision the tool cannot deliver, or under-delivering visual coherence the tool needs to teach.</p>
@@ -498,7 +487,7 @@
   <h3>Three candidate approaches</h3>
 
   <h4>Option A · Universal formula with parameters</h4>
-  <p>One parametric curve (e.g., logistic or Gompertz) with floor, slope, and inflection point modulated by Conditioning and Residual Risk. Lifestyle Optimization tweaks slope. Events overlay drops.</p>
+  <p>One parametric curve (e.g., logistic or Gompertz) with floor, slope, and inflection point modulated by Conditioning and Inherited Risk. Lifestyle Optimization tweaks slope. Events overlay drops.</p>
   <p><b>Pro:</b> Smooth slider response. Mathematically tidy. Easy to implement.</p>
   <p><b>Con:</b> One curve family cannot represent all profiles. Real trajectory shapes differ between elite-trained adults (long high plateau, late steep compression), average adults (gradual decline accelerating after 75), and deconditioned high-risk adults (lower starting capacity, earlier decline, no plateau). A universal formula forces all three into the same family with different parameters, which produces visually plausible corners but implausible interpolations between them. The prior version of this prototype made exactly this mistake.</p>
 
@@ -508,7 +497,7 @@
   <p><b>Con:</b> Library construction takes work. Interpolation between templates needs to be visually smooth or the curve will jump as sliders move. Requires deciding how many templates is enough.</p>
 
   <h4>Option C · Hybrid — formula for trajectory shape, templates for parameter ranges</h4>
-  <p>One parametric curve, but its parameters are pulled from cohort-derived ranges rather than tuned by hand. Conditioning maps to BLSA-derived slope coefficients. Residual Risk maps to event probabilities and ages from PREVENT/FRAX/SEER. The formula is the rendering layer; the cohorts are the calibration layer.</p>
+  <p>One parametric curve, but its parameters are pulled from cohort-derived ranges rather than tuned by hand. Conditioning maps to BLSA-derived slope coefficients. Inherited Risk maps to event probabilities and ages from PREVENT/FRAX/SEER. The formula is the rendering layer; the cohorts are the calibration layer.</p>
   <p><b>Pro:</b> Smooth response of A with the cohort-anchored honesty of B. Implementable without a full template library.</p>
   <p><b>Con:</b> Still inherits A's core problem of forcing all profiles into one curve family. Cohort-derived parameters do not solve the fact that elite trajectories and deconditioned trajectories are different <em>shapes</em>, not just different <em>parameters</em>.</p>
 
@@ -537,14 +526,14 @@
   <h4>Lifestyle Optimization (vitality render)</h4>
   <p>Drives the line color via the render mix formula in the Vitality decision log. This is Lifestyle Optimization's primary mechanism and visible signature.</p>
 
-  <h4>Residual Risk</h4>
-  <p>Overlays events on the templated trajectory at modal ages. Each event is rendered as an acute drop with recovery curve following the parameters in Modeling Decision 4. Higher Residual Risk fires more events earlier; lower fires fewer or none. The events sit on top of the trajectory, they do not change the underlying template.</p>
+  <h4>Inherited Risk</h4>
+  <p>Combined with Conditioning and Lifestyle Optimization into R_eff. Events fire when R_eff crosses each event's threshold; modal age slides earlier as R_eff increases. Each event is rendered as an acute multiplicative drop with recovery curve following the parameters in Modeling Decision 2. The events sit on top of the trajectory, they do not change the underlying template.</p>
 
   <h4>Age</h4>
   <p>The x-axis. Trajectory follows the template's published shape from age 30 to 90 solid, age 90 to 100 dashed (uncertainty rendering, deferred from y-axis open questions).</p>
 
   <h3>What about events that fire on a template that doesn't normally produce them</h3>
-  <p>An Elite-conditioned, High-Residual-Risk profile produces events on top of the Elite template. The MI fires at age 67 (modal age for High Risk), drops VO₂max by 25%, recovers to 75% of pre-event level over 6 months. The post-event trajectory continues to follow the Elite template's slope from the recovered point. Conditioning does not become "less Elite" because of the event — the slider remains where the user set it. The cross-talk panel discloses that real events do change conditioning, and the tool does not model this.</p>
+  <p>An Elite-conditioned, High-Inherited-Risk profile may still produce events on top of the Elite template if R_eff crosses event thresholds (e.g. very high Inherited Risk overcomes Conditioning's protection). The MI fires at age 67 (modal age for High Risk), drops VO₂max by 25%, recovers to 75% of pre-event level over 6 months. The post-event trajectory continues to follow the Elite template's slope from the recovered point. Conditioning does not become "less Elite" because of the event — the slider remains where the user set it. The cross-talk panel discloses that real events do change conditioning, and the tool does not model this.</p>
 
   <h3>Reproducibility</h3>
   <p>Same slider positions always produce the same curve. No stochastic resampling. This is locked from Modeling Decision 2 and reaffirmed here because curve construction is where reproducibility either holds or breaks. The viewer can compare two slider configurations directly because the only thing changing between them is the lever positions.</p>
