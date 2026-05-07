@@ -85,6 +85,27 @@
   .footer-links { margin-top: 28px; color: var(--subdim); font-size: 12px;
     display: flex; justify-content: space-between; }
 
+  /* Trajectory legend — clickable pills toggle each branch's visibility. */
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0 4px;
+    justify-content: flex-start; }
+  .legend-pill { display: inline-flex; align-items: center; gap: 8px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 999px; padding: 6px 12px 6px 10px;
+    font-size: 11px; letter-spacing: 0.3px; color: var(--ink);
+    font-family: 'Inter', sans-serif; cursor: pointer;
+    user-select: none; transition: opacity 120ms, border-color 120ms;
+    line-height: 1.2; }
+  .legend-pill .swatch { width: 10px; height: 10px; border-radius: 50%;
+    flex-shrink: 0; }
+  .legend-pill .label { color: var(--ink); }
+  .legend-pill .pct { color: var(--dim); font-variant-numeric: tabular-nums;
+    margin-left: 2px; }
+  .legend-pill[data-active="false"] { opacity: 0.42; border-style: dashed; }
+  .legend-pill[data-active="false"] .swatch { opacity: 0.4; }
+  .legend-pill[data-active="false"] .label { text-decoration: line-through;
+    text-decoration-color: var(--subdim); color: var(--dim); }
+  .legend-pill:hover { border-color: var(--ink); }
+
   /* SVG element styles */
   .ax-tick { stroke: #2a2d34; }
   .ax-label { fill: var(--dim); font-size: 10px;
@@ -112,6 +133,7 @@
 
   <div class="chart-wrap">
     <svg id="chart" viewBox="0 0 920 520" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="legend" id="legend" aria-label="Trajectory toggles"></div>
     <div class="caption-row">
       <div class="caption" id="caption">Two events fork the trajectory: cancer treatment and CV event. Higher inherited risk pulls both events earlier and makes them more likely. Four real futures render: spared both, cancer only, CV only, both. Joint probabilities sum to 100%.</div>
     </div>
@@ -620,7 +642,10 @@ function render() {
   });
 
   // Drop outcomes whose probability rounds to 0% — they're noise.
-  const visibleOutcomes = outcomeSamples.filter(({ outcome }) => outcome.p >= 0.005);
+  // Then filter by user toggle state — pills allow zooming in on specific
+  // futures without losing the underlying joint-outcome math.
+  const probVisible = outcomeSamples.filter(({ outcome }) => outcome.p >= 0.005);
+  const visibleOutcomes = probVisible.filter(({ outcome }) => activeOutcomes[outcome.id] !== false);
 
   const dashStart = neuroOnset != null ? neuroOnset : 90;
 
@@ -715,11 +740,54 @@ function render() {
   s += `<rect x="${PAD.l}" y="${PAD.t}" width="${CW}" height="${CH}" fill="none" stroke="#23262d" stroke-width="1"/>`;
 
   svg.innerHTML = s;
+  renderLegend(probVisible);
+}
+
+// ---- Legend ----
+// State: activeOutcomes maps outcome.id → boolean (default true). Click a pill
+// to toggle that outcome's visibility on the chart. The math doesn't change —
+// joint probabilities still sum to 100% — pills just choose which lines to draw.
+const activeOutcomes = { spared: true, cancer: true, cv: true, both: true };
+
+function renderLegend(probVisibleOutcomes) {
+  const el = document.getElementById('legend');
+  if (!el) return;
+  // Build pills in a fixed order so the legend is stable as sliders move.
+  const ORDER = ['spared', 'cancer', 'cv', 'both'];
+  const byId = Object.fromEntries(probVisibleOutcomes.map(o => [o.outcome.id, o]));
+  el.innerHTML = ORDER.map(id => {
+    const entry = byId[id];
+    if (!entry) return '';
+    const { outcome, pts } = entry;
+    const last = pts[pts.length - 1];
+    const swatch = vitalityColor(last.vit);
+    const pct = Math.round(outcome.p * 100);
+    const active = activeOutcomes[id] !== false;
+    return `<button class="legend-pill" data-outcome="${id}" data-active="${active}" type="button" aria-pressed="${active}">
+      <span class="swatch" style="background:${swatch}"></span>
+      <span class="label">${outcome.label}</span>
+      <span class="pct">${pct}%</span>
+    </button>`;
+  }).join('');
 }
 
 // ---- Wiring ----
 ['cond', 'life', 'risk'].forEach(id => {
   document.getElementById(id).addEventListener('input', render);
+});
+
+// Legend pill clicks toggle outcome visibility. Event delegation on the
+// container so pills get re-bound automatically when renderLegend rebuilds.
+document.getElementById('legend').addEventListener('click', e => {
+  const pill = e.target.closest('.legend-pill');
+  if (!pill) return;
+  const id = pill.dataset.outcome;
+  // Don't allow turning off the last visible outcome — chart would go empty.
+  const otherActive = Object.entries(activeOutcomes)
+    .some(([k, v]) => k !== id && v);
+  if (activeOutcomes[id] !== false && !otherActive) return;
+  activeOutcomes[id] = activeOutcomes[id] === false;
+  render();
 });
 
 document.querySelectorAll('.preset').forEach(btn => {
