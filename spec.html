@@ -189,6 +189,63 @@
     <li>Mitnitski AB and Rockwood K. <em>Mech Ageing Dev</em> 2002 (Frailty Index of accumulated deficits)</li>
   </ul>
 
+  <h2>Lever architecture: choice and rationale (decision log)</h2>
+
+  <div class="brief"><b>IN BRIEF</b>
+  The three levers that shape the curve are <b>Conditioning</b>, <b>Lifestyle</b>, and <b>Residual Risk</b>. Conditioning is a state slider (elite to deconditioned) whose position implies sustained behavior; it sets curve altitude and decline slope. Lifestyle is strictly non-physical (sleep, nutrition, stress, social, substance, adherence) and modulates slope at the margins. Residual Risk is the irreducible event-propensity bucket (genetics, prior disease, environmental exposure) and introduces step-downs from discrete events. Each lever has exactly one mechanism on the curve. The architecture replaces the prior Risk / Reserve / Lifestyle naming, which had unresolved overlap with the new VO₂max y-axis.</div>
+
+  <h3>Why this decision matters</h3>
+  <p>The y-axis decision propagates directly into how levers are defined. Once the y-axis is VO₂max, the prior <em>Reserve</em> lever (an 8-component capacity composite that included cardiorespiratory fitness) collapses into the y-axis itself: the lever and the chart axis would be measuring the same construct. The prior <em>Risk</em> definition (residualized against capacity) becomes circular: residualizing against the chart itself. The prior <em>Lifestyle</em> definition included training behavior, which is now redundant with Conditioning. The lever set must be redrawn so each slider has a distinct mechanism and no double-counting.</p>
+
+  <h3>Why the prior Risk / Reserve / Lifestyle framing fails under the new y-axis</h3>
+  <ol>
+    <li><b>Reserve overlapped the y-axis.</b> The cardiorespiratory component of Reserve is VO₂max, which is now the y-axis. The lever and the dependent variable measured the same thing.</li>
+    <li><b>Risk residualization became circular.</b> "Risk not explained by capacity" requires capacity to be a separate construct. When capacity is the chart, the residualization has nothing clean to residualize against.</li>
+    <li><b>Lifestyle conflated physical and non-physical inputs.</b> Sleep and training behavior were in the same bucket despite operating through different mechanisms with different evidence bases.</li>
+  </ol>
+
+  <h3>The three levers, redrawn</h3>
+
+  <h4>Conditioning · state slider</h4>
+  <p><b>Range:</b> Elite → Well-conditioned → Average → Deconditioned.</p>
+  <p><b>What it represents:</b> The user's current physical conditioning state, with the implicit assumption that the slider position reflects sustained behavior. Setting the slider to Elite means the person lives in a way that produces and maintains elite conditioning. Setting it to Deconditioned means sustained low activity.</p>
+  <p><b>Mechanism on the curve:</b> Sets baseline VO₂max anchor and decline slope. This is the dominant lever. Elite-conditioned adults sit ~25 mL/kg/min above sedentary peers at age 50 and decline ~50% slower (BLSA, masters athletes literature).</p>
+  <p><b>Why a state, not a behavior:</b> Training is the input; conditioning is the result. Only the result drives the curve. A separate training slider would double-count.</p>
+  <p><b>Why this is not the same as the y-axis:</b> The slider is set once, by the user, as a self-assessment. The y-axis is the rendered VO₂max trajectory at every age. The slider says "this is who I am"; the curve says "this is how that trajectory unfolds."</p>
+
+  <h4>Lifestyle · non-physical behavior</h4>
+  <p><b>Range:</b> Optimized → Average → Compromised.</p>
+  <p><b>What it represents:</b> Strictly non-physical behavioral inputs: sleep behavior, nutrition, stress and recovery load, social connection, substance exposure, medical adherence. Does <em>not</em> include training behavior — that lives in Conditioning.</p>
+  <p><b>Mechanism on the curve:</b> Modulates decline slope at the margins. Sleep deprivation, chronic stress, and social isolation accelerate VO₂max decline; the inverse buffers it. Effect size is real but smaller than Conditioning.</p>
+  <p><b>Why this lever still matters even though it is smaller:</b> It is the lever a Deconditioned person can move first, before they can credibly move Conditioning. It is also the lever that captures upstream behaviors (sleep, stress) that physicians and patients can act on without a training program.</p>
+
+  <h4>Residual Risk · irreducible event propensity</h4>
+  <p><b>Range:</b> Low → Average → High.</p>
+  <p><b>What it represents:</b> Event-propensity factors not captured by Conditioning or Lifestyle. Includes age, sex, family history, prior disease, imaging findings (CAC, plaque, BMD, liver fat), inherited variants, environmental exposures, medication and treatment history, stochastic baseline.</p>
+  <p><b>Mechanism on the curve:</b> Introduces discrete step-downs from events (MI, stroke, heart failure, hip fracture, treatment cardiotoxicity). Higher Residual Risk means earlier and more severe events. The event drops are visible in the curve as a different visual signature than Conditioning's smooth slope or Lifestyle's slope modulation.</p>
+  <p><b>Why "Residual":</b> Conditioning and Lifestyle already capture much of what drives event risk in the population. Residual Risk is what is left after those two are accounted for: the part of risk you cannot move with behavior.</p>
+
+  <h3>Lever weight: not equal</h3>
+  <p>Conditioning is the dominant lever. It sets both baseline and slope. Lifestyle modulates slope at the margins. Residual Risk introduces events but does not change the underlying trajectory shape between events. The viewer will see Conditioning move the curve more than the other two. This is correct and reflects the literature. The tool should not frame the three levers as equal; it should frame them as three distinct mechanisms with different magnitudes.</p>
+
+  <h3>Independence: pedagogical, not physiological</h3>
+  <p>In nature the levers are correlated. Conditioning lowers Risk. Lifestyle (sleep, stress) affects training capacity which affects Conditioning. An MI drops Conditioning. We declare independence <em>by construction</em> for the teaching tool: each slider modifies exactly one mechanism on the curve, and we disclose the cross-talk explicitly in a "what this tool simplifies" panel. The independence claim is pedagogical, not physiological. The tool teaches the structure of the levers; it does not pretend they are orthogonal in life.</p>
+
+  <h3>What this architecture gives the viewer</h3>
+  <p>Three sliders, three visually distinct effects on the curve. Conditioning shifts altitude and tilts the slope. Lifestyle bends the slope subtly. Residual Risk drops step-downs onto the trajectory. A patient sees what each lever does on its own; a provider sees how to weight a care plan across the three. This is the teaching payload the tool exists to deliver.</p>
+
+  <h3>Open questions deferred to modeling decisions</h3>
+  <ol>
+    <li>Stochastic events vs deterministic representative trajectory. (Likely: deterministic, modal-age events for the given Residual Risk profile.)</li>
+    <li>Event scope. (Likely: MI, stroke, HF, hip fracture, treatment cardiotoxicity. Skip dementia, off-axis by spec.)</li>
+    <li>Recovery dynamics parameterization. (Likely: per-event acute drop magnitude and asymptotic recovery fraction; fixed time constant per event class.)</li>
+    <li>Whether Conditioning and Lifestyle independence holds at the time-scale of the teaching tool, given that Lifestyle inputs feed Conditioning over years. (Likely: declared orthogonal by construction; cross-talk disclosed.)</li>
+    <li>Whether the indirect path (Conditioning → Risk reduction) is modeled or omitted. (Likely: modeled, because omitting it understates Conditioning's true effect.)</li>
+  </ol>
+
+  <h3>Sections superseded by this decision</h3>
+  <p>§1 (Risk · residualized), §2 (Reserve · capacity), and §3 (Lifestyle · felt) reflect the prior framing and will be rewritten in the next spec uprev to match the architecture above. They are retained in this version as the historical record of what this section replaces.</p>
+
   <h2>1 · Risk · residualized</h2>
 
   <div class="brief"><b>IN BRIEF</b>
