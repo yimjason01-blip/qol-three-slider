@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Functional Capacity — Logic Flow</title>
+<meta name="viewport" content="width=1280">
+<style>
+  :root{
+    --bg:#0b0d10; --panel:#11141a; --ink:#e7ecf3; --mute:#8b94a3;
+    --line:#2a3140; --accent:#8ab4ff; --warn:#ffb27a; --ok:#7ee0a8;
+    --risk:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,Inter,system-ui,sans-serif}
+  .wrap{max-width:1280px;margin:0 auto;padding:32px 24px 64px}
+  h1{font-size:22px;font-weight:600;margin:0 0 4px;letter-spacing:-0.01em}
+  .sub{color:var(--mute);margin:0 0 24px;font-size:13px}
+  .legend{display:flex;gap:18px;font-size:12px;color:var(--mute);
+    margin-bottom:16px;flex-wrap:wrap}
+  .legend span::before{content:"";display:inline-block;width:10px;height:10px;
+    margin-right:6px;vertical-align:middle;border-radius:2px}
+  .legend .input::before{background:#3b5bdb}
+  .legend .compute::before{background:#11141a;border:1px solid var(--line)}
+  .legend .decision::before{background:#11141a;border:1px solid var(--warn);
+    transform:rotate(45deg)}
+  .legend .output::before{background:#163a2a;border:1px solid var(--ok)}
+  svg{width:100%;height:auto;background:var(--panel);border:1px solid var(--line);
+    border-radius:8px;display:block}
+  .b{fill:#11141a;stroke:var(--line);stroke-width:1}
+  .b-input{fill:#1a2447;stroke:#3b5bdb}
+  .b-out{fill:#10241a;stroke:#2a6a48}
+  .b-decision{fill:#1a1410;stroke:var(--warn)}
+  .ttl{fill:var(--ink);font:600 13px Inter,sans-serif}
+  .lbl{fill:var(--mute);font:11px ui-monospace,Menlo,monospace}
+  .frm{fill:#cfd6e0;font:12px ui-monospace,Menlo,monospace}
+  .num{fill:var(--accent);font:11px ui-monospace,Menlo,monospace}
+  .arrow{fill:none;stroke:#5a6577;stroke-width:1.4}
+  .arrow-strong{stroke:#8ab4ff;stroke-width:1.8}
+  .edgelbl{fill:var(--mute);font:10px ui-monospace,Menlo,monospace}
+  .sectlbl{fill:#5a6577;font:600 10px Inter,sans-serif;letter-spacing:0.12em}
+  .footer{color:var(--mute);font-size:12px;margin-top:16px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Functional Capacity — Logic Flow</h1>
+  <p class="sub">A traditional flow diagram of the actual computation. Inputs at top, computations in the middle, rendered outputs at bottom. Every formula is shown verbatim from <a href="./index.html">index.html</a>.</p>
+  <div class="legend">
+    <span class="input">Input (slider 0–100)</span>
+    <span class="compute">Computation</span>
+    <span class="decision">Lookup / branching</span>
+    <span class="output">Rendered to chart</span>
+  </div>
+
+<svg viewBox="0 0 1240 1640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5a6577"/>
+    </marker>
+    <marker id="arrS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8ab4ff"/>
+    </marker>
+  </defs>
+
+  <!-- ============ ROW 1: INPUTS ============ -->
+  <text x="32" y="40" class="sectlbl">1 · INPUTS</text>
+
+  <g>
+    <rect class="b b-input" x="80"  y="60" width="280" height="86" rx="6"/>
+    <text x="220" y="84"  class="ttl" text-anchor="middle">Conditioning  C</text>
+    <text x="220" y="106" class="lbl" text-anchor="middle">slider 0–100 · dominant lever</text>
+    <text x="220" y="128" class="num" text-anchor="middle">0=Decond · 33=Avg · 66=Well · 100=Elite</text>
+  </g>
+  <g>
+    <rect class="b b-input" x="480" y="60" width="280" height="86" rx="6"/>
+    <text x="620" y="84"  class="ttl" text-anchor="middle">Lifestyle Optimization  L</text>
+    <text x="620" y="106" class="lbl" text-anchor="middle">slider 0–100 · sleep / nutrition / stress</text>
+    <text x="620" y="128" class="num" text-anchor="middle">0=Neglected · 50=Maintained · 100=Optimized</text>
+  </g>
+  <g>
+    <rect class="b b-input" x="880" y="60" width="280" height="86" rx="6"/>
+    <text x="1020" y="84"  class="ttl" text-anchor="middle">Underlying Risk  I</text>
+    <text x="1020" y="106" class="lbl" text-anchor="middle">slider 0–100 · structural substrate</text>
+    <text x="1020" y="128" class="num" text-anchor="middle">family hx · imaging · variants · exposures</text>
+  </g>
+
+  <!-- ============ ROW 2: TWO PARALLEL COMPUTATIONS ============ -->
+  <text x="32" y="200" class="sectlbl">2 · TWO PARALLEL COMPUTATIONS</text>
+
+  <!-- LEFT: Base capacity curve -->
+  <g>
+    <rect class="b" x="80" y="220" width="500" height="160" rx="6"/>
+    <text x="100" y="246" class="ttl">Base capacity curve  V₀(age)</text>
+    <text x="100" y="268" class="lbl">depends on C and L only · before any event</text>
+
+    <text x="100" y="298" class="frm">cond_curve(C, age) = interp(decond, avg, elite ‖ C)</text>
+    <text x="100" y="318" class="frm">slope_mult     = 1.10 − (L/100) · 0.20</text>
+    <text x="100" y="338" class="frm">V₀(age) = baseline(C,30) + (cond_curve(C,age) − baseline) · slope_mult</text>
+    <text x="100" y="362" class="lbl">Three age-templates (decond / avg / elite) blended by C; L tilts decline slope.</text>
+  </g>
+
+  <!-- RIGHT: Effective Risk -->
+  <g>
+    <rect class="b" x="660" y="220" width="500" height="160" rx="6"/>
+    <text x="680" y="246" class="ttl">Effective Risk  R_eff</text>
+    <text x="680" y="268" class="lbl">scalar 0–1 · how much risk actually fires</text>
+
+    <text x="680" y="304" class="frm" font-size="14">R_eff = 0.55·(I/100) + 0.35·(1−C/100) + 0.10·(1−L/100)</text>
+    <text x="680" y="334" class="lbl">Risk dominates (0.55). Conditioning meaningfully buffers (0.35).</text>
+    <text x="680" y="352" class="lbl">Lifestyle nudges (0.10). All three combine — none is sufficient alone.</text>
+  </g>
+
+  <!-- arrows from inputs into the two computations -->
+  <path class="arrow" marker-end="url(#arr)" d="M220,146 L220,180 L330,180 L330,220"/>
+  <path class="arrow" marker-end="url(#arr)" d="M620,146 L620,180 L420,180 L420,220"/>
+  <path class="arrow" marker-end="url(#arr)" d="M620,146 L620,180 L760,180 L760,220"/>
+  <path class="arrow-strong" marker-end="url(#arrS)" d="M1020,146 L1020,180 L900,180 L900,220"/>
+  <path class="arrow" marker-end="url(#arr)" d="M220,146 L220,200 L840,200 L840,220"/>
+
+  <!-- ============ ROW 3: PER-EVENT LOOKUP ============ -->
+  <text x="32" y="430" class="sectlbl">3 · PER-EVENT LOOKUP  (cancer, CV)</text>
+
+  <g>
+    <rect class="b b-decision" x="120" y="450" width="440" height="150" rx="6"/>
+    <text x="140" y="476" class="ttl">Cancer fork  ←  R_eff</text>
+    <text x="140" y="500" class="frm">P_cancer = interp{0.30→0.25, 0.55→0.40, 0.80→0.55}</text>
+    <text x="140" y="520" class="frm">age_cancer = interp{0.30→70, 0.55→65, 0.80→58}</text>
+    <text x="140" y="552" class="lbl">drop = 0.30 · τ = 36 mo · recovery = 0.40</text>
+    <text x="140" y="572" class="lbl">Higher R_eff → higher P, earlier modal age, same recovery shape.</text>
+  </g>
+  <g>
+    <rect class="b b-decision" x="680" y="450" width="440" height="150" rx="6"/>
+    <text x="700" y="476" class="ttl">CV fork  ←  R_eff</text>
+    <text x="700" y="500" class="frm">P_cv = interp{0.30→0.10, 0.55→0.30, 0.80→0.55}</text>
+    <text x="700" y="520" class="frm">age_cv = interp{0.30→82, 0.55→75, 0.80→67}</text>
+    <text x="700" y="552" class="lbl">drop = 0.40 · τ = 24 mo · recovery = 0.25</text>
+    <text x="700" y="572" class="lbl">CV cuts deeper, recovers less. Same family-of-curves shape as cancer.</text>
+  </g>
+
+  <path class="arrow-strong" marker-end="url(#arrS)" d="M910,380 L910,420 L340,420 L340,450"/>
+  <path class="arrow-strong" marker-end="url(#arrS)" d="M910,380 L910,450"/>
+
+  <!-- ============ ROW 4: JOINT OUTCOMES ============ -->
+  <text x="32" y="640" class="sectlbl">4 · JOINT OUTCOME SPLIT  (independent forks → 4 branches, p sums to 1)</text>
+
+  <g>
+    <rect class="b b-decision" x="80" y="660" width="1080" height="78" rx="6"/>
+    <text x="100" y="686" class="ttl">Joint probability table</text>
+    <text x="100" y="712" class="frm">p_spared = (1−P_cancer)·(1−P_cv)   ·   p_cancer_only = P_cancer·(1−P_cv)   ·   p_cv_only = (1−P_cancer)·P_cv   ·   p_both = P_cancer·P_cv</text>
+  </g>
+
+  <path class="arrow" marker-end="url(#arr)" d="M340,600 L340,640 L300,640 L300,660"/>
+  <path class="arrow" marker-end="url(#arr)" d="M900,600 L900,640 L900,660"/>
+
+  <!-- four branch boxes -->
+  <g>
+    <rect class="b" x="80"   y="780" width="240" height="84" rx="6"/>
+    <text x="200" y="806" class="ttl" text-anchor="middle">spared both</text>
+    <text x="200" y="828" class="lbl" text-anchor="middle">events = ∅</text>
+    <text x="200" y="848" class="num" text-anchor="middle">factor(age) = 1</text>
+  </g>
+  <g>
+    <rect class="b" x="340"  y="780" width="240" height="84" rx="6"/>
+    <text x="460" y="806" class="ttl" text-anchor="middle">cancer only</text>
+    <text x="460" y="828" class="lbl" text-anchor="middle">events = {cancer}</text>
+    <text x="460" y="848" class="num" text-anchor="middle">factor(age) = f_cancer(age)</text>
+  </g>
+  <g>
+    <rect class="b" x="600"  y="780" width="240" height="84" rx="6"/>
+    <text x="720" y="806" class="ttl" text-anchor="middle">CV only</text>
+    <text x="720" y="828" class="lbl" text-anchor="middle">events = {cv}</text>
+    <text x="720" y="848" class="num" text-anchor="middle">factor(age) = f_cv(age)</text>
+  </g>
+  <g>
+    <rect class="b" x="860"  y="780" width="280" height="84" rx="6"/>
+    <text x="1000" y="806" class="ttl" text-anchor="middle">both events</text>
+    <text x="1000" y="828" class="lbl" text-anchor="middle">events = {cancer, cv}</text>
+    <text x="1000" y="848" class="num" text-anchor="middle">factor(age) = f_cancer · f_cv</text>
+  </g>
+
+  <path class="arrow" marker-end="url(#arr)" d="M620,738 L620,760 L200,760 L200,780"/>
+  <path class="arrow" marker-end="url(#arr)" d="M620,738 L620,760 L460,760 L460,780"/>
+  <path class="arrow" marker-end="url(#arr)" d="M620,738 L620,760 L720,760 L720,780"/>
+  <path class="arrow" marker-end="url(#arr)" d="M620,738 L620,760 L1000,760 L1000,780"/>
+
+  <!-- ============ ROW 5: PER-EVENT FACTOR (acute drop + recovery) ============ -->
+  <text x="32" y="910" class="sectlbl">5 · PER-EVENT FACTOR  f_e(age)   acute drop, then recovery toward residual</text>
+
+  <g>
+    <rect class="b" x="80" y="930" width="1080" height="120" rx="6"/>
+    <text x="100" y="956" class="ttl">Event factor (applied multiplicatively to V₀ on the branches that fire)</text>
+    <text x="100" y="982" class="frm">if age &lt; modalAge:        f_e(age) = 1</text>
+    <text x="100" y="1002" class="frm">else:  yearsSince = age − modalAge ·  residual = drop·(1 − recoveryFrac)</text>
+    <text x="100" y="1022" class="frm">       f_e(age) = 1  −  ( residual + (drop − residual) · exp(−yearsSince / (τ/12)) )</text>
+    <text x="100" y="1042" class="lbl">Pre-event: no effect. At onset: full drop. Then exponential decay back to a residual deficit set by recoveryFrac.</text>
+  </g>
+
+  <!-- ============ ROW 6: RENDER ============ -->
+  <text x="32" y="1090" class="sectlbl">6 · RENDER TO CHART</text>
+
+  <g>
+    <rect class="b b-out" x="80" y="1110" width="500" height="170" rx="6"/>
+    <text x="100" y="1136" class="ttl">Capacity curve per branch (the 4 lines on the chart)</text>
+    <text x="100" y="1166" class="frm">V_branch(age) = max(V₀(age) · factor_branch(age),  3 mL/kg/min)</text>
+    <text x="100" y="1198" class="lbl">Floor at 3 mL/kg/min represents bedbound capacity.</text>
+    <text x="100" y="1218" class="lbl">Spared branch shows the “if no events” counterfactual; it does not mean</text>
+    <text x="100" y="1234" class="lbl">probability is 1.0 — the branch carries weight p_spared.</text>
+    <text x="100" y="1262" class="lbl">Stroke opacity / dashing on the chart encodes branch probability p.</text>
+  </g>
+
+  <g>
+    <rect class="b b-out" x="660" y="1110" width="500" height="170" rx="6"/>
+    <text x="680" y="1136" class="ttl">Vitality / line color  (separate from capacity height)</text>
+    <text x="680" y="1166" class="frm">render_mix = 0.65·(L/100) + 0.35·(C/100) − vitality_burden(events)</text>
+    <text x="680" y="1198" class="lbl">Lifestyle dominates color (dull → vibrant).</text>
+    <text x="680" y="1218" class="lbl">Conditioning contributes a smaller hue effect.</text>
+    <text x="680" y="1234" class="lbl">Active event branches darken/desaturate their line.</text>
+    <text x="680" y="1262" class="lbl">This is the “line color” lever, distinct from the y-axis altitude.</text>
+  </g>
+
+  <path class="arrow-strong" marker-end="url(#arrS)" d="M200,864 L200,1110"/>
+  <path class="arrow-strong" marker-end="url(#arrS)" d="M460,864 L460,1080 L240,1080 L240,1110"/>
+  <path class="arrow-strong" marker-end="url(#arrS)" d="M720,864 L720,1080 L280,1080 L280,1110"/>
+  <path class="arrow-strong" marker-end="url(#arrS)" d="M1000,864 L1000,1080 L320,1080 L320,1110"/>
+  <path class="arrow" marker-end="url(#arr)" d="M330,380 L330,1100 L420,1100 L420,1110"/>
+  <path class="arrow" marker-end="url(#arr)" d="M620,146 L40,146 L40,1180 L80,1180"/>
+  <path class="arrow" marker-end="url(#arr)" d="M220,146 L20,146 L20,1200 L80,1200"/>
+
+  <!-- ============ ROW 7: NOTES ============ -->
+  <text x="32" y="1330" class="sectlbl">7 · WHAT THIS MODEL DOES NOT CLAIM</text>
+  <g>
+    <rect class="b" x="80" y="1350" width="1080" height="240" rx="6"/>
+    <text x="100" y="1378" class="ttl">Honest limits</text>
+    <text x="100" y="1408" class="lbl">• Two-event v1: cancer treatment and CV event. Neurodegen, frailty, accidents, and diseases of despair are not rendered.</text>
+    <text x="100" y="1430" class="lbl">• Independence assumed between cancer and CV forks. Real-world correlation (shared substrate) is not modeled.</text>
+    <text x="100" y="1452" class="lbl">• Underlying Risk is a single dial. Domain-specific risk profiles (e.g. high CV / low cancer) cannot be expressed.</text>
+    <text x="100" y="1474" class="lbl">• Anchor probabilities are first-pass calibration to PREVENT (CV) and SEER (cancer) cohort means, not patient-fit.</text>
+    <text x="100" y="1496" class="lbl">• CV events depress conditioning in reality; the slider does not move when an event hits — only the curve drops.</text>
+    <text x="100" y="1518" class="lbl">• Cognitive trajectory is a separate axis the chart does not render. Mentioned in copy, not in math.</text>
+    <text x="100" y="1548" class="lbl">• Not a personalized prediction. A teaching tool for internalizing patterns of how the three levers compound.</text>
+  </g>
+
+</svg>
+
+  <p class="footer">Source: <a href="./index.html">tool</a> · <a href="./spec.html">spec / decision logs</a></p>
+</div>
+</body>
+</html>
