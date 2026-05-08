@@ -134,13 +134,13 @@
   <div class="topnav">↗ <a href="./spec.html">spec</a></div>
 
   <h1>Functional Capacity Across the Lifespan</h1>
-  <p class="sub">A teaching tool for internalizing patterns. The y-axis is <b>VO₂max</b>, the best single measure of physical capability across age. Three levers shape the curve: <b>Conditioning</b> (the dominant lever — protects against events too), <b>Lifestyle Optimization</b> (drives line color, small slope and event effect), and <b>Inherited Risk</b> (genetic and structural propensity for events). All three levers combine to determine when events render. Not a personalized prediction. <a href="./spec.html">Decision logs</a>.</p>
+  <p class="sub">A teaching tool for internalizing patterns. The y-axis is <b>VO₂max</b>, the best single measure of physical capability across age. Three levers shape the curve: <b>Conditioning</b> (the dominant lever — protects against events too), <b>Lifestyle Optimization</b> (drives line color, small slope and event effect), and <b>Underlying Risk</b> (the structural and inherited substrate Conditioning and Lifestyle act on). All three levers combine to determine when events render. Not a personalized prediction. <a href="./spec.html">Decision logs</a>.</p>
 
   <div class="chart-wrap">
     <svg id="chart" viewBox="0 0 1010 520" preserveAspectRatio="xMidYMid meet"></svg>
     <div class="legend" id="legend" aria-label="Trajectory toggles"></div>
     <div class="caption-row">
-      <div class="caption" id="caption">Two events fork the trajectory: cancer treatment and CV event. Higher inherited risk pulls both events earlier and makes them more likely. Four real futures render: spared both, cancer only, CV only, both. Joint probabilities sum to 100%.</div>
+      <div class="caption" id="caption">Two events fork the trajectory: cancer treatment and CV event. Higher underlying risk pulls both events earlier and makes them more likely. Four real futures render: spared both, cancer only, CV only, both. Joint probabilities sum to 100%.</div>
     </div>
   </div>
 
@@ -165,12 +165,12 @@
     </div>
     <div class="ctl">
       <div class="ctl-head">
-        <span class="ctl-name risk">INHERITED RISK</span>
+        <span class="ctl-name risk">UNDERLYING RISK</span>
         <span class="ctl-val" id="riskVal">Average</span>
       </div>
       <input type="range" id="risk" min="0" max="100" step="1" value="50"/>
       <div class="ctl-marks"><span>Low</span><span>Avg</span><span>High</span></div>
-      <p class="ctl-tag">Genetics, family history, prior disease, environmental exposures. Combined with conditioning and lifestyle to determine event onset.</p>
+      <p class="ctl-tag">Family history, prior disease, imaging findings, inherited variants, environmental exposures. The substrate the other two levers act on.</p>
     </div>
   </div>
 
@@ -178,7 +178,7 @@
     <button class="preset" data-c="100" data-l="100" data-r="15">Elite athlete, low risk</button>
     <button class="preset" data-c="33" data-l="50" data-r="50">Average American</button>
     <button class="preset" data-c="15" data-l="20" data-r="85">Sedentary, high risk</button>
-    <button class="preset" data-c="70" data-l="60" data-r="95">Fit but high inherited risk</button>
+    <button class="preset" data-c="70" data-l="60" data-r="95">Fit but high underlying risk</button>
     <button class="preset" data-c="60" data-l="20" data-r="50">Fit body, neglected lifestyle</button>
   </div>
 
@@ -187,7 +187,7 @@
     <ul>
       <li><b>Cardiovascular events drop conditioning in reality.</b> The Conditioning slider stays where you set it; the event step-down is shown on the curve, but the slider position does not move when an event hits.</li>
       <li><b>Lifestyle inputs feed conditioning over years.</b> Sleep, stress, hormone optimization affect training capacity and therefore conditioning. The tool treats them as orthogonal at the rendering moment — what you set is what renders.</li>
-      <li><b>Inherited Risk is a single dial, but real risk profiles are domain-specific.</b> A person can have high cardiovascular risk and low cancer risk. The slider here represents aggregate propensity for the events shown.</li>
+      <li><b>Underlying Risk is a single dial, but real risk profiles are domain-specific.</b> A person can have high cardiovascular risk and low cancer risk. The slider here represents aggregate propensity for the events shown.</li>
     </ul>
   </details>
 
@@ -271,7 +271,7 @@ function baseCapacity(condSlider, lifeSlider, age) {
 }
 
 // ---- Effective risk score ----
-// Single continuous score 0 to 1 combining all three levers. Inherited Risk
+// Single continuous score 0 to 1 combining all three levers. Underlying Risk
 // is the heaviest input — fitness protects but cannot fully override severe
 // genetic/structural loading. Conditioning provides bounded protection per
 // Mandsager 2018. Lifestyle has small honest effect.
@@ -339,7 +339,7 @@ const FORK_EVENTS = [
 ];
 
 // For a given R_eff, return the events with their lifetime probabilities AND
-// their R_eff-shifted modal ages. Two effects of higher inherited risk:
+// their R_eff-shifted modal ages. Two effects of higher underlying risk:
 // (1) higher lifetime probability, (2) earlier modal age. Both compound.
 function activeForks(R) {
   return FORK_EVENTS.map(ev => ({
