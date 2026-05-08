@@ -257,21 +257,17 @@ function conditioningCurve(condSlider, age) {
   }
 }
 
-// Lifestyle Optimization slope multiplier: 0→1.10×, 50→1.00×, 100→0.90×
-// Applied as a year-over-year decline-rate adjustment relative to Conditioning baseline.
-// Implementation: shift the *age* used in template lookup by a small amount.
-// At Highly Optimized, the curve effectively ages 10% slower (uses age-(age-30)*0.10 worth of decline).
-function lifestyleAdjustedAge(lifeSlider, age) {
-  // mult: 1.10 (neglected) to 0.90 (optimized). Higher mult = more decline.
-  const mult = 1.10 - (lifeSlider / 100) * 0.20;
-  // Effective "decline-age" past 30
-  return 30 + (age - 30) * mult;
-}
-
-// Capacity at age, before events, given Conditioning and Lifestyle sliders.
+// Lifestyle Optimization slope multiplier: 0→1.10×, 50→1.00×, 100→0.90×.
+// Per spec: scales the *rate of decline* — i.e. the cumulative drop from the
+// age-30 baseline. capacity(age) = baseline + mult · (template(age) − baseline).
+// Maintained (mult=1.0) returns the unmodified template. Optimized scales
+// every year's decline by 0.9; Neglected by 1.1. No template-domain
+// extrapolation: the math stays inside the template at every age.
 function baseCapacity(condSlider, lifeSlider, age) {
-  const adjAge = lifestyleAdjustedAge(lifeSlider, age);
-  return conditioningCurve(condSlider, adjAge);
+  const baseline = conditioningCurve(condSlider, 30);
+  const unmodified = conditioningCurve(condSlider, age);
+  const mult = 1.10 - (lifeSlider / 100) * 0.20;
+  return baseline + mult * (unmodified - baseline);
 }
 
 // ---- Effective risk score ----

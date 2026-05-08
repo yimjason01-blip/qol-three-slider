@@ -564,7 +564,7 @@ P(both events)  = P_cancer · P_cv</pre>
   <p>Selects which two templates to interpolate between, and the weight. Elite slider position = pure Elite template. Deconditioned position = pure Deconditioned template. Anywhere in between = weighted blend. This is the dominant lever and produces the largest visible curve change.</p>
 
   <h4>Lifestyle Optimization (slope effect)</h4>
-  <p>Implemented as a small age-axis compression: at Highly Optimized, the curve uses an effective decline-age 10% lower than chronological age past 30; at Neglected, 10% higher. This is mathematically equivalent to a ±10% slope multiplier at first order against the linearly-interpolated templates and is simpler to express in code. The ±10% bound matches the defensible range stated in the lever architecture section. Lifestyle does <em>not</em> shift the starting altitude — that is Conditioning's job.</p>
+  <p>Applies a multiplier on the rate of decline within whatever blended template Conditioning selected. Highly Optimized = decline rate × 0.9 (10% slower). Maintained = no change. Neglected = decline rate × 1.1 (10% faster). The ±10% bound matches the defensible range stated in the lever architecture section. Lifestyle does <em>not</em> shift the starting altitude — that is Conditioning's job. Implementation: scale the cumulative drop from the age-30 baseline by the multiplier at every age, so capacity(age) = baseline + mult · (template(age) − baseline).</p>
 
   <h4>Lifestyle Optimization (vitality render)</h4>
   <p>Drives the line color via the render mix formula in the Vitality decision log. This is Lifestyle Optimization's primary mechanism and visible signature.</p>
