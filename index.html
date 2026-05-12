@@ -120,8 +120,13 @@
     font-family: 'Inter', sans-serif; }
   .ref-curve { fill: none; stroke: #4a4d54; stroke-width: 1.2;
     stroke-dasharray: 5 4; opacity: 0.7; }
+  .patient-curve { fill: none; stroke: var(--gold); stroke-width: 2.2;
+    stroke-dasharray: 8 4; opacity: 0.95; }
+  .patient-marker { fill: var(--gold); stroke: var(--bg); stroke-width: 2; }
   .ref-label { fill: #5e5c56; font-size: 10px;
     font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .patient-label { fill: var(--gold); font-size: 10px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 600; }
   .event-marker { fill: var(--risk); opacity: 0.85; }
   .event-label { fill: var(--ink); font-size: 10px;
     font-family: 'Inter', sans-serif; font-weight: 500; }
@@ -519,6 +524,17 @@ function yV(v) { return PAD.t + (1 - (v - VO2_MIN) / (VO2_MAX - VO2_MIN)) * CH; 
 
 const svg = document.getElementById('chart');
 
+const params = new URLSearchParams(window.location.search);
+const PATIENT_LINE = (() => {
+  const name = params.get('patient') || params.get('patientName');
+  const age = Number(params.get('age') || params.get('patientAge'));
+  const vo2 = Number(params.get('vo2') || params.get('patientVo2'));
+  const source = params.get('source') || params.get('patientSource') || 'estimated';
+  if (!name || !Number.isFinite(age) || !Number.isFinite(vo2)) return null;
+  if (age < AGE_MIN || age > AGE_MAX || vo2 <= VO2_MIN || vo2 > VO2_MAX) return null;
+  return { name, age, vo2, source };
+})();
+
 function condLabel(c) {
   if (c <= 8) return 'Deconditioned';
   if (c <= 28) return 'Below average';
@@ -622,6 +638,24 @@ function render() {
   }
   s += `<polyline points="${refPts.join(' ')}" class="ref-curve"/>`;
   s += `<text x="${xAge(95)}" y="${yV(templateAt(TEMPLATES.average, 95)) - 6}" class="ref-label" text-anchor="end">avg American</text>`;
+
+  // Patient-specific estimated reference line. Uses the same age-decline shape as
+  // the average-American reference, shifted to pass through the patient's measured
+  // or estimated current VO2max starting point.
+  if (PATIENT_LINE) {
+    const patientPts = [];
+    const avgAtStart = templateAt(TEMPLATES.average, PATIENT_LINE.age);
+    for (let a = PATIENT_LINE.age; a <= AGE_MAX; a += 1) {
+      const shifted = PATIENT_LINE.vo2 + (templateAt(TEMPLATES.average, a) - avgAtStart);
+      patientPts.push(`${xAge(a)},${yV(Math.max(VO2_MIN, Math.min(VO2_MAX, shifted)))}`);
+    }
+    s += `<polyline points="${patientPts.join(' ')}" class="patient-curve"/>`;
+    s += `<circle cx="${xAge(PATIENT_LINE.age)}" cy="${yV(PATIENT_LINE.vo2)}" r="5" class="patient-marker"/>`;
+    const startLabelY = Math.max(PAD.t + 14, yV(PATIENT_LINE.vo2) - 10);
+    s += `<text x="${xAge(PATIENT_LINE.age) + 8}" y="${startLabelY}" class="patient-label">${PATIENT_LINE.name} start · age ${Math.round(PATIENT_LINE.age)} · VO₂max ${PATIENT_LINE.vo2.toFixed(0)} mL/kg/min</text>`;
+    const terminalVo2 = PATIENT_LINE.vo2 + (templateAt(TEMPLATES.average, AGE_MAX) - avgAtStart);
+    s += `<text x="${xAge(95)}" y="${yV(Math.max(VO2_MIN, Math.min(VO2_MAX, terminalVo2))) - 8}" class="patient-label" text-anchor="end">${PATIENT_LINE.name} est.</text>`;
+  }
 
   // Build per-outcome sample arrays. Each outcome carries its own capacity
   // and vitality trajectory because each experiences a different event set.
