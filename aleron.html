@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Aleron · The curve of capability</title>
+<meta name="description" content="Your physical capability across age, and the three levers that shape it." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@300;400;500;600&family=Source+Serif+4:ital,wght@0,400;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Aleron palette */
+    --ink: #0A0A0B;
+    --ink-2: #14140F;
+    --paper: #F6F4EE;
+    --paper-warm: #EFEAE0;
+    --bone: #ECE5D6;
+    --gold: #D4A574;
+    --gold-light: #E8C99A;
+    --gold-deep: #B8854D;
+    --line: rgba(10,10,11,0.12);
+    --line-soft: rgba(10,10,11,0.06);
+    --text: #0A0A0B;
+    --text-muted: #4A4A4D;
+    --text-dim: #6E6C66;
+    /* Chart palette — warm paper, not clinical white */
+    --chart-bg: #FBF8F1;
+    --chart-border: rgba(10,10,11,0.10);
+    --chart-tick: rgba(10,10,11,0.22);
+    --max: 1180px;
+    --gutter: clamp(20px, 4vw, 64px);
+    --ease: cubic-bezier(.2, .7, .2, 1);
+    /* Slider lane colors — kept for slider hierarchy */
+    --cond: #2E5A87;
+    --life: #3B7A4F;
+    --risk: #B8854D;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 400; font-size: 17px; line-height: 1.55;
+    color: var(--text); background: var(--paper);
+    overflow-x: hidden;
+  }
+  .wrap { max-width: var(--max); margin: 0 auto;
+    padding: clamp(56px, 8vw, 104px) var(--gutter) clamp(72px, 9vw, 120px); }
+
+  /* ============ HEADER ============ */
+  .eyebrow {
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--gold-deep); margin-bottom: 18px;
+  }
+  h1.display {
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.028em;
+    line-height: 1.02;
+    font-size: clamp(40px, 6.4vw, 76px);
+    color: var(--ink);
+    max-width: 18ch;
+    margin-bottom: clamp(18px, 1.6vw, 28px);
+  }
+  .lede {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-style: italic; font-weight: 400;
+    font-size: clamp(20px, 1.7vw, 24px);
+    line-height: 1.45;
+    color: var(--text-muted);
+    max-width: 58ch;
+    margin-bottom: clamp(48px, 5vw, 72px);
+  }
+  .lede em { font-style: italic; color: var(--ink); }
+
+  /* ============ CHART CARD ============ */
+  .chart-wrap {
+    background: var(--chart-bg);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 18px 10px;
+    box-shadow: 0 1px 0 rgba(10,10,11,0.02), 0 24px 60px -28px rgba(10,10,11,0.18);
+  }
+  svg { display: block; width: 100%; height: auto; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; padding: 14px 4px 4px;
+    justify-content: flex-start; }
+  .legend-toggle {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: transparent; border: none; padding: 4px 2px;
+    font-size: 12px; letter-spacing: 0.2px; color: var(--ink);
+    font-family: 'Inter', sans-serif; cursor: pointer;
+    user-select: none; line-height: 1.2;
+  }
+  .legend-toggle .track {
+    position: relative; width: 30px; height: 16px;
+    background: rgba(10,10,11,0.10); border-radius: 999px; flex-shrink: 0;
+    transition: background 140ms ease;
+  }
+  .legend-toggle .track::after {
+    content: ''; position: absolute;
+    top: 2px; left: 2px; width: 12px; height: 12px;
+    background: rgba(10,10,11,0.35); border-radius: 50%;
+    transition: transform 140ms ease, background 140ms ease;
+  }
+  .legend-toggle[data-active="true"] .track::after {
+    transform: translateX(14px); background: var(--swatch, var(--gold));
+  }
+  .legend-toggle[data-active="true"] .track { background: rgba(212,165,116,0.28); }
+  .legend-toggle .label { color: var(--ink); }
+  .legend-toggle .pct { color: var(--text-muted); font-variant-numeric: tabular-nums;
+    margin-left: 2px; font-size: 11px; }
+  .legend-toggle[data-active="false"] .label { color: var(--text-muted); }
+  .legend-toggle[data-active="false"] .pct { color: var(--text-dim); }
+  .legend-toggle:hover .track { background: rgba(10,10,11,0.16); }
+  .legend-toggle[data-active="true"]:hover .track { background: rgba(212,165,116,0.4); }
+
+  /* ============ SLIDER CONTROLS ============ */
+  .controls {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px; margin-top: 22px;
+  }
+  @media (max-width: 800px) { .controls { grid-template-columns: 1fr; } }
+  .ctl {
+    background: var(--paper-warm);
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    padding: 18px 20px 16px;
+  }
+  .ctl-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .ctl-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    font-weight: 600; color: var(--text-muted);
+  }
+  .ctl-val {
+    color: var(--ink); font-variant-numeric: tabular-nums;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 17px; font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  input[type=range] {
+    width: 100%; -webkit-appearance: none; appearance: none;
+    height: 3px; background: rgba(10,10,11,0.14); border-radius: 4px; outline: none;
+    margin: 6px 0 4px;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #FFFFFF;
+    cursor: pointer;
+    border: 2.5px solid var(--gold-deep);
+    box-shadow: 0 1px 4px rgba(10,10,11,0.16);
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #FFFFFF;
+    cursor: pointer;
+    border: 2.5px solid var(--gold-deep);
+    box-shadow: 0 1px 4px rgba(10,10,11,0.16);
+  }
+  .ctl-marks {
+    display: flex; justify-content: space-between;
+    color: var(--text-dim); font-size: 10px; letter-spacing: 0.06em;
+    text-transform: uppercase; margin-top: 6px;
+  }
+
+  /* ============ PRESETS ============ */
+  .presets {
+    display: flex; gap: 10px; flex-wrap: wrap; margin: 28px 0 0;
+    align-items: center;
+  }
+  .presets-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-dim); margin-right: 6px;
+  }
+  .preset {
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 8px 14px; font-size: 13px; cursor: pointer;
+    font-family: 'Inter', inherit; letter-spacing: 0.01em;
+    transition: border-color 0.15s var(--ease), color 0.15s var(--ease);
+  }
+  .preset:hover { border-color: var(--ink); }
+
+  /* ============ FOOTNOTE ============ */
+  .footnote {
+    margin-top: clamp(56px, 6vw, 88px);
+    padding-top: 28px;
+    border-top: 1px solid var(--line-soft);
+    color: var(--text-dim);
+    font-size: 13px;
+    max-width: 64ch;
+    line-height: 1.6;
+  }
+
+  /* ============ SVG ELEMENT BASE STYLES ============ */
+  .ax-tick { stroke: var(--chart-tick); }
+  .ax-label { fill: var(--text-muted); font-size: 10px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .ref-curve { fill: none; stroke: rgba(10,10,11,0.32); stroke-width: 1.2;
+    stroke-dasharray: 5 4; opacity: 0.55; }
+  .patient-curve { fill: none; stroke: var(--gold-deep); stroke-width: 2.2;
+    stroke-dasharray: 8 4; opacity: 0.95; }
+  .patient-marker { fill: var(--gold-deep); stroke: var(--chart-bg); stroke-width: 2; }
+  .ref-label { fill: rgba(10,10,11,0.42); font-size: 10px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .patient-label { fill: var(--gold-deep); font-size: 10px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 600; }
+  .event-marker { fill: #B8634F; opacity: 0.9; }
+  .event-label { fill: var(--ink); font-size: 10px;
+    font-family: 'Inter', sans-serif; font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Philosophy · The curve of capability</div>
+  <h1 class="display">Some of your best days are still ahead of you.</h1>
+  <p class="lede">Three levers shape your physical capability across age. <em>Conditioning, lifestyle, and the underlying risk you carry.</em> Move them. See what changes.</p>
+
+  <div class="chart-wrap">
+    <svg id="chart" viewBox="0 0 1010 520" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="legend" id="legend" aria-label="Trajectory toggles"></div>
+  </div>
+
+  <div class="controls">
+    <div class="ctl">
+      <div class="ctl-head">
+        <span class="ctl-name">Conditioning</span>
+        <span class="ctl-val" id="condVal">Average</span>
+      </div>
+      <input type="range" id="cond" min="0" max="100" step="1" value="33"/>
+      <div class="ctl-marks"><span>Decond</span><span>Avg</span><span>Well</span><span>Elite</span></div>
+    </div>
+    <div class="ctl">
+      <div class="ctl-head">
+        <span class="ctl-name">Lifestyle</span>
+        <span class="ctl-val" id="lifeVal">Maintained</span>
+      </div>
+      <input type="range" id="life" min="0" max="100" step="1" value="50"/>
+      <div class="ctl-marks"><span>Neglected</span><span>Maintained</span><span>Optimized</span></div>
+    </div>
+    <div class="ctl">
+      <div class="ctl-head">
+        <span class="ctl-name">Underlying Risk</span>
+        <span class="ctl-val" id="riskVal">Average</span>
+      </div>
+      <input type="range" id="risk" min="0" max="100" step="1" value="50"/>
+      <div class="ctl-marks"><span>Low</span><span>Avg</span><span>High</span></div>
+    </div>
+  </div>
+
+  <div class="presets">
+    <span class="presets-label">Try</span>
+    <button class="preset" data-c="100" data-l="100" data-r="15">Elite athlete, low risk</button>
+    <button class="preset" data-c="33" data-l="50" data-r="50">Average American</button>
+    <button class="preset" data-c="15" data-l="20" data-r="85">Sedentary, high risk</button>
+    <button class="preset" data-c="70" data-l="60" data-r="95">Fit but high underlying risk</button>
+    <button class="preset" data-c="60" data-l="20" data-r="50">Fit body, neglected lifestyle</button>
+  </div>
+
+  <p class="footnote">A teaching tool. The y-axis is VO₂max, the best single measure of physical capability across age. Two events fork the trajectory: cancer treatment, and a cardiovascular event. Higher underlying risk pulls both earlier and makes them more likely. Not a personalized prediction.</p>
+
+</div>
+
+<script>
+// ============================================================================
+// Functional Capacity Teaching Tool — Aleron edition
+// Engine identical to the source tool; palette adjusted for paper background.
+// ============================================================================
+
+const TEMPLATES = {
+  elite: { 30: 56, 40: 53, 50: 50, 60: 47, 65: 45, 70: 42, 75: 38, 80: 34, 85: 30, 90: 26, 100: 18 },
+  average: { 30: 38, 40: 35, 50: 33, 60: 31, 65: 29, 70: 26, 75: 22, 80: 19, 85: 16, 90: 13, 100: 8 },
+  deconditioned: { 30: 26, 40: 23, 50: 20, 60: 18, 65: 16, 70: 14, 75: 12, 80: 10, 85: 8, 90: 7, 100: 5 }
+};
+
+function templateAt(tmpl, age) {
+  const ages = Object.keys(tmpl).map(Number).sort((a,b) => a - b);
+  if (age <= ages[0]) return tmpl[ages[0]];
+  if (age >= ages[ages.length-1]) return tmpl[ages[ages.length-1]];
+  for (let i = 0; i < ages.length - 1; i++) {
+    const a0 = ages[i], a1 = ages[i+1];
+    if (age >= a0 && age <= a1) {
+      const t = (age - a0) / (a1 - a0);
+      return tmpl[a0] * (1 - t) + tmpl[a1] * t;
+    }
+  }
+  return tmpl[ages[ages.length-1]];
+}
+
+function conditioningCurve(condSlider, age) {
+  const dec = templateAt(TEMPLATES.deconditioned, age);
+  const avg = templateAt(TEMPLATES.average, age);
+  const eli = templateAt(TEMPLATES.elite, age);
+  if (condSlider <= 33) { const t = condSlider / 33; return dec * (1 - t) + avg * t; }
+  const t = (condSlider - 33) / 67; return avg * (1 - t) + eli * t;
+}
+
+function baseCapacity(condSlider, lifeSlider, age) {
+  const baseline = conditioningCurve(condSlider, 30);
+  const unmodified = conditioningCurve(condSlider, age);
+  const mult = 1.10 - (lifeSlider / 100) * 0.20;
+  return baseline + mult * (unmodified - baseline);
+}
+
+function effectiveRisk(condSlider, lifeSlider, riskSlider) {
+  const r = riskSlider / 100;
+  const decon = 1 - condSlider / 100;
+  const neg = 1 - lifeSlider / 100;
+  return 0.55 * r + 0.35 * decon + 0.10 * neg;
+}
+
+function interpolateAnchors(R, anchors) {
+  if (R <= anchors[0][0]) return anchors[0][1];
+  if (R >= anchors[2][0]) return anchors[2][1];
+  for (let i = 0; i < 2; i++) {
+    if (R >= anchors[i][0] && R <= anchors[i+1][0]) {
+      const t = (R - anchors[i][0]) / (anchors[i+1][0] - anchors[i][0]);
+      return anchors[i][1] * (1 - t) + anchors[i+1][1] * t;
+    }
+  }
+  return anchors[2][1];
+}
+
+const FORK_EVENTS = [
+  { id: 'cancer', name: 'Cancer treatment', shortName: 'cancer',
+    pAnchors: [[0.30, 0.25], [0.55, 0.40], [0.80, 0.55]],
+    ageAnchors: [[0.30, 70], [0.55, 65], [0.80, 58]],
+    drop: 0.25, tau: 24, recoveryFrac: 0.20 },
+  { id: 'cv', name: 'CV event', shortName: 'CV',
+    pAnchors: [[0.30, 0.10], [0.55, 0.30], [0.80, 0.55]],
+    ageAnchors: [[0.30, 82], [0.55, 75], [0.80, 67]],
+    drop: 0.25, tau: 6, recoveryFrac: 0.75 }
+];
+
+function activeForks(R) {
+  return FORK_EVENTS.map(ev => ({
+    ...ev,
+    pEvent: interpolateAnchors(R, ev.pAnchors),
+    modalAge: interpolateAnchors(R, ev.ageAnchors)
+  }));
+}
+
+function eventFactorAt(event, age) {
+  if (age < event.modalAge) return 1.0;
+  const yearsSince = age - event.modalAge;
+  const tauYears = event.tau / 12;
+  const residualFrac = event.drop * (1 - event.recoveryFrac);
+  const dropFrac = residualFrac + (event.drop - residualFrac) * Math.exp(-yearsSince / tauYears);
+  return 1 - dropFrac;
+}
+
+function jointOutcomes(forks) {
+  const cancer = forks.find(f => f.id === 'cancer');
+  const cv = forks.find(f => f.id === 'cv');
+  const pc = cancer.pEvent;
+  const pcv = cv.pEvent;
+  return [
+    { id: 'spared',  label: 'spared both', shortLabel: 'spared',     p: (1 - pc) * (1 - pcv), events: [] },
+    { id: 'cancer',  label: 'cancer only', shortLabel: 'cancer only', p: pc * (1 - pcv),       events: [cancer] },
+    { id: 'cv',      label: 'CV only',     shortLabel: 'CV only',     p: (1 - pc) * pcv,       events: [cv] },
+    { id: 'both',    label: 'both events', shortLabel: 'both',        p: pc * pcv,             events: [cancer, cv] }
+  ];
+}
+
+const CAPACITY_FLOOR_VO2 = 3;
+const VIT_DROP_SCALAR = 0.6;
+
+function capacityForOutcome(condSlider, lifeSlider, age, outcomeEvents) {
+  let factor = 1.0;
+  for (const ev of outcomeEvents) factor *= eventFactorAt(ev, age);
+  return Math.max(baseCapacity(condSlider, lifeSlider, age) * factor, CAPACITY_FLOOR_VO2);
+}
+
+function vitalityAt(condSlider, lifeSlider, age, events) {
+  const lifeNorm = lifeSlider / 100;
+  const condNorm = condSlider / 100;
+  const mix = 0.65 * lifeNorm + 0.35 * condNorm;
+  let vit = 0.45 + 0.50 * mix;
+  const vit100 = 0.05 + 0.45 * mix;
+  if (age > 30) {
+    const ageT = (age - 30) / 70;
+    const curveT = ageT * ageT * 0.5 + ageT * 0.5;
+    vit = vit - (vit - vit100) * curveT;
+  }
+  for (const ev of events) {
+    if (age < ev.modalAge) continue;
+    const yearsSince = age - ev.modalAge;
+    const acuteVitDrop = ev.drop * VIT_DROP_SCALAR;
+    const tauYears = ev.tau / 12;
+    const residualVit = acuteVitDrop * (1 - ev.recoveryFrac);
+    const dropAtAge = residualVit + (acuteVitDrop - residualVit) * Math.exp(-yearsSince / tauYears);
+    vit -= dropAtAge;
+  }
+  return Math.max(0, Math.min(1, vit));
+}
+
+// Vitality color: red → amber → green ramp. Aleron-toned (slightly desaturated
+// so it sits well on the paper background without screaming).
+function vitalityColor(v) {
+  const stops = [
+    { v: 0.0, r: 184, g: 75,  b: 60 },   // muted red
+    { v: 0.5, r: 184, g: 133, b: 77 },   // gold/amber
+    { v: 1.0, r: 78,  g: 138, b: 90 },   // forest green
+  ];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const a = stops[i], b = stops[i+1];
+    if (v >= a.v && v <= b.v) {
+      const t = (v - a.v) / (b.v - a.v);
+      const r = Math.round(a.r * (1 - t) + b.r * t);
+      const g = Math.round(a.g * (1 - t) + b.g * t);
+      const bl = Math.round(a.b * (1 - t) + b.b * t);
+      return `rgb(${r},${g},${bl})`;
+    }
+  }
+  return 'rgb(120,120,120)';
+}
+
+function neurodegenOnset(condSlider, lifeSlider, riskSlider) {
+  const R = effectiveRisk(condSlider, lifeSlider, riskSlider);
+  const threshold = 0.50, ageAtThresh = 84, ageAtMax = 73;
+  if (R < threshold) return null;
+  const t = (R - threshold) / (1 - threshold);
+  return ageAtThresh + t * (ageAtMax - ageAtThresh);
+}
+
+const BANDS = [
+  { lo: 55, hi: 65, name: 'Sustains hard endurance', sub: 'for hours' },
+  { lo: 40, hi: 55, name: 'Hard recreation', sub: 'recovers next day' },
+  { lo: 30, hi: 40, name: 'Active daily life', sub: 'hills + stairs OK' },
+  { lo: 22, hi: 30, name: 'Daily life unconstrained', sub: 'recreation possible' },
+  { lo: 18, hi: 22, name: 'Daily tasks preserved', sub: 'every effort costs' },
+  { lo: 0,  hi: 18, name: 'Requires help', sub: 'with daily tasks' },
+];
+
+const AGE_MIN = 30, AGE_MAX = 100;
+const VO2_MIN = 0, VO2_MAX = 65;
+const PAD = { l: 230, r: 120, t: 34, b: 50 };
+const W = 1010, H = 520;
+const CW = W - PAD.l - PAD.r;
+const CH = H - PAD.t - PAD.b;
+
+function xAge(age) { return PAD.l + ((age - AGE_MIN) / (AGE_MAX - AGE_MIN)) * CW; }
+function yV(v) { return PAD.t + (1 - (v - VO2_MIN) / (VO2_MAX - VO2_MIN)) * CH; }
+
+const svg = document.getElementById('chart');
+
+const params = new URLSearchParams(window.location.search);
+const PATIENT_LINE = (() => {
+  const name = params.get('patient') || params.get('patientName');
+  const age = Number(params.get('age') || params.get('patientAge'));
+  const vo2 = Number(params.get('vo2') || params.get('patientVo2'));
+  const source = params.get('source') || params.get('patientSource') || 'estimated';
+  if (!name || !Number.isFinite(age) || !Number.isFinite(vo2)) return null;
+  if (age < AGE_MIN || age > AGE_MAX || vo2 <= VO2_MIN || vo2 > VO2_MAX) return null;
+  return { name, age, vo2, source };
+})();
+
+function condLabel(c) {
+  if (c <= 8) return 'Deconditioned';
+  if (c <= 28) return 'Below average';
+  if (c <= 38) return 'Average';
+  if (c <= 60) return 'Above average';
+  if (c <= 75) return 'Well-conditioned';
+  if (c <= 92) return 'Highly conditioned';
+  return 'Elite';
+}
+function lifeLabel(l) {
+  if (l <= 15) return 'Neglected';
+  if (l <= 40) return 'Below average';
+  if (l <= 60) return 'Maintained';
+  if (l <= 85) return 'Optimized';
+  return 'Highly optimized';
+}
+function riskLabel(r) {
+  if (r <= 15) return 'Very low';
+  if (r <= 35) return 'Low';
+  if (r < 50) return 'Below average';
+  if (r <= 65) return 'Average';
+  if (r <= 85) return 'High';
+  return 'Very high';
+}
+
+function render() {
+  const cond = +document.getElementById('cond').value;
+  const life = +document.getElementById('life').value;
+  const risk = +document.getElementById('risk').value;
+
+  document.getElementById('condVal').textContent = condLabel(cond);
+  document.getElementById('lifeVal').textContent = lifeLabel(life);
+  document.getElementById('riskVal').textContent = riskLabel(risk);
+
+  const R = effectiveRisk(cond, life, risk);
+  const forks = activeForks(R);
+  const outcomes = jointOutcomes(forks);
+  const neuroOnset = neurodegenOnset(cond, life, risk);
+
+  let s = '';
+
+  // Background bands — all-warm ramp on paper. Cool blues read as foreign on
+  // the Aleron palette; warmth ramps from sage→stone→clay→terracotta→rust.
+  const BAND_TINTS = [
+    'rgba(140,160,130,0.10)',  // 55+   sage, barely-there
+    'rgba(160,165,140,0.12)',
+    'rgba(180,170,150,0.08)',
+    'rgba(195,160,125,0.12)',
+    'rgba(190,120,85,0.16)',
+    'rgba(170,75,70,0.20)'
+  ];
+  for (let i = 0; i < BANDS.length; i++) {
+    const b = BANDS[i];
+    const y0 = yV(b.hi), y1 = yV(b.lo);
+    const fill = BAND_TINTS[i] || 'rgba(10,10,11,0.02)';
+    s += `<rect x="${PAD.l}" y="${y0}" width="${CW}" height="${y1 - y0}" fill="${fill}"/>`;
+    if (i > 0) {
+      s += `<line x1="${PAD.l}" y1="${y0}" x2="${PAD.l + CW}" y2="${y0}" stroke="rgba(10,10,11,0.08)" stroke-width="0.5"/>`;
+    }
+    const yMid = (y0 + y1) / 2;
+    const isAlertZone = i >= 4;
+    const labelColor = isAlertZone ? '#8a3f3a' : '#4A4A4D';
+    const subColor   = isAlertZone ? '#a36a5e' : '#6E6C66';
+    s += `<text x="${PAD.l - 38}" y="${yMid - 1}" text-anchor="end" style="fill:${labelColor};font-size:10px;letter-spacing:0.4px;font-family:'Inter',sans-serif">${b.name}</text>`;
+    s += `<text x="${PAD.l - 38}" y="${yMid + 11}" text-anchor="end" style="fill:${subColor};font-size:9px;font-family:'Inter',sans-serif">${b.sub}</text>`;
+  }
+
+  // Y-axis ticks
+  for (const v of [0, 10, 20, 30, 40, 50, 60]) {
+    const y = yV(v);
+    s += `<line x1="${PAD.l - 4}" y1="${y}" x2="${PAD.l}" y2="${y}" class="ax-tick"/>`;
+    s += `<text x="${PAD.l - 8}" y="${y + 3}" text-anchor="end" class="ax-label">${v}</text>`;
+  }
+  s += `<text x="${PAD.l - 8}" y="${PAD.t - 6}" text-anchor="end" class="ax-label" style="font-size:10px">VO₂max</text>`;
+  s += `<text x="${PAD.l - 8}" y="${PAD.t + 8}" text-anchor="end" class="ax-label" style="font-size:9px;fill:rgba(10,10,11,0.42)">mL/kg/min</text>`;
+
+  // X-axis ticks
+  for (const a of [30, 40, 50, 60, 70, 80, 90, 100]) {
+    const x = xAge(a);
+    s += `<line x1="${x}" y1="${PAD.t + CH}" x2="${x}" y2="${PAD.t + CH + 4}" class="ax-tick"/>`;
+    s += `<text x="${x}" y="${PAD.t + CH + 18}" text-anchor="middle" class="ax-label">${a}</text>`;
+  }
+  s += `<text x="${PAD.l + CW / 2}" y="${PAD.t + CH + 38}" text-anchor="middle" class="ax-label" style="letter-spacing:2px;font-size:10px">AGE</text>`;
+
+  // Avg American reference
+  let refPts = [];
+  for (let a = AGE_MIN; a <= AGE_MAX; a += 1) {
+    refPts.push(`${xAge(a)},${yV(templateAt(TEMPLATES.average, a))}`);
+  }
+  s += `<polyline points="${refPts.join(' ')}" class="ref-curve"/>`;
+  s += `<text x="${xAge(95)}" y="${yV(templateAt(TEMPLATES.average, 95)) - 6}" class="ref-label" text-anchor="end">avg American</text>`;
+
+  // Patient-specific line (URL params)
+  if (PATIENT_LINE) {
+    const patientPts = [];
+    const avgAtStart = templateAt(TEMPLATES.average, PATIENT_LINE.age);
+    for (let a = PATIENT_LINE.age; a <= AGE_MAX; a += 1) {
+      const shifted = PATIENT_LINE.vo2 + (templateAt(TEMPLATES.average, a) - avgAtStart);
+      patientPts.push(`${xAge(a)},${yV(Math.max(VO2_MIN, Math.min(VO2_MAX, shifted)))}`);
+    }
+    s += `<polyline points="${patientPts.join(' ')}" class="patient-curve"/>`;
+    s += `<circle cx="${xAge(PATIENT_LINE.age)}" cy="${yV(PATIENT_LINE.vo2)}" r="5" class="patient-marker"/>`;
+    const startLabelY = Math.max(PAD.t + 14, yV(PATIENT_LINE.vo2) - 10);
+    s += `<text x="${xAge(PATIENT_LINE.age) + 8}" y="${startLabelY}" class="patient-label">${PATIENT_LINE.name} start · age ${Math.round(PATIENT_LINE.age)} · VO₂max ${PATIENT_LINE.vo2.toFixed(0)} mL/kg/min</text>`;
+    const terminalVo2 = PATIENT_LINE.vo2 + (templateAt(TEMPLATES.average, AGE_MAX) - avgAtStart);
+    s += `<text x="${xAge(95)}" y="${yV(Math.max(VO2_MIN, Math.min(VO2_MAX, terminalVo2))) - 8}" class="patient-label" text-anchor="end">${PATIENT_LINE.name} est.</text>`;
+  }
+
+  // Outcome trajectories
+  const outcomeSamples = outcomes.map(o => {
+    const pts = [];
+    for (let a = AGE_MIN; a <= AGE_MAX; a += 0.5) {
+      pts.push({
+        a, x: xAge(a),
+        y: yV(capacityForOutcome(cond, life, a, o.events)),
+        vit: vitalityAt(cond, life, a, o.events)
+      });
+    }
+    return { outcome: o, pts };
+  });
+
+  const probVisible = outcomeSamples.filter(({ outcome }) => outcome.p >= 0.005);
+  const visibleOutcomes = probVisible.filter(({ outcome }) => activeOutcomes[outcome.id] !== false);
+
+  const dashStart = neuroOnset != null ? neuroOnset : 90;
+
+  for (const { outcome, pts } of visibleOutcomes) {
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i], p1 = pts[i + 1];
+      const aMid = (p0.a + p1.a) / 2;
+      const vitMid = (p0.vit + p1.vit) / 2;
+      const color = vitalityColor(vitMid);
+      const dashed = aMid >= dashStart;
+      const dashAttr = dashed ? 'stroke-dasharray="4 3"' : '';
+      const opacity = dashed ? 0.55 : 1.0;
+      const width = 2.2 + vitMid * 1.4;
+      s += `<line x1="${p0.x}" y1="${p0.y}" x2="${p1.x}" y2="${p1.y}" stroke="${color}" stroke-width="${width.toFixed(2)}" stroke-linecap="round" opacity="${opacity}" ${dashAttr}/>`;
+    }
+  }
+
+  // Fork markers
+  forks.forEach((ev, idx) => {
+    const x = xAge(ev.modalAge);
+    s += `<line x1="${x}" y1="${PAD.t + 4}" x2="${x}" y2="${PAD.t + CH}" stroke="rgba(10,10,11,0.20)" stroke-width="0.6" stroke-dasharray="2 3" opacity="0.7"/>`;
+    const sparedSamples = outcomeSamples.find(o => o.outcome.id === 'spared').pts;
+    const sample = sparedSamples.find(p => Math.abs(p.a - ev.modalAge) < 0.3);
+    if (sample) s += `<circle cx="${x}" cy="${sample.y}" r="3" class="event-marker"/>`;
+    const labelY = PAD.t - 4 - (idx % 2 === 0 ? 0 : 12);
+    s += `<text x="${x}" y="${labelY}" text-anchor="middle" style="font-size:10px;fill:#4A4A4D;font-family:'Inter',sans-serif;font-weight:500">${ev.name} · age ${Math.round(ev.modalAge)}</text>`;
+  });
+
+  // Right-edge outcome labels
+  const labelData = visibleOutcomes
+    .map(({ outcome, pts }) => {
+      const last = pts[pts.length - 1];
+      return { outcome, y: last.y, x: last.x, color: vitalityColor(last.vit), pct: Math.round(outcome.p * 100) };
+    })
+    .sort((a, b) => a.y - b.y);
+
+  const minGap = 14;
+  for (let i = 1; i < labelData.length; i++) {
+    if (labelData[i].y - labelData[i - 1].y < minGap) {
+      labelData[i].y = labelData[i - 1].y + minGap;
+    }
+  }
+
+  for (const ld of labelData) {
+    const xLabel = ld.x + 6;
+    s += `<text x="${xLabel}" y="${ld.y - 1}" style="font-size:10px;fill:${ld.color};font-weight:600;font-family:'Inter',sans-serif">${ld.pct}%</text>`;
+    s += `<text x="${xLabel + 26}" y="${ld.y - 1}" style="font-size:10px;fill:#4A4A4D;font-family:'Inter',sans-serif">${ld.outcome.shortLabel}</text>`;
+  }
+
+  // Neurodegen / 90+ annotation
+  if (neuroOnset != null) {
+    const x = xAge(neuroOnset);
+    s += `<line x1="${x}" y1="${PAD.t + 4}" x2="${x}" y2="${PAD.t + CH}" stroke="rgba(10,10,11,0.30)" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.7"/>`;
+    const labelText = 'neurodegen onset';
+    const labelText2 = 'cognitive trajectory diverges';
+    const rightEdge = PAD.l + CW;
+    const labelX = x + 4;
+    if (labelX + 180 > rightEdge) {
+      s += `<text x="${x - 4}" y="${PAD.t + 14}" class="ref-label" style="fill:rgba(10,10,11,0.55)" text-anchor="end">${labelText}</text>`;
+      s += `<text x="${x - 4}" y="${PAD.t + 28}" class="ref-label" style="fill:rgba(10,10,11,0.40)" text-anchor="end">${labelText2}</text>`;
+    } else {
+      s += `<text x="${labelX}" y="${PAD.t + 14}" class="ref-label" style="fill:rgba(10,10,11,0.55)">${labelText}</text>`;
+      s += `<text x="${labelX}" y="${PAD.t + 28}" class="ref-label" style="fill:rgba(10,10,11,0.40)">${labelText2}</text>`;
+    }
+  } else {
+    const x = xAge(90);
+    s += `<line x1="${x}" y1="${PAD.t + 4}" x2="${x}" y2="${PAD.t + CH}" stroke="rgba(10,10,11,0.16)" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.6"/>`;
+    s += `<text x="${x - 4}" y="${PAD.t + 14}" class="ref-label" text-anchor="end">90+ uncertain</text>`;
+  }
+
+  // Chart border
+  s += `<rect x="${PAD.l}" y="${PAD.t}" width="${CW}" height="${CH}" fill="none" stroke="rgba(10,10,11,0.16)" stroke-width="1"/>`;
+
+  svg.innerHTML = s;
+  renderLegend(probVisible);
+}
+
+const activeOutcomes = { spared: true, cancer: true, cv: true, both: true };
+
+function renderLegend(probVisibleOutcomes) {
+  const el = document.getElementById('legend');
+  if (!el) return;
+  const ORDER = ['spared', 'cancer', 'cv', 'both'];
+  const byId = Object.fromEntries(probVisibleOutcomes.map(o => [o.outcome.id, o]));
+  el.innerHTML = ORDER.map(id => {
+    const entry = byId[id];
+    if (!entry) return '';
+    const { outcome, pts } = entry;
+    const last = pts[pts.length - 1];
+    const swatch = vitalityColor(last.vit);
+    const pct = Math.round(outcome.p * 100);
+    const active = activeOutcomes[id] !== false;
+    return `<button class="legend-toggle" data-outcome="${id}" data-active="${active}" type="button" role="switch" aria-checked="${active}" style="--swatch:${swatch}">
+      <span class="track" aria-hidden="true"></span>
+      <span class="label">${outcome.label}</span>
+      <span class="pct">${pct}%</span>
+    </button>`;
+  }).join('');
+}
+
+['cond', 'life', 'risk'].forEach(id => {
+  document.getElementById(id).addEventListener('input', render);
+});
+
+document.getElementById('legend').addEventListener('click', e => {
+  const pill = e.target.closest('.legend-toggle');
+  if (!pill) return;
+  const id = pill.dataset.outcome;
+  const otherActive = Object.entries(activeOutcomes).some(([k, v]) => k !== id && v);
+  if (activeOutcomes[id] !== false && !otherActive) return;
+  activeOutcomes[id] = activeOutcomes[id] === false;
+  render();
+});
+
+document.querySelectorAll('.preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('cond').value = btn.dataset.c;
+    document.getElementById('life').value = btn.dataset.l;
+    document.getElementById('risk').value = btn.dataset.r;
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
