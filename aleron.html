@@ -18,12 +18,12 @@
     --bone: #ECE5D6;
     --gold: #D4A574;
     --gold-light: #E8C99A;
-    --gold-deep: #B8854D;
+    --gold-deep: #6F4A20;
     --line: rgba(10,10,11,0.12);
     --line-soft: rgba(10,10,11,0.06);
     --text: #0A0A0B;
     --text-muted: #4A4A4D;
-    --text-dim: #6E6C66;
+    --text-dim: #4A4A4D;
     /* Chart palette — warm paper, not clinical white */
     --chart-bg: #FBF8F1;
     --chart-border: rgba(10,10,11,0.10);
@@ -133,41 +133,43 @@
     background: var(--chart-bg);
     border: 1px solid var(--line);
     border-radius: 14px;
-    padding: 22px 18px 10px;
+    padding: 22px 18px 14px;
     box-shadow: 0 1px 0 rgba(10,10,11,0.02), 0 24px 60px -28px rgba(10,10,11,0.18);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  svg { display: block; width: 100%; height: auto; }
-  .legend { display: flex; flex-wrap: wrap; gap: 14px; padding: 14px 4px 4px;
+  #chart { display: block; width: 100%; min-width: 1040px; height: auto; }
+  @media (min-width: 1120px) { #chart { min-width: 0; } }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px 18px; padding: 16px 4px 2px;
     justify-content: flex-start; }
   .legend-toggle {
-    display: inline-flex; align-items: center; gap: 10px;
-    background: transparent; border: none; padding: 4px 2px;
-    font-size: 12px; letter-spacing: 0.2px; color: var(--ink);
+    display: inline-flex; align-items: center; gap: 9px;
+    background: transparent; border: none; padding: 5px 2px;
+    font-size: 14px; letter-spacing: 0.1px; color: var(--ink);
     font-family: 'Inter', sans-serif; cursor: pointer;
-    user-select: none; line-height: 1.2;
+    user-select: none; line-height: 1.25;
   }
   .legend-toggle .track {
-    position: relative; width: 30px; height: 16px;
-    background: rgba(10,10,11,0.10); border-radius: 999px; flex-shrink: 0;
-    transition: background 140ms ease;
+    position: relative; width: 26px; height: 4px;
+    background: var(--swatch, var(--gold)); border-radius: 999px; flex-shrink: 0;
+    transition: opacity 140ms ease, transform 140ms ease;
   }
-  .legend-toggle .track::after {
-    content: ''; position: absolute;
-    top: 2px; left: 2px; width: 12px; height: 12px;
-    background: rgba(10,10,11,0.35); border-radius: 50%;
-    transition: transform 140ms ease, background 140ms ease;
-  }
-  .legend-toggle[data-active="true"] .track::after {
-    transform: translateX(14px); background: var(--swatch, var(--gold));
-  }
-  .legend-toggle[data-active="true"] .track { background: rgba(212,165,116,0.28); }
+  .legend-toggle .track::after { content: none; }
+  .legend-toggle[data-active="false"] .track { opacity: 0.28; }
+  .legend-toggle[data-active="true"] .track { opacity: 1; }
   .legend-toggle .label { color: var(--ink); }
   .legend-toggle .pct { color: var(--text-muted); font-variant-numeric: tabular-nums;
-    margin-left: 2px; font-size: 11px; }
-  .legend-toggle[data-active="false"] .label { color: var(--text-muted); }
-  .legend-toggle[data-active="false"] .pct { color: var(--text-dim); }
-  .legend-toggle:hover .track { background: rgba(10,10,11,0.16); }
-  .legend-toggle[data-active="true"]:hover .track { background: rgba(212,165,116,0.4); }
+    margin-left: 2px; font-size: 14px; }
+  .legend-toggle[data-active="false"] .label,
+  .legend-toggle[data-active="false"] .pct { color: var(--text-muted); opacity: 0.72; }
+  .legend-toggle:hover .track { transform: scaleX(1.12); }
+  .chart-caption {
+    padding: 8px 4px 0;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.45;
+    max-width: 86ch;
+  }
 
   /* ============ SLIDER CONTROLS ============ */
   .controls {
@@ -187,7 +189,7 @@
   }
   .ctl-name {
     font-family: 'Inter', sans-serif;
-    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
     font-weight: 600; color: var(--text-muted);
   }
   .ctl-val {
@@ -218,8 +220,8 @@
   }
   .ctl-marks {
     display: flex; justify-content: space-between;
-    color: var(--text-dim); font-size: 10px; letter-spacing: 0.06em;
-    text-transform: uppercase; margin-top: 6px;
+    color: var(--text-muted); font-size: 12px; letter-spacing: 0.04em;
+    text-transform: uppercase; margin-top: 7px;
   }
 
   /* ============ PRESETS ============ */
@@ -229,7 +231,7 @@
   }
   .presets-label {
     font-family: 'Inter', sans-serif;
-    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
     color: var(--text-dim); margin-right: 6px;
   }
   .preset {
@@ -254,20 +256,20 @@
 
   /* ============ SVG ELEMENT BASE STYLES ============ */
   .ax-tick { stroke: var(--chart-tick); }
-  .ax-label { fill: var(--text-muted); font-size: 10px;
+  .ax-label { fill: var(--text-muted); font-size: 13px;
     font-family: 'JetBrains Mono', ui-monospace, monospace; }
-  .ref-curve { fill: none; stroke: rgba(10,10,11,0.32); stroke-width: 1.2;
-    stroke-dasharray: 5 4; opacity: 0.55; }
-  .patient-curve { fill: none; stroke: var(--gold-deep); stroke-width: 2.2;
-    stroke-dasharray: 8 4; opacity: 0.95; }
+  .ref-curve { fill: none; stroke: rgba(10,10,11,0.38); stroke-width: 1.4;
+    stroke-dasharray: 6 5; opacity: 0.72; }
+  .patient-curve { fill: none; stroke: var(--gold-deep); stroke-width: 2.4;
+    stroke-dasharray: 9 5; opacity: 0.95; }
   .patient-marker { fill: var(--gold-deep); stroke: var(--chart-bg); stroke-width: 2; }
-  .ref-label { fill: rgba(10,10,11,0.42); font-size: 10px;
+  .ref-label { fill: var(--text-muted); font-size: 13px;
     font-family: 'JetBrains Mono', ui-monospace, monospace; }
-  .patient-label { fill: var(--gold-deep); font-size: 10px;
+  .patient-label { fill: #67451E; font-size: 13px;
     font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 600; }
-  .event-marker { fill: #B8634F; opacity: 0.9; }
-  .event-label { fill: var(--ink); font-size: 10px;
-    font-family: 'Inter', sans-serif; font-weight: 500; }
+  .event-marker { fill: #A44938; opacity: 1; }
+  .event-label { fill: var(--text-muted); font-size: 13px;
+    font-family: 'Inter', sans-serif; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -286,8 +288,9 @@
   <p class="lede">Three levers shape your physical capability across age. <em>Conditioning, lifestyle, and the underlying risk you carry.</em> Move them. See what changes.</p>
 
   <div class="chart-wrap">
-    <svg id="chart" viewBox="0 0 1010 520" preserveAspectRatio="xMidYMid meet"></svg>
+    <svg id="chart" viewBox="0 0 1080 560" preserveAspectRatio="xMidYMid meet"></svg>
     <div class="legend" id="legend" aria-label="Trajectory toggles"></div>
+    <div class="chart-caption" id="chartCaption"></div>
   </div>
 
   <div class="controls">
@@ -503,8 +506,8 @@ const BANDS = [
 
 const AGE_MIN = 30, AGE_MAX = 100;
 const VO2_MIN = 0, VO2_MAX = 65;
-const PAD = { l: 230, r: 120, t: 34, b: 50 };
-const W = 1010, H = 520;
+const PAD = { l: 262, r: 164, t: 64, b: 68 };
+const W = 1080, H = 560;
 const CW = W - PAD.l - PAD.r;
 const CH = H - PAD.t - PAD.b;
 
@@ -585,10 +588,10 @@ function render() {
     }
     const yMid = (y0 + y1) / 2;
     const isAlertZone = i >= 4;
-    const labelColor = isAlertZone ? '#8a3f3a' : '#4A4A4D';
-    const subColor   = isAlertZone ? '#a36a5e' : '#6E6C66';
-    s += `<text x="${PAD.l - 38}" y="${yMid - 1}" text-anchor="end" style="fill:${labelColor};font-size:10px;letter-spacing:0.4px;font-family:'Inter',sans-serif">${b.name}</text>`;
-    s += `<text x="${PAD.l - 38}" y="${yMid + 11}" text-anchor="end" style="fill:${subColor};font-size:9px;font-family:'Inter',sans-serif">${b.sub}</text>`;
+    const labelColor = isAlertZone ? '#7E352F' : '#3F3A32';
+    const subColor   = isAlertZone ? '#6F4038' : '#4A4A4D';
+    s += `<text x="${PAD.l - 44}" y="${yMid - 3}" text-anchor="end" style="fill:${labelColor};font-size:13px;letter-spacing:0.15px;font-family:'Inter',sans-serif;font-weight:600">${b.name}</text>`;
+    s += `<text x="${PAD.l - 44}" y="${yMid + 14}" text-anchor="end" style="fill:${subColor};font-size:12px;font-family:'Inter',sans-serif">${b.sub}</text>`;
   }
 
   // Y-axis ticks
@@ -597,8 +600,8 @@ function render() {
     s += `<line x1="${PAD.l - 4}" y1="${y}" x2="${PAD.l}" y2="${y}" class="ax-tick"/>`;
     s += `<text x="${PAD.l - 8}" y="${y + 3}" text-anchor="end" class="ax-label">${v}</text>`;
   }
-  s += `<text x="${PAD.l - 8}" y="${PAD.t - 6}" text-anchor="end" class="ax-label" style="font-size:10px">VO₂max</text>`;
-  s += `<text x="${PAD.l - 8}" y="${PAD.t + 8}" text-anchor="end" class="ax-label" style="font-size:9px;fill:rgba(10,10,11,0.42)">mL/kg/min</text>`;
+  s += `<text x="${PAD.l - 8}" y="${PAD.t - 26}" text-anchor="end" class="ax-label" style="font-size:14px;font-weight:600;fill:#3F3A32">VO₂max</text>`;
+  s += `<text x="${PAD.l - 8}" y="${PAD.t - 7}" text-anchor="end" class="ax-label" style="font-size:12px;fill:#4A4A4D">mL/kg/min</text>`;
 
   // X-axis ticks
   for (const a of [30, 40, 50, 60, 70, 80, 90, 100]) {
@@ -606,7 +609,7 @@ function render() {
     s += `<line x1="${x}" y1="${PAD.t + CH}" x2="${x}" y2="${PAD.t + CH + 4}" class="ax-tick"/>`;
     s += `<text x="${x}" y="${PAD.t + CH + 18}" text-anchor="middle" class="ax-label">${a}</text>`;
   }
-  s += `<text x="${PAD.l + CW / 2}" y="${PAD.t + CH + 38}" text-anchor="middle" class="ax-label" style="letter-spacing:2px;font-size:10px">AGE</text>`;
+  s += `<text x="${PAD.l + CW / 2}" y="${PAD.t + CH + 45}" text-anchor="middle" class="ax-label" style="letter-spacing:2px;font-size:13px;font-weight:600">AGE</text>`;
 
   // Avg American reference
   let refPts = [];
@@ -614,7 +617,8 @@ function render() {
     refPts.push(`${xAge(a)},${yV(templateAt(TEMPLATES.average, a))}`);
   }
   s += `<polyline points="${refPts.join(' ')}" class="ref-curve"/>`;
-  s += `<text x="${xAge(95)}" y="${yV(templateAt(TEMPLATES.average, 95)) - 6}" class="ref-label" text-anchor="end">avg American</text>`;
+  s += `<line x1="${PAD.l + 16}" y1="${PAD.t + 22}" x2="${PAD.l + 54}" y2="${PAD.t + 22}" class="ref-curve"/>`;
+  s += `<text x="${PAD.l + 64}" y="${PAD.t + 26}" class="ref-label">Average American reference</text>`;
 
   // Patient-specific line (URL params)
   if (PATIENT_LINE) {
@@ -671,8 +675,7 @@ function render() {
     const sparedSamples = outcomeSamples.find(o => o.outcome.id === 'spared').pts;
     const sample = sparedSamples.find(p => Math.abs(p.a - ev.modalAge) < 0.3);
     if (sample) s += `<circle cx="${x}" cy="${sample.y}" r="3" class="event-marker"/>`;
-    const labelY = PAD.t - 4 - (idx % 2 === 0 ? 0 : 12);
-    s += `<text x="${x}" y="${labelY}" text-anchor="middle" style="font-size:10px;fill:#4A4A4D;font-family:'Inter',sans-serif;font-weight:500">${ev.name} · age ${Math.round(ev.modalAge)}</text>`;
+    // Event timing is explained below the plot to keep the visual field clean.
   });
 
   // Right-edge outcome labels
@@ -683,48 +686,56 @@ function render() {
     })
     .sort((a, b) => a.y - b.y);
 
-  const minGap = 14;
+  const minGap = 20;
+  const labelTop = PAD.t + 18;
+  const labelBottom = PAD.t + CH - 24;
+  labelData.forEach(ld => { ld.y = Math.max(labelTop, Math.min(labelBottom, ld.y)); });
   for (let i = 1; i < labelData.length; i++) {
     if (labelData[i].y - labelData[i - 1].y < minGap) {
       labelData[i].y = labelData[i - 1].y + minGap;
     }
   }
+  const overflow = labelData.length ? labelData[labelData.length - 1].y - labelBottom : 0;
+  if (overflow > 0) labelData.forEach(ld => { ld.y -= overflow; });
 
   for (const ld of labelData) {
     const xLabel = ld.x + 6;
-    s += `<text x="${xLabel}" y="${ld.y - 1}" style="font-size:10px;fill:${ld.color};font-weight:600;font-family:'Inter',sans-serif">${ld.pct}%</text>`;
-    s += `<text x="${xLabel + 26}" y="${ld.y - 1}" style="font-size:10px;fill:#4A4A4D;font-family:'Inter',sans-serif">${ld.outcome.shortLabel}</text>`;
+    s += `<text x="${xLabel}" y="${ld.y - 1}" style="font-size:13px;fill:#3F3A32;font-weight:700;font-family:'Inter',sans-serif">${ld.pct}%</text>`;
+    s += `<text x="${xLabel + 34}" y="${ld.y - 1}" style="font-size:13px;fill:#4A4A4D;font-family:'Inter',sans-serif;font-weight:500">${ld.outcome.shortLabel}</text>`;
   }
 
   // Neurodegen / 90+ annotation
   if (neuroOnset != null) {
     const x = xAge(neuroOnset);
     s += `<line x1="${x}" y1="${PAD.t + 4}" x2="${x}" y2="${PAD.t + CH}" stroke="rgba(10,10,11,0.30)" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.7"/>`;
-    const labelText = 'neurodegen onset';
-    const labelText2 = 'cognitive trajectory diverges';
-    const rightEdge = PAD.l + CW;
-    const labelX = x + 4;
-    if (labelX + 180 > rightEdge) {
-      s += `<text x="${x - 4}" y="${PAD.t + 14}" class="ref-label" style="fill:rgba(10,10,11,0.55)" text-anchor="end">${labelText}</text>`;
-      s += `<text x="${x - 4}" y="${PAD.t + 28}" class="ref-label" style="fill:rgba(10,10,11,0.40)" text-anchor="end">${labelText2}</text>`;
-    } else {
-      s += `<text x="${labelX}" y="${PAD.t + 14}" class="ref-label" style="fill:rgba(10,10,11,0.55)">${labelText}</text>`;
-      s += `<text x="${labelX}" y="${PAD.t + 28}" class="ref-label" style="fill:rgba(10,10,11,0.40)">${labelText2}</text>`;
-    }
+    // Late dashed segments are explained below the plot.
   } else {
     const x = xAge(90);
     s += `<line x1="${x}" y1="${PAD.t + 4}" x2="${x}" y2="${PAD.t + CH}" stroke="rgba(10,10,11,0.16)" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.6"/>`;
-    s += `<text x="${x - 4}" y="${PAD.t + 14}" class="ref-label" text-anchor="end">90+ uncertain</text>`;
+    // Late dashed segments are explained below the plot.
   }
 
   // Chart border
   s += `<rect x="${PAD.l}" y="${PAD.t}" width="${CW}" height="${CH}" fill="none" stroke="rgba(10,10,11,0.16)" stroke-width="1"/>`;
 
   svg.innerHTML = s;
+  const caption = document.getElementById('chartCaption');
+  if (caption) {
+    const cancer = forks.find(f => f.id === 'cancer');
+    const cv = forks.find(f => f.id === 'cv');
+    caption.textContent = `Event markers: cancer risk around age ${Math.round(cancer.modalAge)}, CV risk around age ${Math.round(cv.modalAge)}. Late dashed segments indicate neuro and 90+ uncertainty.`;
+  }
   renderLegend(probVisible);
 }
 
 const activeOutcomes = { spared: true, cancer: true, cv: true, both: true };
+
+const OUTCOME_SWATCH = {
+  spared: '#7A5628',
+  cancer: '#A44938',
+  cv: '#6F5A3A',
+  both: '#3F3A32'
+};
 
 function renderLegend(probVisibleOutcomes) {
   const el = document.getElementById('legend');
@@ -736,7 +747,7 @@ function renderLegend(probVisibleOutcomes) {
     if (!entry) return '';
     const { outcome, pts } = entry;
     const last = pts[pts.length - 1];
-    const swatch = vitalityColor(last.vit);
+    const swatch = OUTCOME_SWATCH[outcome.id] || vitalityColor(last.vit);
     const pct = Math.round(outcome.p * 100);
     const active = activeOutcomes[id] !== false;
     return `<button class="legend-toggle" data-outcome="${id}" data-active="${active}" type="button" role="switch" aria-checked="${active}" style="--swatch:${swatch}">
