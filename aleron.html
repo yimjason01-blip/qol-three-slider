@@ -482,9 +482,10 @@ function vitalityAt(condSlider, lifeSlider, age, events) {
 // so it sits well on the paper background without screaming).
 function vitalityColor(v) {
   const stops = [
-    { v: 0.0, r: 184, g: 75,  b: 60 },   // muted red
-    { v: 0.5, r: 184, g: 133, b: 77 },   // gold/amber
-    { v: 1.0, r: 78,  g: 138, b: 90 },   // forest green
+    { v: 0.0,  r: 190, g: 115, b: 130 },  // mauve / pink
+    { v: 0.33, r: 195, g: 150, b: 110 },  // tan / khaki
+    { v: 0.66, r: 185, g: 175, b: 95  },  // yellow-green
+    { v: 1.0,  r: 120, g: 185, b: 95  },  // bright green
   ];
   for (let i = 0; i < stops.length - 1; i++) {
     const a = stops[i], b = stops[i+1];
