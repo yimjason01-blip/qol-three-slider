@@ -140,46 +140,33 @@
   }
   #chart { display: block; width: 100%; min-width: 1040px; height: auto; }
   @media (min-width: 1120px) { #chart { min-width: 0; } }
-  .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 18px;
-    padding: 16px 4px 2px;
-    align-items: baseline;
+  .legend { display: flex; flex-wrap: wrap; gap: 12px 18px; padding: 16px 4px 2px;
+    justify-content: flex-start; }
+  .legend-toggle {
+    display: inline-flex; align-items: center; gap: 9px;
+    background: transparent; border: none; padding: 5px 2px;
+    font-size: 14px; letter-spacing: 0.1px; color: var(--ink);
+    font-family: 'Inter', sans-serif; cursor: pointer;
+    user-select: none; line-height: 1.25;
   }
-  .legend-title {
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #3F3A32;
-    font-weight: 800;
-    margin-right: 4px;
+  .legend-toggle .track {
+    position: relative; width: 26px; height: 4px;
+    background: var(--swatch, var(--gold)); border-radius: 999px; flex-shrink: 0;
+    transition: opacity 140ms ease, transform 140ms ease;
   }
-  .legend-item {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 6px;
-    font-size: 14px;
-    letter-spacing: 0.1px;
-    color: var(--ink);
-    font-family: 'Inter', sans-serif;
-    line-height: 1.25;
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: rgba(10,10,11,0.045);
-    border: 1px solid rgba(10,10,11,0.08);
-  }
-  .legend-item .pct {
-    color: #3F3A32;
-    font-variant-numeric: tabular-nums;
-    font-weight: 700;
-    font-size: 15px;
-  }
-  .legend-item .label { color: var(--text-muted); }
+  .legend-toggle .track::after { content: none; }
+  .legend-toggle[data-active="false"] .track { opacity: 0.28; }
+  .legend-toggle[data-active="true"] .track { opacity: 1; }
+  .legend-toggle .label { color: var(--ink); }
+  .legend-toggle .pct { color: var(--text-muted); font-variant-numeric: tabular-nums;
+    margin-left: 2px; font-size: 14px; }
+  .legend-toggle[data-active="false"] .label,
+  .legend-toggle[data-active="false"] .pct { color: var(--text-muted); opacity: 0.72; }
+  .legend-toggle:hover .track { transform: scaleX(1.12); }
   .chart-caption {
     padding: 8px 4px 0;
     color: var(--text-muted);
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.45;
     max-width: 86ch;
   }
@@ -302,7 +289,7 @@
 
   <div class="chart-wrap">
     <svg id="chart" viewBox="0 0 1080 560" preserveAspectRatio="xMidYMid meet"></svg>
-    <div class="legend" id="legend" role="list" aria-label="Outcome probabilities"></div>
+    <div class="legend" id="legend" aria-label="Trajectory toggles"></div>
     <div class="chart-caption" id="chartCaption"></div>
   </div>
 
@@ -440,10 +427,10 @@ function jointOutcomes(forks) {
   const pc = cancer.pEvent;
   const pcv = cv.pEvent;
   return [
-    { id: 'spared',  label: 'neither event', shortLabel: 'neither',      p: (1 - pc) * (1 - pcv), events: [] },
-    { id: 'cancer',  label: 'cancer only',   shortLabel: 'cancer only',  p: pc * (1 - pcv),       events: [cancer] },
-    { id: 'cv',      label: 'CV only',       shortLabel: 'CV only',      p: (1 - pc) * pcv,       events: [cv] },
-    { id: 'both',    label: 'cancer + CV',   shortLabel: 'cancer + CV',  p: pc * pcv,             events: [cancer, cv] }
+    { id: 'spared',  label: 'spared both', shortLabel: 'spared',     p: (1 - pc) * (1 - pcv), events: [] },
+    { id: 'cancer',  label: 'cancer only', shortLabel: 'cancer only', p: pc * (1 - pcv),       events: [cancer] },
+    { id: 'cv',      label: 'CV only',     shortLabel: 'CV only',     p: (1 - pc) * pcv,       events: [cv] },
+    { id: 'both',    label: 'both events', shortLabel: 'both',        p: pc * pcv,             events: [cancer, cv] }
   ];
 }
 
@@ -509,20 +496,13 @@ function neurodegenOnset(condSlider, lifeSlider, riskSlider) {
 }
 
 const BANDS = [
-  { lo: 55, hi: 65, zone: 'High capacity', name: 'Hard endurance', sub: 'for hours' },
-  { lo: 40, hi: 55, zone: 'High capacity', name: 'Hard recreation', sub: 'recovers next day' },
-  { lo: 30, hi: 40, zone: 'Independent', name: 'Active daily life', sub: 'hills + stairs OK' },
-  { lo: 22, hi: 30, zone: 'Independent', name: 'Unconstrained life', sub: 'recreation possible' },
-  { lo: 18, hi: 22, zone: 'Fragility', name: 'Tasks preserved', sub: 'effort costs' },
-  { lo: 0,  hi: 18, zone: 'Dependency', name: 'Requires help', sub: 'with daily tasks' },
+  { lo: 55, hi: 65, name: 'Sustains hard endurance', sub: 'for hours' },
+  { lo: 40, hi: 55, name: 'Hard recreation', sub: 'recovers next day' },
+  { lo: 30, hi: 40, name: 'Active daily life', sub: 'hills + stairs OK' },
+  { lo: 22, hi: 30, name: 'Daily life unconstrained', sub: 'recreation possible' },
+  { lo: 18, hi: 22, name: 'Daily tasks preserved', sub: 'every effort costs' },
+  { lo: 0,  hi: 18, name: 'Requires help', sub: 'with daily tasks' },
 ];
-
-const ZONE_STYLE = {
-  'High capacity': { fill: 'rgba(126,145,113,0.10)', rail: '#5E6F4C' },
-  'Independent': { fill: 'rgba(170,157,132,0.12)', rail: '#6F6048' },
-  'Fragility': { fill: 'rgba(177,119,70,0.16)', rail: '#8A5B2E' },
-  'Dependency': { fill: 'rgba(151,65,58,0.20)', rail: '#7E352F' },
-};
 
 const AGE_MIN = 30, AGE_MAX = 100;
 const VO2_MIN = 0, VO2_MAX = 65;
@@ -588,48 +568,40 @@ function render() {
 
   let s = '';
 
-  // Background bands and left functional scale.
-  const zones = [];
-  for (const b of BANDS) {
-    const z = zones.find(entry => entry.name === b.zone);
-    if (z) { z.lo = Math.min(z.lo, b.lo); z.hi = Math.max(z.hi, b.hi); }
-    else zones.push({ name: b.zone, lo: b.lo, hi: b.hi });
-  }
-
-  for (const z of zones) {
-    const style = ZONE_STYLE[z.name];
-    const y0 = yV(z.hi), y1 = yV(z.lo);
-    s += `<rect x="0" y="${y0}" width="${PAD.l}" height="${y1 - y0}" fill="${style.fill}"/>`;
-    s += `<rect x="12" y="${y0 + 6}" width="4" height="${Math.max(0, y1 - y0 - 12)}" rx="2" fill="${style.rail}"/>`;
-    s += `<text x="24" y="${y0 + 18}" text-anchor="start" style="fill:#3F3A32;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;font-family:'Inter',sans-serif;font-weight:700">${z.name}</text>`;
-  }
-
+  // Background bands — all-warm ramp on paper. Cool blues read as foreign on
+  // the Aleron palette; warmth ramps from sage→stone→clay→terracotta→rust.
+  const BAND_TINTS = [
+    'rgba(140,160,130,0.10)',  // 55+   sage, barely-there
+    'rgba(160,165,140,0.12)',
+    'rgba(180,170,150,0.08)',
+    'rgba(195,160,125,0.12)',
+    'rgba(190,120,85,0.16)',
+    'rgba(170,75,70,0.20)'
+  ];
   for (let i = 0; i < BANDS.length; i++) {
     const b = BANDS[i];
     const y0 = yV(b.hi), y1 = yV(b.lo);
-    const fill = ZONE_STYLE[b.zone].fill;
+    const fill = BAND_TINTS[i] || 'rgba(10,10,11,0.02)';
     s += `<rect x="${PAD.l}" y="${y0}" width="${CW}" height="${y1 - y0}" fill="${fill}"/>`;
     if (i > 0) {
-      s += `<line x1="0" y1="${y0}" x2="${PAD.l + CW}" y2="${y0}" stroke="rgba(10,10,11,0.08)" stroke-width="0.5"/>`;
+      s += `<line x1="${PAD.l}" y1="${y0}" x2="${PAD.l + CW}" y2="${y0}" stroke="rgba(10,10,11,0.08)" stroke-width="0.5"/>`;
     }
     const yMid = (y0 + y1) / 2;
-    const compact = (y1 - y0) < 34;
-    const titleY = compact ? yMid + 4 : yMid - 5;
-    const subY = yMid + 13;
-    s += `<text x="150" y="${titleY}" text-anchor="start" style="fill:#3F3A32;font-size:13px;letter-spacing:0.05px;font-family:'Inter',sans-serif;font-weight:650">${b.name}</text>`;
-    if (!compact) {
-      s += `<text x="150" y="${subY}" text-anchor="start" style="fill:#4A4A4D;font-size:12px;font-family:'Inter',sans-serif;font-weight:450">${b.sub}</text>`;
-    }
+    const isAlertZone = i >= 4;
+    const labelColor = isAlertZone ? '#7E352F' : '#3F3A32';
+    const subColor   = isAlertZone ? '#6F4038' : '#4A4A4D';
+    s += `<text x="${PAD.l - 44}" y="${yMid - 3}" text-anchor="end" style="fill:${labelColor};font-size:13px;letter-spacing:0.15px;font-family:'Inter',sans-serif;font-weight:600">${b.name}</text>`;
+    s += `<text x="${PAD.l - 44}" y="${yMid + 14}" text-anchor="end" style="fill:${subColor};font-size:12px;font-family:'Inter',sans-serif">${b.sub}</text>`;
   }
 
   // Y-axis ticks
   for (const v of [0, 10, 20, 30, 40, 50, 60]) {
     const y = yV(v);
     s += `<line x1="${PAD.l - 4}" y1="${y}" x2="${PAD.l}" y2="${y}" class="ax-tick"/>`;
-    s += `<text x="${PAD.l + 10}" y="${y + 3}" text-anchor="start" class="ax-label">${v}</text>`;
+    s += `<text x="${PAD.l - 8}" y="${y + 3}" text-anchor="end" class="ax-label">${v}</text>`;
   }
-  s += `<text x="${PAD.l + 10}" y="${PAD.t - 26}" text-anchor="start" class="ax-label" style="font-size:14px;font-weight:600;fill:#3F3A32">VO₂max</text>`;
-  s += `<text x="${PAD.l + 10}" y="${PAD.t - 7}" text-anchor="start" class="ax-label" style="font-size:12px;fill:#4A4A4D">mL/kg/min</text>`;
+  s += `<text x="${PAD.l - 8}" y="${PAD.t - 26}" text-anchor="end" class="ax-label" style="font-size:14px;font-weight:600;fill:#3F3A32">VO₂max</text>`;
+  s += `<text x="${PAD.l - 8}" y="${PAD.t - 7}" text-anchor="end" class="ax-label" style="font-size:12px;fill:#4A4A4D">mL/kg/min</text>`;
 
   // X-axis ticks
   for (const a of [30, 40, 50, 60, 70, 80, 90, 100]) {
@@ -678,7 +650,7 @@ function render() {
   });
 
   const probVisible = outcomeSamples.filter(({ outcome }) => outcome.p >= 0.005);
-  const visibleOutcomes = probVisible;
+  const visibleOutcomes = probVisible.filter(({ outcome }) => activeOutcomes[outcome.id] !== false);
 
   const dashStart = neuroOnset != null ? neuroOnset : 90;
 
@@ -714,7 +686,7 @@ function render() {
     })
     .sort((a, b) => a.y - b.y);
 
-  const minGap = 24;
+  const minGap = 20;
   const labelTop = PAD.t + 18;
   const labelBottom = PAD.t + CH - 24;
   labelData.forEach(ld => { ld.y = Math.max(labelTop, Math.min(labelBottom, ld.y)); });
@@ -756,6 +728,8 @@ function render() {
   renderLegend(probVisible);
 }
 
+const activeOutcomes = { spared: true, cancer: true, cv: true, both: true };
+
 const OUTCOME_SWATCH = {
   spared: '#7A5628',
   cancer: '#A44938',
@@ -768,21 +742,34 @@ function renderLegend(probVisibleOutcomes) {
   if (!el) return;
   const ORDER = ['spared', 'cancer', 'cv', 'both'];
   const byId = Object.fromEntries(probVisibleOutcomes.map(o => [o.outcome.id, o]));
-  const items = ORDER.map(id => {
+  el.innerHTML = ORDER.map(id => {
     const entry = byId[id];
     if (!entry) return '';
-    const { outcome } = entry;
+    const { outcome, pts } = entry;
+    const last = pts[pts.length - 1];
+    const swatch = OUTCOME_SWATCH[outcome.id] || vitalityColor(last.vit);
     const pct = Math.round(outcome.p * 100);
-    return `<div class="legend-item" role="listitem">
-      <span class="pct">${pct}%</span>
+    const active = activeOutcomes[id] !== false;
+    return `<button class="legend-toggle" data-outcome="${id}" data-active="${active}" type="button" role="switch" aria-checked="${active}" style="--swatch:${swatch}">
+      <span class="track" aria-hidden="true"></span>
       <span class="label">${outcome.label}</span>
-    </div>`;
+      <span class="pct">${pct}%</span>
+    </button>`;
   }).join('');
-  el.innerHTML = `<div class="legend-title">Outcome probabilities</div>${items}`;
 }
 
 ['cond', 'life', 'risk'].forEach(id => {
   document.getElementById(id).addEventListener('input', render);
+});
+
+document.getElementById('legend').addEventListener('click', e => {
+  const pill = e.target.closest('.legend-toggle');
+  if (!pill) return;
+  const id = pill.dataset.outcome;
+  const otherActive = Object.entries(activeOutcomes).some(([k, v]) => k !== id && v);
+  if (activeOutcomes[id] !== false && !otherActive) return;
+  activeOutcomes[id] = activeOutcomes[id] === false;
+  render();
 });
 
 document.querySelectorAll('.preset').forEach(btn => {
