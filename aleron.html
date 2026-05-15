@@ -143,26 +143,35 @@
   .legend { display: flex; flex-wrap: wrap; gap: 12px 18px; padding: 16px 4px 2px;
     justify-content: flex-start; }
   .legend-toggle {
-    display: inline-flex; align-items: center; gap: 9px;
+    display: inline-flex; align-items: center; gap: 10px;
     background: transparent; border: none; padding: 5px 2px;
     font-size: 14px; letter-spacing: 0.1px; color: var(--ink);
     font-family: 'Inter', sans-serif; cursor: pointer;
-    user-select: none; line-height: 1.25;
+    user-select: none; line-height: 1.2;
   }
   .legend-toggle .track {
-    position: relative; width: 26px; height: 4px;
-    background: var(--swatch, var(--gold)); border-radius: 999px; flex-shrink: 0;
-    transition: opacity 140ms ease, transform 140ms ease;
+    position: relative; width: 32px; height: 18px;
+    background: rgba(10,10,11,0.12); border-radius: 999px; flex-shrink: 0;
+    transition: background 140ms ease;
   }
-  .legend-toggle .track::after { content: none; }
-  .legend-toggle[data-active="false"] .track { opacity: 0.28; }
-  .legend-toggle[data-active="true"] .track { opacity: 1; }
+  .legend-toggle .track::after {
+    content: ''; position: absolute;
+    top: 2px; left: 2px; width: 14px; height: 14px;
+    background: rgba(10,10,11,0.38); border-radius: 50%;
+    transition: transform 140ms ease, background 140ms ease;
+    box-shadow: 0 1px 2px rgba(10,10,11,0.12);
+  }
+  .legend-toggle[data-active="true"] .track::after {
+    transform: translateX(14px); background: var(--swatch, var(--gold));
+  }
+  .legend-toggle[data-active="true"] .track { background: rgba(111,74,32,0.22); }
   .legend-toggle .label { color: var(--ink); }
   .legend-toggle .pct { color: var(--text-muted); font-variant-numeric: tabular-nums;
-    margin-left: 2px; font-size: 14px; }
+    margin-left: 2px; font-size: 13px; }
   .legend-toggle[data-active="false"] .label,
   .legend-toggle[data-active="false"] .pct { color: var(--text-muted); opacity: 0.72; }
-  .legend-toggle:hover .track { transform: scaleX(1.12); }
+  .legend-toggle:hover .track { background: rgba(10,10,11,0.20); }
+  .legend-toggle[data-active="true"]:hover .track { background: rgba(111,74,32,0.34); }
   .chart-caption {
     padding: 8px 4px 0;
     color: var(--text-muted);
