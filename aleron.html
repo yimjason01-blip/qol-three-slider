@@ -171,6 +171,11 @@
   .legend-toggle[data-active="false"] .label,
   .legend-toggle[data-active="false"] .pct { color: var(--text-muted); opacity: 0.72; }
   .legend-toggle:hover .track { background: rgba(10,10,11,0.20); }
+  .legend-ref { display: inline-flex; align-items: center; gap: 10px;
+    padding: 5px 2px; font-size: 13px; color: var(--text-muted);
+    font-family: 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.2px; }
+  .legend-ref .dash { display: inline-block; width: 32px; height: 0;
+    border-top: 1.5px dashed rgba(10,10,11,0.45); }
   .legend-toggle[data-active="true"]:hover .track { background: rgba(111,74,32,0.34); }
   .chart-caption {
     padding: 8px 4px 0;
@@ -620,8 +625,7 @@ function render() {
     refPts.push(`${xAge(a)},${yV(templateAt(TEMPLATES.average, a))}`);
   }
   s += `<polyline points="${refPts.join(' ')}" class="ref-curve"/>`;
-  s += `<line x1="${PAD.l + 16}" y1="${PAD.t + 22}" x2="${PAD.l + 54}" y2="${PAD.t + 22}" class="ref-curve"/>`;
-  s += `<text x="${PAD.l + 64}" y="${PAD.t + 26}" class="ref-label">Average American reference</text>`;
+
 
   // Patient-specific line (URL params)
   if (PATIENT_LINE) {
@@ -758,7 +762,7 @@ function renderLegend(probVisibleOutcomes) {
       <span class="label">${outcome.label}</span>
       <span class="pct">${pct}%</span>
     </button>`;
-  }).join('');
+  }).join('') + `<span class="legend-ref" aria-hidden="true"><span class="dash"></span><span class="ref-label">Average American reference</span></span>`;
 }
 
 ['cond', 'life', 'risk'].forEach(id => {
