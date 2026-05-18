@@ -743,25 +743,17 @@ function render() {
   const cloudRight = PAD.l + CW;
   const cloudW = Math.max(0, cloudRight - cloudLeft);
   if (cloudW > 0) {
-    // Soften the left edge over ~10 years of x-space so the cloud
-    // dissolves in rather than starting at a hard boundary.
-    const fadeYears = 10;
-    const fadeFrac = Math.min(0.55, fadeYears / Math.max(1, AGE_MAX - dashStart));
-    const gid = 'cogCloud';
-    s += `<defs>
-      <linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#FBF8F1" stop-opacity="0"/>
-        <stop offset="${(fadeFrac * 0.35).toFixed(3)}" stop-color="#FBF8F1" stop-opacity="0.18"/>
-        <stop offset="${fadeFrac.toFixed(3)}" stop-color="#FBF8F1" stop-opacity="0.50"/>
-        <stop offset="1" stop-color="#FBF8F1" stop-opacity="0.50"/>
-      </linearGradient>
-    </defs>`;
-    s += `<rect x="${cloudLeft}" y="${PAD.t}" width="${cloudW}" height="${CH}" fill="url(#${gid})"/>`;
-    // Label inside the cloud at upper-right — sized to actually read
+    // Solid 50% grey wash — hard left edge so the boundary reads as a real
+    // distinction between "modeled" and "cognitive trajectory dominates,
+    // not modeled by this tool."
+    s += `<rect x="${cloudLeft}" y="${PAD.t}" width="${cloudW}" height="${CH}" fill="rgba(110,110,115,0.50)"/>`;
+    // Boundary line at the left edge to crisp the distinction
+    s += `<line x1="${cloudLeft}" y1="${PAD.t}" x2="${cloudLeft}" y2="${PAD.t + CH}" stroke="rgba(60,60,65,0.55)" stroke-width="1"/>`;
+    // Label inside the cloud at upper-right
     const lblX = cloudRight - 16;
     const lblY = PAD.t + 30;
-    s += `<text x="${lblX}" y="${lblY}" text-anchor="end" style="font-size:13.5px;letter-spacing:2.2px;text-transform:uppercase;fill:#3F3A32;font-family:'Inter Tight','Inter',sans-serif;font-weight:600">Cognitive uncertainty</text>`;
-    s += `<text x="${lblX}" y="${lblY + 18}" text-anchor="end" style="font-size:12px;fill:#4A4A4D;font-family:'Inter Tight','Inter',sans-serif;font-weight:500;font-style:italic">not modeled by this tool</text>`;
+    s += `<text x="${lblX}" y="${lblY}" text-anchor="end" style="font-size:13.5px;letter-spacing:2.2px;text-transform:uppercase;fill:#1F1F22;font-family:'Inter Tight','Inter',sans-serif;font-weight:600">Cognitive uncertainty</text>`;
+    s += `<text x="${lblX}" y="${lblY + 18}" text-anchor="end" style="font-size:12px;fill:#2A2A2D;font-family:'Inter Tight','Inter',sans-serif;font-weight:500;font-style:italic">not modeled by this tool</text>`;
   }
 
   // Chart border
