@@ -148,7 +148,7 @@
   #chart { display: block; width: 100%; min-width: 1040px; height: auto; }
   @media (min-width: 1120px) { #chart { min-width: 0; } }
   .legend { display: flex; flex-wrap: wrap; gap: 14px 22px; padding: 22px 4px 4px;
-    justify-content: flex-start; }
+    justify-content: center; }
   .legend-toggle {
     display: inline-grid;
     grid-template-columns: auto 1fr;
@@ -188,7 +188,7 @@
   .legend-toggle[data-active="false"] .label,
   .legend-toggle[data-active="false"] .pct { color: var(--text-muted); opacity: 0.72; }
   .legend-toggle:hover .track { background: rgba(10,10,11,0.20); }
-  .legend-refs { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(10,10,11,0.06); }
+  .legend-refs { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(10,10,11,0.06); justify-content: center; }
   .legend-ref { display: inline-flex; align-items: center; gap: 10px;
     padding: 5px 2px; font-size: 13px; color: var(--text-muted);
     font-family: 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.2px; }
