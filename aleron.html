@@ -489,14 +489,17 @@ function vitalityAt(condSlider, lifeSlider, age, events) {
   return Math.max(0, Math.min(1, vit));
 }
 
-// Vitality color: red → amber → green ramp. Aleron-toned (slightly desaturated
-// so it sits well on the paper background without screaming).
+// Vitality color ramp — high-contrast axis intentionally outside the warm
+// Aleron palette so felt-experience reads clearly against paper. Skips the
+// olive/yellow-green dead zone (which cream paper desaturates) by jumping
+// from amber to saturated green by v=0.55.
 function vitalityColor(v) {
   const stops = [
-    { v: 0.0,  r: 190, g: 115, b: 130 },  // mauve / pink
-    { v: 0.33, r: 195, g: 150, b: 110 },  // tan / khaki
-    { v: 0.66, r: 185, g: 175, b: 95  },  // yellow-green
-    { v: 1.0,  r: 120, g: 185, b: 95  },  // bright green
+    { v: 0.00, r: 200, g: 25,  b: 55  },  // deep crimson
+    { v: 0.25, r: 232, g: 75,  b: 40  },  // vermillion
+    { v: 0.45, r: 240, g: 145, b: 30  },  // vivid amber
+    { v: 0.55, r: 60,  g: 155, b: 80  },  // saturated green (hard transition)
+    { v: 1.00, r: 15,  g: 130, b: 60  },  // deep emerald
   ];
   for (let i = 0; i < stops.length - 1; i++) {
     const a = stops[i], b = stops[i+1];
@@ -748,11 +751,7 @@ function render() {
 
   svg.innerHTML = s;
   const caption = document.getElementById('chartCaption');
-  if (caption) {
-    const cancer = forks.find(f => f.id === 'cancer');
-    const cv = forks.find(f => f.id === 'cv');
-    caption.textContent = `Event markers: cancer risk around age ${Math.round(cancer.modalAge)}, CV risk around age ${Math.round(cv.modalAge)}. The shaded cloud marks where cognitive trajectory begins to dominate; this tool does not model cognition.`;
-  }
+  if (caption) caption.textContent = '';
   renderLegend(probVisible);
 }
 
