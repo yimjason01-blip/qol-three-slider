@@ -142,9 +142,9 @@
     border-radius: 14px;
     padding: 22px 18px 14px;
     box-shadow: 0 1px 0 rgba(10,10,11,0.02), 0 24px 60px -28px rgba(10,10,11,0.18);
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
   }
+  .chart-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   #chart { display: block; width: 100%; min-width: 1040px; height: auto; }
   @media (min-width: 1120px) { #chart { min-width: 0; } }
   .legend { display: flex; flex-wrap: wrap; gap: 14px 44px; padding: 22px 4px 4px;
@@ -319,7 +319,9 @@
   <p class="lede">Understanding the relationship between capability, risk, and vitality is the key to building the life you want.</p>
 
   <div class="chart-wrap">
-    <svg id="chart" viewBox="0 0 1080 560" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="chart-scroll">
+      <svg id="chart" viewBox="0 0 1080 560" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
     <div class="legend" id="legend" aria-label="Trajectory toggles"></div>
   </div>
 
