@@ -297,7 +297,6 @@
 <nav class="nav" aria-label="Primary navigation">
   <a class="nav-brand" href="https://yimjason01-blip.github.io/meridian-landing-staging/" aria-label="Aleron MD home">Aleron <span class="md-tag">MD</span></a>
   <div class="nav-actions">
-    <a class="nav-link" href="https://yimjason01-blip.github.io/meridian-landing-staging/">Back to Aleron</a>
     <span class="nav-link is-active" aria-current="page">Quality of Life</span>
     <a class="nav-cta" href="https://yimjason01-blip.github.io/meridian-landing-staging/#apply">Apply</a>
   </div>
@@ -535,7 +534,7 @@ const BANDS = [
 
 const AGE_MIN = 30, AGE_MAX = 100;
 const VO2_MIN = 0, VO2_MAX = 65;
-const PAD = { l: 262, r: 164, t: 64, b: 68 };
+const PAD = { l: 262, r: 36, t: 64, b: 68 };
 const W = 1080, H = 560;
 const CW = W - PAD.l - PAD.r;
 const CH = H - PAD.t - PAD.b;
@@ -702,32 +701,8 @@ function render() {
     // Event timing is explained below the plot to keep the visual field clean.
   });
 
-  // Right-edge outcome labels
-  const labelData = visibleOutcomes
-    .map(({ outcome, pts }) => {
-      const last = pts[pts.length - 1];
-      return { outcome, y: last.y, x: last.x, color: vitalityColor(last.vit), pct: Math.round(outcome.p * 100) };
-    })
-    .sort((a, b) => a.y - b.y);
-
-  const minGap = 50;
-  const labelTop = PAD.t + 22;
-  const labelBottom = PAD.t + CH - 44;
-  labelData.forEach(ld => { ld.y = Math.max(labelTop, Math.min(labelBottom, ld.y)); });
-  for (let i = 1; i < labelData.length; i++) {
-    if (labelData[i].y - labelData[i - 1].y < minGap) {
-      labelData[i].y = labelData[i - 1].y + minGap;
-    }
-  }
-  const overflow = labelData.length ? labelData[labelData.length - 1].y - labelBottom : 0;
-  if (overflow > 0) labelData.forEach(ld => { ld.y -= overflow; });
-
-  for (const ld of labelData) {
-    const xLabel = ld.x + 6;
-    // Outcome label on top, percentage stacked beneath it.
-    s += `<text x="${xLabel}" y="${ld.y - 1}" style="font-size:16px;fill:#3F3A32;font-weight:600;font-family:'Inter',sans-serif">${ld.outcome.shortLabel}</text>`;
-    s += `<text x="${xLabel}" y="${ld.y + 19}" style="font-size:18px;fill:#1F1F22;font-family:'Inter',sans-serif;font-weight:700">${ld.pct}%</text>`;
-  }
+  // Right-edge outcome labels removed — legend below the chart carries the
+  // outcome name and percentage instead.
 
   // Cognitive uncertainty cloud — a soft, 50%-opaque paper-toned wash from
   // dashStart to the right edge of the plot. Soft left edge via gradient so
