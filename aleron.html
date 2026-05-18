@@ -188,6 +188,7 @@
   .legend-toggle[data-active="false"] .label,
   .legend-toggle[data-active="false"] .pct { color: var(--text-muted); opacity: 0.72; }
   .legend-toggle:hover .track { background: rgba(10,10,11,0.20); }
+  .legend-refs { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 4px; }
   .legend-ref { display: inline-flex; align-items: center; gap: 10px;
     padding: 5px 2px; font-size: 13px; color: var(--text-muted);
     font-family: 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.2px; }
@@ -788,7 +789,7 @@ function renderLegend(probVisibleOutcomes) {
       <span class="label">${outcome.label}</span>
       <span class="pct">${pct}%</span>
     </button>`;
-  }).join('') + `<span class="legend-ref" aria-hidden="true"><span class="dash"></span><span class="ref-label">Average American reference</span></span><span class="legend-ref" aria-hidden="true"><span class="swatch"></span><span class="ref-label">Cognitive impairment window</span></span>`;
+  }).join('') + `<span class="legend-refs"><span class="legend-ref" aria-hidden="true"><span class="dash"></span><span class="ref-label">Average American reference</span></span><span class="legend-ref" aria-hidden="true"><span class="swatch"></span><span class="ref-label">Cognitive impairment window</span></span></span>`;
 }
 
 ['cond', 'life', 'risk'].forEach(id => {
