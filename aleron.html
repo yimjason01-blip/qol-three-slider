@@ -682,6 +682,13 @@ function render() {
         vit: vitalityAt(cond, life, a, o.events)
       });
     }
+    // Enforce monotone non-increasing capacity: once VO2 drops it cannot rise.
+    // Prevents acute-event recovery models from overlaying an upward curve
+    // on top of natural age decline. (y increases downward in screen coords,
+    // so monotone non-increasing capacity = monotone non-decreasing y.)
+    for (let i = 1; i < pts.length; i++) {
+      if (pts[i].y < pts[i - 1].y) pts[i].y = pts[i - 1].y;
+    }
     return { outcome: o, pts };
   });
 
