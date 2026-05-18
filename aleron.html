@@ -692,14 +692,28 @@ function render() {
   const dashStart = neuroOnset ? neuroOnset.age : 95;
 
   for (const { outcome, pts } of visibleOutcomes) {
-    for (let i = 0; i < pts.length - 1; i++) {
-      const p0 = pts[i], p1 = pts[i + 1];
-      const vitMid = (p0.vit + p1.vit) / 2;
-      const color = vitalityColor(vitMid);
-      const width = 2.2 + vitMid * 1.4;
-      // Curves render solid; the cognitive uncertainty cloud (drawn on top
-      // from dashStart onward) carries the meaning instead of dashing.
-      s += `<line x1="${p0.x}" y1="${p0.y}" x2="${p1.x}" y2="${p1.y}" stroke="${color}" stroke-width="${width.toFixed(2)}" stroke-linecap="round"/>`;
+    const isMain = outcome.id === 'spared';
+    if (isMain) {
+      // Main timeline: solid, per-segment vitality color, full weight.
+      for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = pts[i], p1 = pts[i + 1];
+        const vitMid = (p0.vit + p1.vit) / 2;
+        const color = vitalityColor(vitMid);
+        const width = 2.4 + vitMid * 1.4;
+        s += `<line x1="${p0.x}" y1="${p0.y}" x2="${p1.x}" y2="${p1.y}" stroke="${color}" stroke-width="${width.toFixed(2)}" stroke-linecap="round"/>`;
+      }
+    } else {
+      // Event timeline: dashed polyline from fork onset, encodes "conditional future" vs "actual trajectory."
+      const onsetAge = outcome.events.reduce((m, e) => Math.min(m, e.modalAge), Infinity);
+      const tail = pts.filter(p => p.a >= onsetAge - 0.25);
+      if (tail.length > 1) {
+        const vitAvg = tail.reduce((acc, p) => acc + p.vit, 0) / tail.length;
+        const color = vitalityColor(vitAvg);
+        const polyPts = tail.map(p => `${p.x},${p.y}`).join(' ');
+        s += `<polyline points="${polyPts}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4" opacity="0.92"/>`;
+        const onsetPt = tail[0];
+        s += `<circle cx="${onsetPt.x}" cy="${onsetPt.y}" r="3.2" fill="#FBF8F1" stroke="${color}" stroke-width="1.5"/>`;
+      }
     }
   }
 
