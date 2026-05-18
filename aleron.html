@@ -63,20 +63,20 @@
     border-bottom: 1px solid rgba(10,10,11,0.08);
   }
   .nav-brand {
-    font-family: 'Inter', 'Inter Tight', sans-serif;
+    font-family: 'Source Serif 4', Georgia, serif;
     font-weight: 400;
-    letter-spacing: -0.03em;
-    font-size: 26px;
+    letter-spacing: -0.035em;
+    font-size: 27px;
     color: var(--ink);
     text-decoration: none;
     line-height: 1.08;
   }
   .nav-brand .md-tag {
     color: var(--ink);
-    font-family: 'Newsreader', 'Source Serif 4', Georgia, serif;
-    font-weight: 500;
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 400;
     font-style: italic;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
   }
   .nav-actions { display: flex; align-items: center; gap: 18px; }
   .nav-link {
@@ -288,6 +288,92 @@
     line-height: 1.6;
   }
 
+
+  /* ============ FOOTER ============ */
+  footer {
+    background: var(--ink);
+    color: rgba(246,244,238,0.68);
+    padding: 72px var(--gutter) 42px;
+    font-size: 14px;
+  }
+  .footer-inner {
+    max-width: var(--max);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(260px, 1.1fr) minmax(420px, 1fr);
+    gap: clamp(48px, 8vw, 120px);
+    align-items: start;
+  }
+  .footer-brand {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: clamp(30px, 3.2vw, 46px);
+    font-weight: 400;
+    color: var(--paper);
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .footer-brand span {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: -0.025em;
+  }
+  .footer-promise {
+    margin-top: 16px;
+    max-width: 36ch;
+    color: rgba(246,244,238,0.78);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  .footer-columns {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(28px, 4vw, 54px);
+  }
+  .footer-col-title {
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .footer-col a,
+  .footer-col span {
+    display: block;
+    color: rgba(246,244,238,0.72);
+    text-decoration: none;
+    margin: 10px 0;
+  }
+  .footer-col a { transition: color 0.2s var(--ease); }
+  .footer-col a:hover { color: var(--paper); }
+  .footer-note-small {
+    color: rgba(246,244,238,0.58);
+    line-height: 1.5;
+    max-width: 28ch;
+  }
+  .footer-bottom {
+    max-width: var(--max);
+    margin: 56px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid rgba(246,244,238,0.12);
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-size: 13px;
+  }
+  .footer-bottom a { color: rgba(246,244,238,0.72); text-decoration: none; transition: color 0.2s var(--ease); }
+  .footer-bottom a:hover { color: var(--paper); }
+  @media (max-width: 900px) {
+    .footer-inner { grid-template-columns: 1fr; }
+    .footer-columns { grid-template-columns: 1fr; gap: 28px; }
+  }
+  @media (max-width: 720px) {
+    footer { padding: 30px var(--gutter) 96px; }
+  }
+
+
   /* ============ SVG ELEMENT BASE STYLES ============ */
   .ax-tick { stroke: var(--chart-tick); }
   .ax-label { fill: var(--text-muted); font-size: 13px;
@@ -364,6 +450,38 @@
   <p class="footnote">A teaching tool. The y-axis is VO₂max, the best single measure of physical capability across age. Two events fork the trajectory: cancer treatment, and a cardiovascular event. Higher underlying risk pulls both earlier and makes them more likely. Not a personalized prediction.</p>
 
 </div>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Aleron <span>MD</span></div>
+      <p class="footer-promise">Physician-led preventive medicine for capacity, risk, and vitality over time.</p>
+    </div>
+    <nav class="footer-columns" aria-label="Footer">
+      <div class="footer-col">
+        <div class="footer-col-title">Explore</div>
+        <a href="https://yimjason01-blip.github.io/qol-three-slider/aleron.html" aria-current="page">Quality of Life model</a>
+        <a href="https://yimjason01-blip.github.io/meridian-landing-staging/#experience">Aleron experience</a>
+        <a href="https://yimjason01-blip.github.io/meridian-landing-staging/#md">MD × AI</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Contact</div>
+        <a href="mailto:apply@the-meridian-project.com?subject=Aleron%20Membership%20Application">Membership</a>
+        <a href="mailto:partners@the-meridian-project.com?subject=Aleron%20Demo%20Request">Partnerships</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Availability</div>
+        <span>California</span>
+        <span>Texas</span>
+        <p class="footer-note-small">Membership opens in waves.</p>
+      </div>
+    </nav>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Aleron MD. A Meridian Project company.</span>
+    <span><a href="mailto:apply@the-meridian-project.com">apply@the-meridian-project.com</a></span>
+  </div>
+</footer>
 
 <script>
 // ============================================================================
