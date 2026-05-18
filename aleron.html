@@ -729,26 +729,32 @@ function render() {
         ? outcome.events.reduce((m, e) => Math.max(m, e.modalAge), -Infinity)
         : outcome.events[0].modalAge;
       const parentEvents = outcome.events.filter(e => e.modalAge < onsetAge - 0.01);
-      const parentY = yV(capacityForOutcome(cond, life, onsetAge, parentEvents));
-      const forkPt = { a: onsetAge, x: xAge(onsetAge), y: parentY };
-      const tail = pts.filter(p => p.a >= onsetAge + 4.0);
-      if (tail.length > 1) {
-        const rampEnd = tail[0];
-        const drawPts = [forkPt];
-        for (let k = 1; k <= 8; k++) {
-          const t = k / 8;
-          drawPts.push({
-            a: onsetAge + (rampEnd.a - onsetAge) * t,
-            x: forkPt.x + (rampEnd.x - forkPt.x) * t,
-            y: forkPt.y + (rampEnd.y - forkPt.y) * t
-          });
-        }
-        drawPts.push(...tail.slice(1));
-        const vitAvg = tail.reduce((acc, p) => acc + p.vit, 0) / tail.length;
+      const forkPt = { a: onsetAge, x: xAge(onsetAge), y: yV(capacityForOutcome(cond, life, onsetAge, parentEvents)) };
+      const blendYears = 10.0;
+      const smoothstep = t => t * t * (3 - 2 * t);
+      const drawPts = [];
+      for (let a = onsetAge; a <= AGE_MAX; a += 0.5) {
+        const raw = Math.min(1, Math.max(0, (a - onsetAge) / blendYears));
+        const mix = smoothstep(raw);
+        const parentYAtAge = yV(capacityForOutcome(cond, life, a, parentEvents));
+        const eventYAtAge = yV(capacityForOutcome(cond, life, a, outcome.events));
+        drawPts.push({
+          a,
+          x: xAge(a),
+          y: parentYAtAge * (1 - mix) + eventYAtAge * mix,
+          vit: vitalityAt(cond, life, a, outcome.events)
+        });
+      }
+      for (let i = 1; i < drawPts.length; i++) {
+        if (drawPts[i].y < drawPts[i - 1].y) drawPts[i].y = drawPts[i - 1].y;
+      }
+      if (drawPts.length > 1) {
+        const vitAvg = drawPts.reduce((acc, p) => acc + p.vit, 0) / drawPts.length;
         const color = vitalityColor(vitAvg);
         const polyPts = drawPts.map(p => `${p.x},${p.y}`).join(' ');
         s += `<polyline points="${polyPts}" fill="none" stroke="${color}" stroke-width="${branchStyle.width}" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="${branchStyle.dash}" opacity="0.92"/>`;
-        s += `<circle cx="${forkPt.x}" cy="${forkPt.y}" r="4.2" fill="#FBF8F1" stroke="${color}" stroke-width="2"/>`;
+        s += `<circle cx="${forkPt.x}" cy="${forkPt.y}" r="6.4" fill="#FBF8F1" stroke="#FBF8F1" stroke-width="3"/>`;
+        s += `<circle cx="${forkPt.x}" cy="${forkPt.y}" r="5.0" fill="#FBF8F1" stroke="${color}" stroke-width="2.4"/>`;
       }
     }
   }
