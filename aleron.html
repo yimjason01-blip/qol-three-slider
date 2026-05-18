@@ -710,9 +710,9 @@ function render() {
     })
     .sort((a, b) => a.y - b.y);
 
-  const minGap = 20;
-  const labelTop = PAD.t + 18;
-  const labelBottom = PAD.t + CH - 24;
+  const minGap = 50;
+  const labelTop = PAD.t + 22;
+  const labelBottom = PAD.t + CH - 44;
   labelData.forEach(ld => { ld.y = Math.max(labelTop, Math.min(labelBottom, ld.y)); });
   for (let i = 1; i < labelData.length; i++) {
     if (labelData[i].y - labelData[i - 1].y < minGap) {
@@ -724,8 +724,9 @@ function render() {
 
   for (const ld of labelData) {
     const xLabel = ld.x + 6;
-    s += `<text x="${xLabel}" y="${ld.y - 1}" style="font-size:13px;fill:#3F3A32;font-weight:700;font-family:'Inter',sans-serif">${ld.pct}%</text>`;
-    s += `<text x="${xLabel + 34}" y="${ld.y - 1}" style="font-size:13px;fill:#4A4A4D;font-family:'Inter',sans-serif;font-weight:500">${ld.outcome.shortLabel}</text>`;
+    // Outcome label on top, percentage stacked beneath it.
+    s += `<text x="${xLabel}" y="${ld.y - 1}" style="font-size:16px;fill:#3F3A32;font-weight:600;font-family:'Inter',sans-serif">${ld.outcome.shortLabel}</text>`;
+    s += `<text x="${xLabel}" y="${ld.y + 19}" style="font-size:18px;fill:#1F1F22;font-family:'Inter',sans-serif;font-weight:700">${ld.pct}%</text>`;
   }
 
   // Cognitive uncertainty cloud — a soft, 50%-opaque paper-toned wash from
@@ -752,7 +753,7 @@ function render() {
   renderLegend(probVisible);
 }
 
-const activeOutcomes = { spared: true, cancer: true, cv: true, both: true };
+const activeOutcomes = { spared: true, cancer: false, cv: false, both: false };
 
 const OUTCOME_SWATCH = {
   spared: '#7A5628',
