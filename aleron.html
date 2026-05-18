@@ -309,7 +309,6 @@
   <div class="chart-wrap">
     <svg id="chart" viewBox="0 0 1080 560" preserveAspectRatio="xMidYMid meet"></svg>
     <div class="legend" id="legend" aria-label="Trajectory toggles"></div>
-    <div class="chart-caption" id="chartCaption"></div>
   </div>
 
   <div class="controls">
@@ -750,8 +749,6 @@ function render() {
   s += `<rect x="${PAD.l}" y="${PAD.t}" width="${CW}" height="${CH}" fill="none" stroke="rgba(10,10,11,0.16)" stroke-width="1"/>`;
 
   svg.innerHTML = s;
-  const caption = document.getElementById('chartCaption');
-  if (caption) caption.textContent = '';
   renderLegend(probVisible);
 }
 
