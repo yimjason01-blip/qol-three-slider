@@ -679,7 +679,12 @@ function render() {
   const probVisible = outcomeSamples.filter(({ outcome }) => outcome.p >= 0.005);
   const visibleOutcomes = probVisible.filter(({ outcome }) => activeOutcomes[outcome.id] !== false);
 
-  const dashStart = (neuroOnset && neuroOnset.opacity > 0) ? neuroOnset.age : 90;
+  // dashStart slides continuously with neuro opacity: at opacity 0 it sits at
+  // age 90 (no cognitive uncertainty rendered), at opacity 1 it sits at the
+  // neuro onset age. Avoids a discrete jump in line-dashing at R = 0.40.
+  const dashStart = neuroOnset
+    ? 90 + (neuroOnset.age - 90) * neuroOnset.opacity
+    : 90;
 
   for (const { outcome, pts } of visibleOutcomes) {
     for (let i = 0; i < pts.length - 1; i++) {
