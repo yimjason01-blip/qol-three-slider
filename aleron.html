@@ -502,16 +502,18 @@ function vitalityAt(condSlider, lifeSlider, age, events) {
   return Math.max(0, Math.min(1, vit));
 }
 
-// Vitality color ramp — high-contrast axis intentionally outside the warm
-// Aleron palette so felt-experience reads clearly against paper. Skips the
-// olive/yellow-green dead zone (which cream paper desaturates) by jumping
-// from amber to saturated green by v=0.55.
+// Vitality color ramp — felt-experience should turn before the functional
+// curve collapses. Average American should read as leaving "good" by the
+// 60s, so amber starts earlier and green is reserved for clearly high
+// vitality. Keep the amber→green transition near-discrete to avoid olive muddling
+// against cream paper.
 function vitalityColor(v) {
   const stops = [
     { v: 0.00, r: 200, g: 25,  b: 55  },  // deep crimson
-    { v: 0.25, r: 232, g: 75,  b: 40  },  // vermillion
-    { v: 0.45, r: 240, g: 145, b: 30  },  // vivid amber
-    { v: 0.55, r: 60,  g: 155, b: 80  },  // saturated green (hard transition)
+    { v: 0.30, r: 232, g: 75,  b: 40  },  // vermillion
+    { v: 0.50, r: 240, g: 145, b: 30  },  // vivid amber
+    { v: 0.579, r: 240, g: 145, b: 30  }, // hold amber once average turns in late 50s
+    { v: 0.58, r: 60,  g: 155, b: 80  },  // near-step jump to saturated green
     { v: 1.00, r: 15,  g: 130, b: 60  },  // deep emerald
   ];
   for (let i = 0; i < stops.length - 1; i++) {
