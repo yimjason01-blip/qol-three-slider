@@ -513,18 +513,13 @@ function vitalityColor(v) {
 
 function neurodegenOnset(condSlider, lifeSlider, riskSlider) {
   const R = effectiveRisk(condSlider, lifeSlider, riskSlider);
-  // Onset age slides continuously with R across the full range; visual
-  // presence (opacity) fades in across R ∈ [0.40, 0.60] so the marker does
-  // not pop in as a binary toggle at R = 0.50.
-  const fadeStart = 0.40, fadeFull = 0.60;
-  const ageAtFloor = 88, ageAtMax = 73;
-  const t = Math.max(0, Math.min(1, (R - 0.10) / 0.85));
+  // Onset age slides continuously with R across the full range. No opacity
+  // gate — the cloud always renders at its computed onset age so the
+  // sliders always do visible work, even at low underlying risk.
+  const ageAtFloor = 95, ageAtMax = 73;
+  const t = Math.max(0, Math.min(1, R / 1.00));
   const onsetAge = ageAtFloor + t * (ageAtMax - ageAtFloor);
-  let opacity;
-  if (R <= fadeStart) opacity = 0;
-  else if (R >= fadeFull) opacity = 1;
-  else opacity = (R - fadeStart) / (fadeFull - fadeStart);
-  return { age: onsetAge, opacity };
+  return { age: onsetAge, opacity: 1 };
 }
 
 const BANDS = [
@@ -679,12 +674,9 @@ function render() {
   const probVisible = outcomeSamples.filter(({ outcome }) => outcome.p >= 0.005);
   const visibleOutcomes = probVisible.filter(({ outcome }) => activeOutcomes[outcome.id] !== false);
 
-  // dashStart slides continuously with neuro opacity: at opacity 0 it sits at
-  // age 90 (no cognitive uncertainty rendered), at opacity 1 it sits at the
-  // neuro onset age. Avoids a discrete jump in line-dashing at R = 0.40.
-  const dashStart = neuroOnset
-    ? 90 + (neuroOnset.age - 90) * neuroOnset.opacity
-    : 90;
+  // dashStart tracks neuro onset age directly. The slider moves the window
+  // visibly across the full R range; the cloud always renders solid grey.
+  const dashStart = neuroOnset ? neuroOnset.age : 95;
 
   for (const { outcome, pts } of visibleOutcomes) {
     for (let i = 0; i < pts.length - 1; i++) {
