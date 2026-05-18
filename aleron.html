@@ -150,11 +150,24 @@
   .legend { display: flex; flex-wrap: wrap; gap: 12px 18px; padding: 16px 4px 2px;
     justify-content: flex-start; }
   .legend-toggle {
-    display: inline-flex; align-items: center; gap: 10px;
+    display: inline-grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 10px;
+    row-gap: 2px;
+    align-items: center;
     background: transparent; border: none; padding: 5px 2px;
     font-size: 14px; letter-spacing: 0.1px; color: var(--ink);
     font-family: 'Inter', sans-serif; cursor: pointer;
     user-select: none; line-height: 1.2;
+    text-align: left;
+  }
+  .legend-toggle .track { grid-row: 1 / span 2; align-self: center; }
+  .legend-toggle .label { grid-column: 2; grid-row: 1; font-weight: 600; }
+  .legend-toggle .pct {
+    grid-column: 2; grid-row: 2;
+    color: var(--text-muted); font-variant-numeric: tabular-nums;
+    font-size: 17px; font-weight: 700; color: var(--ink);
   }
   .legend-toggle .track {
     position: relative; width: 32px; height: 18px;
@@ -172,9 +185,6 @@
     transform: translateX(14px); background: var(--swatch, var(--gold));
   }
   .legend-toggle[data-active="true"] .track { background: rgba(111,74,32,0.22); }
-  .legend-toggle .label { color: var(--ink); }
-  .legend-toggle .pct { color: var(--text-muted); font-variant-numeric: tabular-nums;
-    margin-left: 2px; font-size: 13px; }
   .legend-toggle[data-active="false"] .label,
   .legend-toggle[data-active="false"] .pct { color: var(--text-muted); opacity: 0.72; }
   .legend-toggle:hover .track { background: rgba(10,10,11,0.20); }
