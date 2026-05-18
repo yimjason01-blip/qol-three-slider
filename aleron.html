@@ -719,7 +719,11 @@ function render() {
         outcome.id === 'both'   ? { dash: '8 3 1.5 3', width: 2.2 } :
                                   { dash: '6 4',      width: 1.6 }
       );
-      const onsetAge = outcome.events.reduce((m, e) => Math.min(m, e.modalAge), Infinity);
+      // Single-event branches fork at that event. Compound branches fork only at
+      // the second event, so shared first-event segments are not drawn twice.
+      const onsetAge = outcome.events.length > 1
+        ? outcome.events.reduce((m, e) => Math.max(m, e.modalAge), -Infinity)
+        : outcome.events[0].modalAge;
       const tail = pts.filter(p => p.a >= onsetAge - 0.25);
       if (tail.length > 1) {
         const vitAvg = tail.reduce((acc, p) => acc + p.vit, 0) / tail.length;
