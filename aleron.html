@@ -394,25 +394,29 @@ function effectiveRisk(condSlider, lifeSlider, riskSlider) {
 }
 
 function interpolateAnchors(R, anchors) {
+  const n = anchors.length;
   if (R <= anchors[0][0]) return anchors[0][1];
-  if (R >= anchors[2][0]) return anchors[2][1];
-  for (let i = 0; i < 2; i++) {
+  if (R >= anchors[n-1][0]) return anchors[n-1][1];
+  for (let i = 0; i < n - 1; i++) {
     if (R >= anchors[i][0] && R <= anchors[i+1][0]) {
       const t = (R - anchors[i][0]) / (anchors[i+1][0] - anchors[i][0]);
       return anchors[i][1] * (1 - t) + anchors[i+1][1] * t;
     }
   }
-  return anchors[2][1];
+  return anchors[n-1][1];
 }
 
+// Anchors extended to R_eff ∈ [0.05, 0.95] so corner slider combinations
+// (high-risk + elite fit, low-risk + deconditioned) remain responsive instead
+// of clamping against a [0.30, 0.80] floor/ceiling.
 const FORK_EVENTS = [
   { id: 'cancer', name: 'Cancer treatment', shortName: 'cancer',
-    pAnchors: [[0.30, 0.25], [0.55, 0.40], [0.80, 0.55]],
-    ageAnchors: [[0.30, 70], [0.55, 65], [0.80, 58]],
+    pAnchors: [[0.05, 0.18], [0.30, 0.25], [0.55, 0.40], [0.80, 0.55], [0.95, 0.68]],
+    ageAnchors: [[0.05, 73], [0.30, 70], [0.55, 65], [0.80, 58], [0.95, 54]],
     drop: 0.25, tau: 24, recoveryFrac: 0.20 },
   { id: 'cv', name: 'CV event', shortName: 'CV',
-    pAnchors: [[0.30, 0.10], [0.55, 0.30], [0.80, 0.55]],
-    ageAnchors: [[0.30, 82], [0.55, 75], [0.80, 67]],
+    pAnchors: [[0.05, 0.05], [0.30, 0.10], [0.55, 0.30], [0.80, 0.55], [0.95, 0.68]],
+    ageAnchors: [[0.05, 85], [0.30, 82], [0.55, 75], [0.80, 67], [0.95, 63]],
     drop: 0.25, tau: 6, recoveryFrac: 0.75 }
 ];
 
@@ -502,10 +506,18 @@ function vitalityColor(v) {
 
 function neurodegenOnset(condSlider, lifeSlider, riskSlider) {
   const R = effectiveRisk(condSlider, lifeSlider, riskSlider);
-  const threshold = 0.50, ageAtThresh = 84, ageAtMax = 73;
-  if (R < threshold) return null;
-  const t = (R - threshold) / (1 - threshold);
-  return ageAtThresh + t * (ageAtMax - ageAtThresh);
+  // Onset age slides continuously with R across the full range; visual
+  // presence (opacity) fades in across R ∈ [0.40, 0.60] so the marker does
+  // not pop in as a binary toggle at R = 0.50.
+  const fadeStart = 0.40, fadeFull = 0.60;
+  const ageAtFloor = 88, ageAtMax = 73;
+  const t = Math.max(0, Math.min(1, (R - 0.10) / 0.85));
+  const onsetAge = ageAtFloor + t * (ageAtMax - ageAtFloor);
+  let opacity;
+  if (R <= fadeStart) opacity = 0;
+  else if (R >= fadeFull) opacity = 1;
+  else opacity = (R - fadeStart) / (fadeFull - fadeStart);
+  return { age: onsetAge, opacity };
 }
 
 const BANDS = [
@@ -660,7 +672,7 @@ function render() {
   const probVisible = outcomeSamples.filter(({ outcome }) => outcome.p >= 0.005);
   const visibleOutcomes = probVisible.filter(({ outcome }) => activeOutcomes[outcome.id] !== false);
 
-  const dashStart = neuroOnset != null ? neuroOnset : 90;
+  const dashStart = (neuroOnset && neuroOnset.opacity > 0) ? neuroOnset.age : 90;
 
   for (const { outcome, pts } of visibleOutcomes) {
     for (let i = 0; i < pts.length - 1; i++) {
@@ -712,10 +724,13 @@ function render() {
     s += `<text x="${xLabel + 34}" y="${ld.y - 1}" style="font-size:13px;fill:#4A4A4D;font-family:'Inter',sans-serif;font-weight:500">${ld.outcome.shortLabel}</text>`;
   }
 
-  // Neurodegen / 90+ annotation
-  if (neuroOnset != null) {
-    const x = xAge(neuroOnset);
-    s += `<line x1="${x}" y1="${PAD.t + 4}" x2="${x}" y2="${PAD.t + CH}" stroke="rgba(10,10,11,0.30)" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.7"/>`;
+  // Neurodegen / 90+ annotation. Marker opacity fades in continuously
+  // across R_eff ∈ [0.40, 0.60] so it does not pop as a binary toggle.
+  if (neuroOnset && neuroOnset.opacity > 0) {
+    const x = xAge(neuroOnset.age);
+    const baseAlpha = 0.30;
+    const alpha = baseAlpha * neuroOnset.opacity;
+    s += `<line x1="${x}" y1="${PAD.t + 4}" x2="${x}" y2="${PAD.t + CH}" stroke="rgba(10,10,11,${alpha.toFixed(3)})" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.9"/>`;
     // Late dashed segments are explained below the plot.
   } else {
     const x = xAge(90);
